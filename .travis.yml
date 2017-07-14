@@ -27,22 +27,22 @@ env:
 
 matrix:
   include:
-  - language: c
-    os: linux
-    compiler: clang
-    env: BUILD_ARGS="-DNOSERVER=1 -DBUILD_ENGINE_C=1"
-  - language: c
-    os: osx
-    compiler: clang
-    env: BUILD_ARGS="-DNOSERVER=1 -DBUILD_ENGINE_C=1"
-  - language: c
-    os: linux
-    compiler: clang
-    env: BUILD_ARGS="-DNOSERVER=1 -DBUILD_ENGINE_C=1 -DGL2=1"
-  - language: c
-    os: osx
-    compiler: clang
-    env: BUILD_ARGS="-DNOSERVER=1 -DBUILD_ENGINE_C=1 -DGL2=1"
+  # - language: c
+  #   os: linux
+  #   compiler: clang
+  #   env: BUILD_ARGS="-DNOSERVER=1 -DBUILD_ENGINE_C=1"
+  # - language: c
+  #   os: osx
+  #   compiler: clang
+  #   env: BUILD_ARGS="-DNOSERVER=1 -DBUILD_ENGINE_C=1"
+  # - language: c
+  #   os: linux
+  #   compiler: clang
+  #   env: BUILD_ARGS="-DNOSERVER=1 -DBUILD_ENGINE_C=1 -DGL2=1"
+  # - language: c
+  #   os: osx
+  #   compiler: clang
+  #   env: BUILD_ARGS="-DNOSERVER=1 -DBUILD_ENGINE_C=1 -DGL2=1"
   - language: objective-c
     sudo: required
     os: osx
