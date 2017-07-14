@@ -3,7 +3,7 @@ dist: trusty
 language: c
 sudo: true
 os:
-  - linux
+  # - linux
   - osx
 
 branches:
@@ -11,7 +11,7 @@ branches:
     master
 
 compiler:
-  - gcc
+  # - gcc
   - clang
 
 matrix:
