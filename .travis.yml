@@ -112,14 +112,14 @@ after_success: |
     make install
   fi
 
-notifications:
-  email: false
-  irc:
-    channels:
-      - "chat.freenode.net#hedgewars"
-    template:
-      - "hw-build #%{build_number} (%{commit} by %{author}): %{message}"
-      - "See details at %{build_url}"
-    on_success: change
-    on_failure: always
-    skip_join: false
+# notifications:
+#   email: false
+#   irc:
+#     channels:
+#       - "chat.freenode.net#hedgewars"
+#     template:
+#       - "hw-build #%{build_number} (%{commit} by %{author}): %{message}"
+#       - "See details at %{build_url}"
+#     on_success: change
+#     on_failure: always
+#     skip_join: false
