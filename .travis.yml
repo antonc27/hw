@@ -111,6 +111,7 @@ after_success: |
   elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
     make install
   fi
+  
 
 # notifications:
 #   email: false
