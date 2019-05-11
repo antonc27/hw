@@ -23,6 +23,7 @@
 #include "togglebutton.h"
 
 class FreqSpinBox;
+class SDTimeoutSpinBox;
 class MinesTimeSpinBox;
 
 class PageScheme : public AbstractPage
@@ -75,11 +76,12 @@ class PageScheme : public AbstractPage
         ToggleButtonWidget * TBW_morewind;
         ToggleButtonWidget * TBW_tagteam;
         ToggleButtonWidget * TBW_bottomborder;
+        ToggleButtonWidget * TBW_switchhog;
 
         QSpinBox * SB_DamageModifier;
         QSpinBox * SB_TurnTime;
         QSpinBox * SB_InitHealth;
-        QSpinBox * SB_SuddenDeath;
+        SDTimeoutSpinBox * SB_SuddenDeath;
         QSpinBox * SB_WaterRise;
         QSpinBox * SB_HealthDecrease;
         FreqSpinBox * SB_CaseProb;
@@ -94,13 +96,19 @@ class PageScheme : public AbstractPage
         QSpinBox * SB_GetAwayTime;
         QComboBox * CB_WorldEdge;
         QLineEdit * LE_name;
+        QLabel * L_name;
         QLineEdit * LE_ScriptParam;
 
         QGroupBox * gbGameModes;
         QGroupBox * gbBasicSettings;
 
+        bool changingSchemes;
+
+        void checkDupe();
+
     private slots:
         void schemeSelected(int);
+        void dataChanged(QModelIndex topLeft, QModelIndex bottomRight);
 };
 
 #endif

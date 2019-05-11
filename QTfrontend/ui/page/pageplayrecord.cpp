@@ -136,8 +136,9 @@ void PagePlayDemo::renameRecord()
     {
         QMessageBox recordMsg(this);
         recordMsg.setIcon(QMessageBox::Warning);
-        recordMsg.setWindowTitle(QMessageBox::tr("Record Play - Error"));
-        recordMsg.setText(QMessageBox::tr("Please select record from the list"));
+        recordMsg.setWindowTitle(QMessageBox::tr("Error"));
+        recordMsg.setText(QMessageBox::tr("Please select a file from the list."));
+        recordMsg.setTextFormat(Qt::PlainText);
         recordMsg.setWindowModality(Qt::WindowModal);
         recordMsg.exec();
         return ;
@@ -163,8 +164,9 @@ void PagePlayDemo::renameRecord()
         {
             QMessageBox renameMsg(this);
             renameMsg.setIcon(QMessageBox::Warning);
-            renameMsg.setWindowTitle(QMessageBox::tr("Record Play - Error"));
-            renameMsg.setText(QMessageBox::tr("Cannot rename to ") + newfullname);
+            renameMsg.setWindowTitle(QMessageBox::tr("Error"));
+            renameMsg.setText(QMessageBox::tr("Cannot rename file to %1.").arg(newfullname));
+            renameMsg.setTextFormat(Qt::PlainText);
             renameMsg.setWindowModality(Qt::WindowModal);
             renameMsg.exec();
         }
@@ -180,8 +182,9 @@ void PagePlayDemo::removeRecord()
     {
         QMessageBox recordMsg(this);
         recordMsg.setIcon(QMessageBox::Warning);
-        recordMsg.setWindowTitle(QMessageBox::tr("Record Play - Error"));
-        recordMsg.setText(QMessageBox::tr("Please select record from the list"));
+        recordMsg.setWindowTitle(QMessageBox::tr("Error"));
+        recordMsg.setText(QMessageBox::tr("Please select a file from the list."));
+        recordMsg.setTextFormat(Qt::PlainText);
         recordMsg.setWindowModality(Qt::WindowModal);
         recordMsg.exec();
         return ;
@@ -195,8 +198,9 @@ void PagePlayDemo::removeRecord()
     {
         QMessageBox removeMsg(this);
         removeMsg.setIcon(QMessageBox::Warning);
-        removeMsg.setWindowTitle(QMessageBox::tr("Record Play - Error"));
-        removeMsg.setText(QMessageBox::tr("Cannot delete file ") + rfile.fileName());
+        removeMsg.setWindowTitle(QMessageBox::tr("Error"));
+        removeMsg.setText(QMessageBox::tr("Cannot delete file %1.").arg(rfile.fileName()));
+        removeMsg.setTextFormat(Qt::PlainText);
         removeMsg.setWindowModality(Qt::WindowModal);
         removeMsg.exec();
     }

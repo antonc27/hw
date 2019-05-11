@@ -64,7 +64,6 @@ bool checkForDir(const QString & dir);
 // last game info
 extern QList<QVariant> lastGameStartArgs;
 extern GameType lastGameType;
-extern QString lastTrainingSubFolder;
 extern GameCFGWidget * lastGameCfg;
 extern QString lastGameAmmo;
 extern TeamSelWidget * lastGameTeamSel;
@@ -77,10 +76,11 @@ class HWGame : public TCPBase
         virtual ~HWGame();
         void AddTeam(const QString & team);
         void PlayDemo(const QString & demofilename, bool isSave);
+        void PlayOfficialServerDemo();
         void StartLocal();
         void StartQuick();
         void StartNet();
-        void StartTraining(const QString & file, const QString & subFolder);
+        void StartTraining(const QString & file, const QString & subFolder, const QString & trainTeam);
         void StartCampaign(const QString & camp, const QString & campScript, const QString & campTeam);
         void abort();
         GameState gameState;
@@ -100,11 +100,14 @@ class HWGame : public TCPBase
         void HaveRecord(RecordType type, const QByteArray & record);
         void ErrorMessage(const QString &);
         void CampStateChanged(int);
+        void TrainingStateChanged(int);
         void SendConsoleCommand(const QString & command);
 
     public slots:
         void FromNet(const QByteArray & msg);
         void FromNetChat(const QString & msg);
+        void FromNetWarning(const QString & msg);
+        void FromNetError(const QString & msg);
 
     private:
         char msgbuf[MAXMSGCHARS];
@@ -125,6 +128,8 @@ class HWGame : public TCPBase
         void SetGameState(GameState state);
         void sendCampaignVar(const QByteArray & varToSend);
         void writeCampaignVar(const QByteArray &varVal);
+        void sendMissionVar(const QByteArray & varToSend);
+        void writeMissionVar(const QByteArray &varVal);
         void flushNetBuffer();
 };
 

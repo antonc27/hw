@@ -53,7 +53,7 @@ var tmpsurf: PSDL_Surface;
     x, yd, yu: LongInt;
     targetMask: Word;
 begin
-    tmpsurf:= LoadDataImage(ptCurrTheme, 'Border', ifCritical or ifIgnoreCaps or ifTransparent);
+    tmpsurf:= LoadDataImage(ptCurrTheme, 'Border', ifCritical or ifIgnoreCaps or ifColorKey);
 
     // if mask only, all land gets filled with landtex and therefore needs borders
     if maskOnly then
@@ -251,7 +251,7 @@ begin
     SDL_UnlockSurface(mapsurf);
 
     // freed in freeModule() below
-    LandBackSurface:= LoadDataImage(ptCurrTheme, 'LandBackTex', ifIgnoreCaps or ifTransparent);
+    LandBackSurface:= LoadDataImage(ptCurrTheme, 'LandBackTex', ifIgnoreCaps or ifColorKey);
     if (LandBackSurface <> nil) and GrayScale then Surface2GrayScale(LandBackSurface);
 end;
 
@@ -278,20 +278,20 @@ begin
     SDL_FreeSurface(tmpsurf);
 
     // freed in freeModule() below
-    LandBackSurface:= LoadDataImage(ptCurrTheme, 'LandBackTex', ifIgnoreCaps or ifTransparent);
+    LandBackSurface:= LoadDataImage(ptCurrTheme, 'LandBackTex', ifIgnoreCaps or ifColorKey);
     if (LandBackSurface <> nil) and GrayScale then Surface2GrayScale(LandBackSurface);
 end;
 
 
 procedure GenDrawnMap;
 begin
-    ResizeLand(4096, 2048);
+    ResizeLand((4096 * max(min(cFeatureSize,24),3)) div 12, (2048 * max(min(cFeatureSize,24),3)) div 12);
     uLandPainted.Draw;
 
-    MaxHedgehogs:= 48;
+    MaxHedgehogs:= 64;
     hasGirders:= true;
-    playHeight:= 2048;
-    playWidth:= 4096;
+    playHeight:= LAND_HEIGHT;
+    playWidth:= LAND_WIDTH;
     leftX:= ((LAND_WIDTH - playWidth) div 2);
     rightX:= (playWidth + ((LAND_WIDTH - playWidth) div 2)) - 1;
     topY:= LAND_HEIGHT - playHeight;
@@ -300,10 +300,11 @@ end;
 function SelectTemplate: LongInt;
 var l: LongInt;
 begin
+    SelectTemplate:= 0;
     if (cReducedQuality and rqLowRes) <> 0 then
         SelectTemplate:= SmallTemplates[getrandom(Succ(High(SmallTemplates)))]
     else
-    begin
+        begin
         if cTemplateFilter = 0 then
             begin
             l:= getRandom(GroupedTemplatesCount);
@@ -311,22 +312,23 @@ begin
                 inc(cTemplateFilter);
                 dec(l, TemplateCounts[cTemplateFilter]);
             until l < 0;
-            end else getRandom(1);
+            end
+            else getRandom(1);
 
-        case cTemplateFilter of
-        0: OutError('Ask unC0Rr about what you did wrong', true);
-        1: SelectTemplate:= SmallTemplates[getrandom(TemplateCounts[cTemplateFilter])];
-        2: SelectTemplate:= MediumTemplates[getrandom(TemplateCounts[cTemplateFilter])];
-        3: SelectTemplate:= LargeTemplates[getrandom(TemplateCounts[cTemplateFilter])];
-        4: SelectTemplate:= CavernTemplates[getrandom(TemplateCounts[cTemplateFilter])];
-        5: SelectTemplate:= WackyTemplates[getrandom(TemplateCounts[cTemplateFilter])];
-// For lua only!
-        6: begin
-           SelectTemplate:= min(LuaTemplateNumber,High(EdgeTemplates));
-           GetRandom(2) // burn 1
-           end
-        end
-    end;
+            case cTemplateFilter of
+            0: OutError('Error selecting TemplateFilter. Ask unC0Rr about what you did wrong', true);
+            1: SelectTemplate:= SmallTemplates[getrandom(TemplateCounts[cTemplateFilter])];
+            2: SelectTemplate:= MediumTemplates[getrandom(TemplateCounts[cTemplateFilter])];
+            3: SelectTemplate:= LargeTemplates[getrandom(TemplateCounts[cTemplateFilter])];
+            4: SelectTemplate:= CavernTemplates[getrandom(TemplateCounts[cTemplateFilter])];
+            5: SelectTemplate:= WackyTemplates[getrandom(TemplateCounts[cTemplateFilter])];
+    // For lua only!
+            6: begin
+               SelectTemplate:= min(LuaTemplateNumber,High(EdgeTemplates));
+               GetRandom(2) // burn 1
+               end
+            end
+        end;
 
     WriteLnToConsole('Selected template #'+inttostr(SelectTemplate)+' using filter #'+inttostr(cTemplateFilter));
 end;
@@ -376,8 +378,8 @@ begin
 
     if gameFlags and gfShoppaBorder <> 0 then DrawShoppaBorder;
 
-    for x:= leftX+2 to rightX-2 do
-        for y:= topY+2 to LAND_HEIGHT-3 do
+    for x:= LongWord(leftX+2) to LongWord(rightX-2) do
+        for y:= LongWord(topY+2) to LAND_HEIGHT-3 do
             if (Land[y, x] = 0) and
                (((Land[y, x-1] = lfBasic) and ((Land[y+1,x] = lfBasic)) or (Land[y-1,x] = lfBasic)) or
                ((Land[y, x+1] = lfBasic) and ((Land[y-1,x] = lfBasic) or (Land[y+1,x] = lfBasic)))) then
@@ -544,11 +546,11 @@ for i := 0 to ClansCount - 1 do
     if mirror then
         begin
         // not critical because if no R we can fallback to mirrored L
-        tmpsurf:= LoadDataImage(ptForts, SpawnClansArray[i]^.Teams[0]^.FortName + 'R', ifAlpha or ifTransparent or ifIgnoreCaps);
+        tmpsurf:= LoadDataImage(ptForts, SpawnClansArray[i]^.Teams[0]^.FortName + 'R', ifAlpha or ifColorKey or ifIgnoreCaps);
         // fallback
         if tmpsurf = nil then
             begin
-            tmpsurf:= LoadDataImage(ptForts, SpawnClansArray[i]^.Teams[0]^.FortName + 'L', ifAlpha or ifCritical or ifTransparent or ifIgnoreCaps);
+            tmpsurf:= LoadDataImage(ptForts, SpawnClansArray[i]^.Teams[0]^.FortName + 'L', ifAlpha or ifCritical or ifColorKey or ifIgnoreCaps);
             BlitImageAndGenerateCollisionInfo(leftX + sectionWidth * i + ((sectionWidth - tmpsurf^.w) div 2), LAND_HEIGHT - tmpsurf^.h, tmpsurf^.w, tmpsurf, 0, true);
             end
         else
@@ -557,7 +559,7 @@ for i := 0 to ClansCount - 1 do
         end
     else
         begin
-        tmpsurf:= LoadDataImage(ptForts, SpawnClansArray[i]^.Teams[0]^.FortName + 'L', ifAlpha or ifCritical or ifTransparent or ifIgnoreCaps);
+        tmpsurf:= LoadDataImage(ptForts, SpawnClansArray[i]^.Teams[0]^.FortName + 'L', ifAlpha or ifCritical or ifColorKey or ifIgnoreCaps);
         BlitImageAndGenerateCollisionInfo(leftX + sectionWidth * i + ((sectionWidth - tmpsurf^.w) div 2), LAND_HEIGHT - tmpsurf^.h, tmpsurf^.w, tmpsurf);
         SDL_FreeSurface(tmpsurf);
         end;
@@ -597,11 +599,11 @@ var tmpsurf: PSDL_Surface;
     x, y, cpX, cpY: Longword;
     mapName: shortstring;
 begin
-tmpsurf:= LoadDataImage(ptMapCurrent, 'mask', ifAlpha or ifTransparent or ifIgnoreCaps);
+tmpsurf:= LoadDataImage(ptMapCurrent, 'mask', ifAlpha or ifColorKey or ifIgnoreCaps);
 if tmpsurf = nil then
     begin
     mapName:= ExtractFileName(cPathz[ptMapCurrent]);
-    tmpsurf:= LoadDataImage(ptMissionMaps, mapName + '/mask', ifAlpha or ifTransparent or ifIgnoreCaps);
+    tmpsurf:= LoadDataImage(ptMissionMaps, mapName + '/mask', ifAlpha or ifColorKey or ifIgnoreCaps);
     end;
 
 
@@ -639,7 +641,7 @@ if (tmpsurf <> nil) and (tmpsurf^.format^.BytesPerPixel = 4) then
         if not disableLandBack then
             begin
             // freed in freeModule() below
-            LandBackSurface:= LoadDataImage(ptCurrTheme, 'LandBackTex', ifIgnoreCaps or ifTransparent);
+            LandBackSurface:= LoadDataImage(ptCurrTheme, 'LandBackTex', ifIgnoreCaps or ifColorKey);
             if (LandBackSurface <> nil) and GrayScale then
                 Surface2GrayScale(LandBackSurface)
             end;
@@ -656,11 +658,11 @@ var tmpsurf: PSDL_Surface;
 begin
 WriteLnToConsole('Loading land from file...');
 AddProgress;
-tmpsurf:= LoadDataImage(ptMapCurrent, 'map', ifAlpha or ifTransparent or ifIgnoreCaps);
+tmpsurf:= LoadDataImage(ptMapCurrent, 'map', ifAlpha or ifColorKey or ifIgnoreCaps);
 if tmpsurf = nil then
     begin
     mapName:= ExtractFileName(cPathz[ptMapCurrent]);
-    tmpsurf:= LoadDataImage(ptMissionMaps, mapName + '/map', ifAlpha or ifCritical or ifTransparent or ifIgnoreCaps);
+    tmpsurf:= LoadDataImage(ptMissionMaps, mapName + '/map', ifAlpha or ifCritical or ifColorKey or ifIgnoreCaps);
     if not allOK then exit;
     end;
 // (bare) Sanity check. Considering possible LongInt comparisons as well as just how much system memoery it would take
@@ -692,7 +694,7 @@ procedure DrawBottomBorder; // broken out from other borders for doing a floor-o
 var x, w, c, y: Longword;
 begin
 for w:= 0 to 23 do
-    for x:= leftX to rightX do
+    for x:= LongWord(leftX) to LongWord(rightX) do
         begin
         y:= Longword(cWaterLine) - 1 - w;
         Land[y, x]:= lfIndestructible;
@@ -717,10 +719,6 @@ begin
 
     LoadThemeConfig;
 
-    // is this not needed any more? lets hope setlength sets also 0s
-    //if ((GameFlags and gfForts) <> 0) or (Pathz[ptMapCurrent] <> '') then
-    //    FillChar(Land,SizeOf(TCollisionArray),0);*)
-
     if cPathz[ptMapCurrent] <> '' then
         begin
         map:= cPathz[ptMapCurrent] + '/map.png';
@@ -741,7 +739,7 @@ begin
             mgMaze  : begin ResizeLand(4096,2048); GenMaze; end;
             mgPerlin: begin ResizeLand(4096,2048); GenPerlin; end;
             mgDrawn : GenDrawnMap;
-            mgForts : begin GameFlags:= (GameFlags or gfForts or gfDivideTeams); MakeFortsMap(); end;
+            mgForts : begin GameFlags:= (GameFlags or gfDivideTeams); MakeFortsMap(); end;
         else
             OutError('Unknown mapgen', true);
         end;
@@ -756,8 +754,8 @@ c:= 0;
 if (GameFlags and gfBorder) <> 0 then
     hasBorder:= true
 else
-    for y:= topY to topY + 5 do
-        for x:= leftX to rightX do
+    for y:= LongWord(topY) to LongWord(topY + 5) do
+        for x:= LongWord(leftX) to LongWord(rightX) do
             if Land[y, x] <> 0 then
                 begin
                 inc(c);
@@ -774,12 +772,12 @@ if hasBorder then
         begin
         for y:= 0 to LAND_HEIGHT - 1 do
             for x:= 0 to LAND_WIDTH - 1 do
-                if (y < topY) or (x < leftX) or (x > rightX) then
+                if (y < LongWord(topY)) or (x < LongWord(leftX)) or (x > LongWord(rightX)) then
                     Land[y, x]:= lfIndestructible;
         end
     else if topY > 0 then
         begin
-        for y:= 0 to LongInt(topY) - 1 do
+        for y:= 0 to LongWord(topY - 1) do
             for x:= 0 to LAND_WIDTH - 1 do
                 Land[y, x]:= lfIndestructible;
         end;
@@ -788,7 +786,7 @@ if hasBorder then
     for w:= 0 to 5 do // width of 3 allowed hogs to be knocked through with grenade
         begin
         if (WorldEdge <> weBounce) and (WorldEdge <> weWrap) then
-            for y:= topY to LAND_HEIGHT - 1 do
+            for y:= LongWord(topY) to LAND_HEIGHT - 1 do
                     begin
                     Land[y, leftX + w]:= lfIndestructible;
                     Land[y, rightX - w]:= lfIndestructible;
@@ -813,7 +811,7 @@ if hasBorder then
                         end;
                     end;
 
-        for x:= leftX to rightX do
+        for x:= LongWord(leftX) to LongWord(rightX) do
             begin
             Land[topY + w, x]:= lfIndestructible;
             if (x + w) mod 32 < 16 then
@@ -835,7 +833,7 @@ if (GameFlags and gfBottomBorder) <> 0 then
 if (GameFlags and gfDisableGirders) <> 0 then
     hasGirders:= false;
 
-if (GameFlags and gfForts = 0) and (maskOnly or (cPathz[ptMapCurrent] = '')) then
+if (cMapGen <> mgForts) and (maskOnly or (cPathz[ptMapCurrent] = '')) then
     AddObjects
 
 else
@@ -848,8 +846,8 @@ if not allOK then exit;
 if GrayScale then
     begin
     if (cReducedQuality and rqBlurryLand) = 0 then
-        for x:= leftX to rightX do
-            for y:= topY to LAND_HEIGHT-1 do
+        for x:= LongWord(leftX) to LongWord(rightX) do
+            for y:= LongWord(topY) to LAND_HEIGHT-1 do
                 begin
                 w:= LandPixels[y,x];
                 w:= round(((w shr RShift and $FF) * RGB_LUMINANCE_RED +
@@ -861,8 +859,8 @@ if GrayScale then
                 LandPixels[y,x]:= w or (LandPixels[y, x] and AMask)
                 end
     else
-        for x:= leftX div 2 to rightX div 2 do
-            for y:= topY div 2 to LAND_HEIGHT-1 div 2 do
+        for x:= LongWord(leftX div 2) to LongWord(rightX div 2) do
+            for y:= LongWord(topY div 2) to LAND_HEIGHT-1 div 2 do
                 begin
                 w:= LandPixels[y div 2,x div 2];
                 w:= ((w shr RShift and $FF) +  (w shr BShift and $FF) + (w shr GShift and $FF)) div 3;
@@ -877,6 +875,7 @@ PrettifyLandAlpha();
 if (WorldEdge <> weNone) and (not hasBorder) then
     InitWorldEdges();
 
+ScriptSetMapGlobals;
 end;
 
 procedure GenPreview(out Preview: TPreview);
@@ -887,15 +886,25 @@ begin
         mgRandom: GenTemplated(EdgeTemplates[SelectTemplate]);
         mgMaze: begin ResizeLand(4096,2048); GenMaze; end;
         mgPerlin: begin ResizeLand(4096,2048); GenPerlin; end;
-        mgDrawn: GenDrawnMap;
+        mgDrawn: begin cFeatureSize:= 3;GenDrawnMap; end;
         mgForts: MakeFortsPreview();
     else
         OutError('Unknown mapgen', true);
     end;
 
+    ScriptSetMapGlobals;
+
     // strict scaling needed here since preview assumes a rectangle
-    rh:= max(LAND_HEIGHT,2048);
-    rw:= max(LAND_WIDTH,4096);
+    if (cMapGen <> mgDrawn) then
+        begin
+        rh:= max(LAND_HEIGHT, 2048);
+        rw:= max(LAND_WIDTH, 4096);
+        end
+    else
+        begin
+        rh:= LAND_HEIGHT;
+        rw:= LAND_WIDTH
+        end;
     ox:= 0;
     if rw < rh*2 then
         begin
@@ -936,15 +945,27 @@ begin
         mgRandom: GenTemplated(EdgeTemplates[SelectTemplate]);
         mgMaze: begin ResizeLand(4096,2048); GenMaze; end;
         mgPerlin: begin ResizeLand(4096,2048); GenPerlin; end;
-        mgDrawn: GenDrawnMap;
+        mgDrawn: begin cFeatureSize:= 3;GenDrawnMap; end;
         mgForts: MakeFortsPreview;
     else
         OutError('Unknown mapgen', true);
     end;
 
+    ScriptSetMapGlobals;
+
+
     // strict scaling needed here since preview assumes a rectangle
-    rh:= max(LAND_HEIGHT, 2048);
-    rw:= max(LAND_WIDTH, 4096);
+    if (cMapGen <> mgDrawn) then
+        begin
+        rh:= max(LAND_HEIGHT, 2048);
+        rw:= max(LAND_WIDTH, 4096);
+        end
+    else
+        begin
+        rh:= LAND_HEIGHT;
+        rw:= LAND_WIDTH
+        end;
+
     ox:= 0;
     if rw < rh*2 then
         begin
@@ -978,18 +999,19 @@ begin
     if digest = '' then
         digest:= s
     else
-        checkFails(s = digest, 'Different maps generated, sorry', true);
+        checkFails(s = digest, 'Loaded map or other critical resource does not match across all players', true);
 end;
 
 procedure chSendLandDigest(var s: shortstring);
-var adler, i: LongInt;
+var i: LongInt;
+    landPixelDigest  : LongInt;
 begin
-    adler:= 1;
+    landPixelDigest:= 1;
     for i:= 0 to LAND_HEIGHT-1 do
-        adler:= Adler32Update(adler, @Land[i,0], LAND_WIDTH);
-    s:= 'M' + IntToStr(adler) + cScriptName;
+        landPixelDigest:= Adler32Update(landPixelDigest, @Land[i,0], LAND_WIDTH*2);
+    s:= 'M' + IntToStr(syncedPixelDigest)+'|'+IntToStr(landPixelDigest);
 
-    ScriptSetString('LandDigest', s);
+    ScriptSetString('LandDigest',IntToStr(landPixelDigest));
 
     chLandCheck(s);
     if allOK then SendIPCRaw(@s[0], Length(s) + 1)

@@ -118,11 +118,19 @@ function initCheckpoint(mission)
 	if GetCampaignVar("CurrentMission") ~= mission then
 		SaveCampaignVar("CurrentMission", mission)
 		SaveCampaignVar("CurrentMissionCheckpoint", 1)
-		SaveCampaignVar("HogsPosition", "")
 	else
-		checkPoint = tonumber(GetCampaignVar("currentMissionCheckpoint"))
+		checkPoint = tonumber(GetCampaignVar("CurrentMissionCheckpoint"))
 	end
 	return checkPoint
+end
+
+-- Reset mission checkpoint to 1
+-- Returns true if the player reached a checkpoint before, false otherwise.
+function resetCheckpoint(mission)
+	local cp = tonumber(GetCampaignVar("CurrentMissionCheckpoint"))
+	SaveCampaignVar("CurrentMissionCheckpoint", 1)
+
+	return (type(cp) == "number" and cp > 1)
 end
 
 function saveCheckpoint(cp)
@@ -174,4 +182,13 @@ function split(s, delimiter)
 		table.insert(res, tonumber(first))
 	end
 	return res
+end
+
+-- Send team ranking stats. Teams is a list of teams in the desired order.
+-- The default kills counter is used.
+function sendSimpleTeamRankings(teams)
+	for t=1, #teams do
+		local teamname = teams[t]
+		SendStat(siPlayerKills, GetTeamStats(teamname).Kills, teamname)
+	end
 end

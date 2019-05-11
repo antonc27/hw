@@ -4,6 +4,7 @@ local player = nil -- This variable will point to the hog's gear
 local p2 = nil
 local enemy = nil
 local bCrate = nil
+local playerTeamName = loc("Feeble Resistance")
 
 local GameOver = false
 
@@ -17,19 +18,17 @@ function onGameInit()
 	MinesNum = 0 -- The number of mines being placed
 	MinesTime  = 1
 	Explosives = 0 -- The number of explosives being placed
-	Delay = 10 -- The delay between each round
 	Map = "Mushrooms" -- The map to be played
 	Theme = "Nature" -- The theme to be used
 	-- Disable Sudden Death
 	HealthDecrease = 0
 	WaterRise = 0
 
-	AddTeam(loc("Feeble Resistance"), 14483456, "Simple", "Island", "Default", "cm_kiwi")
-	player = AddHog(loc("Greg"), 0, 50, "NoHat")
-	p2 = AddHog(loc("Mark"), 0, 20, "NoHat")
+	playerTeamName = AddMissionTeam(-1)
+	player = AddMissionHog(50)
+	p2 = AddMissionHog(20)
 
-	--AddTeam("Toxic Team", 	1175851, "Simple", "Island", "Robot","cm_binary")
-	AddTeam(loc("Cybernetic Empire"), 	1175851, "Simple", "Island", "Robot", "cm_cyborg")
+	AddTeam(loc("Cybernetic Empire"), -6, "ring", "Island", "Robot", "cm_cyborg")
 	enemy = AddHog(loc("Unit 3378"), 5, 30, "cyborg1")
 
 	SetGearPosition(player,1403,235)
@@ -60,26 +59,16 @@ function onGameStart()
 	AddGear(1001,356,gtMine, 0, 0, 0, 0)
 
 	-- crates crates and more crates
-	bCrate = SpawnAmmoCrate(1688,476,amBaseballBat)
-	SpawnUtilityCrate(572,143,amGirder)
-	SpawnAmmoCrate(1704,954,amPickHammer)
-	SpawnAmmoCrate(704,623,amBlowTorch)
-	SpawnUtilityCrate(1543,744,amJetpack)
-	SpawnAmmoCrate(227,442,amDrill)
+	bCrate = SpawnSupplyCrate(1688,476,amBaseballBat)
+	SpawnSupplyCrate(572,143,amGirder)
+	SpawnSupplyCrate(1704,954,amPickHammer)
+	SpawnSupplyCrate(704,623,amBlowTorch)
+	SpawnSupplyCrate(1543,744,amJetpack)
+	SpawnSupplyCrate(227,442,amDrill)
 
 	ShowMission(loc("Teamwork"), loc("Scenario"), loc("Eliminate Unit 3378.") .. "|" .. loc("Both your hedgehogs must survive.") .. "|" .. loc("Mines time: 0 seconds"), 0, 0)
 
 end
-
-
---function onGameTick()
-
-	--if CurrentHedgehog ~= nil then
-	--	AddCaption(GetX(CurrentHedgehog) .. ";" .. GetY(CurrentHedgehog))
-	--end
-
---end
-
 
 function onAmmoStoreInit()
 	SetAmmo(amBlowTorch, 0, 0, 0, 1)
@@ -92,20 +81,16 @@ function onAmmoStoreInit()
 	SetAmmo(amSkip, 9, 0, 0, 0)
 end
 
-function onGearDamage(gear, damage)
-	if (gear == player) and (damage == 30) then
-		HogSay(player,loc("T_T"),SAY_SHOUT)
-	end
-end
-
 function onGearDelete(gear)
 
 	if gear == bCrate then
 		HogSay(CurrentHedgehog, loc("Hmmm..."), SAY_THINK)
 	end
 
-	if GetGearType(gear) == gtCase then
-		TurnTimeLeft = TurnTimeLeft + 5000
+	if (GetGearType(gear) == gtCase) and (band(GetGearMessage(gear), gmDestroy) ~= 0) then
+		SetTurnTimeLeft(TurnTimeLeft + 5000)
+		AddCaption(string.format(loc("+%d seconds!"), 5), GetClanColor(GetHogClan(CurrentHedgehog)), capgrpMessage)
+		PlaySound(sndExtraTime)
 	end
 	-- Note: The victory sequence is done automatically by Hedgewars
 	if  ( ((gear == player) or (gear == p2)) and (GameOver == false)) then
@@ -115,4 +100,10 @@ function onGearDelete(gear)
 		SetHealth(player,0)
 	end
 
+end
+
+function onGameResult(winningClan)
+	if winningClan == GetTeamClan(playerTeamName) then
+		SaveMissionVar("Won", "true")
+	end
 end

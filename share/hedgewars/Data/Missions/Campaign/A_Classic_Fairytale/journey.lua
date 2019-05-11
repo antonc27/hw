@@ -1,3 +1,106 @@
+--[[
+A Classic Fairytale: The Journey Back
+
+= SUMMARY =
+This is a very complex and heavily scripted mission with
+2 major gameplay variants and 2 sub-variants each.
+
+This mission is mostly about movement and overcoming obstacles,
+and not much about fighting.
+
+The player has either 1 or 2 hogs (depending on previous mission)
+and must reach the left coast. The cyborg will show up from time
+to time and constantly annoys the heroes with obstacles and additional
+challenges.
+
+The mission's gameplay is affected by whether Dense Cloud survived
+in the previous mission. The mission's dialogues are affected by
+the decision of the player in the previous mission.
+
+= GOALS =
+- Collect the crate at the left coast
+- (Need to accomplish various sub-goals before this is possible)
+- Then kill the cyborg
+
+= FLOW CHART =
+== Linear events ==
+
+Note: This mission's gameplay is significantly affected by the choices of the previous mission (The Shadow Falls).
+There are two major paths, and each of them has two variants.
+
+=== PATH ONE (AL) ===
+Condition: Cyborg's offer in ACF2 accepted and Dense Cloud survived.
+
+- Mission starts with Dense Cloud and Leaks a Lot
+- Mines time: 5s
+- Cut scene: startAnimAL (initial instructions)
+- Hog moves past flower (via teamwork)
+- Animation: pastFlowerAnimAL
+- Player jumps up the tree
+- Cut scene: outPutAnimAL
+- Cyborg teleports one hog to the pit, while the other hog remains
+- TBS
+- Trapped hog walks out of pit
+- Cut scene: midAnimAL
+- Trapped hog is teleported below bridge (and trapped again)
+- A huge barricade at the bridge is erected, and mines spawn on bridge
+- Now any hog needs to collect the final crate
+- TBS
+- Final crate collected
+- Cut scene: endAnimAL
+- Cyborg and princess apear, player must kill cyborg
+| Cyborg killed
+    - Cut scene: winAnim
+    > Victory
+| Princess killed
+    - Cut scene: endFailAnim
+    > Game over
+
+=== PATH TWO (AD) ===
+Condition: Cyborg's offer in ACF2 accepted, but Dense Cloud died afterwards.
+
+- Mission starts with Leaks a Lot only
+- Cut scene: startAnimAD (initial instructions)
+- Hog moves past flower (via blowtorch)
+- Animation: pastFlowerAnimAD
+- TBS
+- Hog proceeds all the way to the bridge
+- Cut scene: outPutAnimAD (the “Princess Game”)
+- Hog is teleported to the pit
+- TBS
+- Hog must reach goal crate within a given number of turns
+| Hog reaches goal crate within the turn limit
+    - Cut scene: endAnimAD
+    - Cyborg and princess spawn
+    | Cyborg killed
+        - Cut scene: winAnim
+        > Victory
+    | Princess killed
+        - Cut scene: endFailAnim
+        > Game over
+| Turn limit exceeded
+    - Cut scene: failAnimAD (princess is caged and killed by cyborg)
+    > Game over
+
+=== PATH THREE (RL) ===
+Condition: Cyborg's offer in ACF2 rejected.
+
+This is almost identical to Path One, only the dialogues differ.
+All AL animations are replaced with RL animations.
+
+=== PATH FOUR (attacked) ===
+Condition: Cyborg from ACF2 was attacked.
+
+This is almost identical to Path Two, only the dialogues differ.
+Uses startAnim and midAnim from SetupAnimAttacked.
+
+
+== Non-linear events ==
+- Any of the Natives dies
+   > Game over
+
+]]
+
 HedgewarsScriptLoad("/Scripts/Locale.lua")
 HedgewarsScriptLoad("/Scripts/Animate.lua")
 
@@ -26,19 +129,20 @@ midCyborgPosDuo = {1264, 1390}
 
 m2Choice = 0
 m2DenseDead = 0
-m2RamonDead = 0
-m2SpikyDead = 0
 
 TurnsLeft = 0
 stage = 0
 
+nativesTeamName = nil
+princessTeamName = nil
+cannibalsTeamName = nil
+cyborgTeamName = nil
+
+startAnimStarted = false
 blowTaken = false
 fireTaken = false
 gravityTaken = false
 sniperTaken = false
-girderTaken = false
-girder1Taken = false
-girder2Taken = false
 leaksDead = false
 denseDead = false
 princessDead = false
@@ -78,7 +182,8 @@ winAnimAD = {}
 
 --/////////////////////////Animation Functions///////////////////////
 function AfterMidFailAnim()
-  DismissTeam(loc("Natives"))
+  DismissTeam(nativesTeamName)
+  DismissTeam(princessTeamName)
   EndTurn(true)
 end
 
@@ -91,13 +196,12 @@ function AfterMidAnimAlone()
 
   AddAmmo(cannibals[5], amDEagle, 0)
 
-  AddEvent(CheckGirderTaken, {}, DoGirderTaken, {}, 0)
   AddEvent(CheckOnFirstGirder, {}, DoOnFirstGirder, {}, 0)
   AddEvent(CheckTookSniper, {}, DoTookSniper, {}, 0)
   AddEvent(CheckFailedCourse, {}, DoFailedCourse, {}, 0)
-  SetGearMessage(leaks, 0)
+  SetGearMessage(leaks, band(GetGearMessage(leaks), bnot(gmAllStoppable)))
   TurnsLeft = 12
-  TurnTimeLeft = TurnTime
+  SetTurnTimeLeft(TurnTime)
   ShowMission(loc("The Journey Back"), loc("Collateral Damage"),
     loc("Save the princess by collecting the crate in under 12 turns!") .. "|" ..
     loc("Mines time: 3 seconds"), 0, 6000)
@@ -108,7 +212,7 @@ function SkipEndAnimAlone()
   RestoreHedge(cyborg)
   RestoreHedge(princess)
   AnimSetGearPosition(cyborg, 437, 1700)
-  AnimSetGearPosition(princess, 519, 1722)
+  AnimSetGearPosition(princess, 519, 1726)
 end
 
 function SkipEndAnimDuo()
@@ -119,7 +223,7 @@ function SkipEndAnimDuo()
     princessHidden = false
   end
   AnimSetGearPosition(cyborg, 437, 1700)
-  AnimSetGearPosition(princess, 519, 1722)
+  AnimSetGearPosition(princess, 519, 1726)
   AnimSetGearPosition(leaks, 763, 1760)
   AnimSetGearPosition(dense, 835, 1519)
   HogTurnLeft(leaks, true)
@@ -128,9 +232,9 @@ end
 
 function AfterEndAnimAlone()
   stage = endStage
-  SwitchHog(leaks)
-  SetGearMessage(leaks, 0)
-  TurnTimeLeft = -1
+  SetGearMessage(dense, band(GetGearMessage(dense), bnot(gmAllStoppable)))
+  AnimSwitchHog(leaks)
+  SetTurnTimeLeft(MAX_TURN_TIME)
   ShowMission(loc("The Journey Back"), loc("Collateral Damage II"), loc("Save Fell From Heaven!"), 1, 4000)
   AddEvent(CheckLost, {}, DoLost, {}, 0)
   AddEvent(CheckWon, {}, DoWon, {}, 0)
@@ -139,10 +243,9 @@ end
 
 function AfterEndAnimDuo()
   stage = endStage
-  SwitchHog(leaks)
-  SetGearMessage(leaks, 0)
-  SetGearMessage(dense, 0)
-  TurnTimeLeft = -1
+  SetGearMessage(dense, band(GetGearMessage(dense), bnot(gmAllStoppable)))
+  AnimSwitchHog(leaks)
+  SetTurnTimeLeft(MAX_TURN_TIME)
   ShowMission(loc("The Journey Back"), loc("Collateral Damage II"), loc("Save Fell From Heaven!"), 1, 4000)
   AddEvent(CheckLost, {}, DoLost, {}, 0)
   AddEvent(CheckWon, {}, DoWon, {}, 0)
@@ -151,23 +254,22 @@ end
 function SkipMidAnimAlone()
   AnimSetGearPosition(leaks, 2656, 1842)
   AnimSwitchHog(leaks)
-  SetInputMask(0xFFFFFFFF)
   AnimWait(dense, 1)
   AddFunction({func = HideHedge, args = {princess}})
   AddFunction({func = HideHedge, args = {cyborg}})
 end
 
 function AfterStartAnim()
-  SetGearMessage(leaks, 0)
-  TurnTimeLeft = TurnTime
-  local goal = loc("Get the crate on the other side of the island!|")
-  local hint = loc("Hint: you might want to stay out of sight and take all the crates...|")
-  local stuck = loc("If you get stuck, use your Desert Eagle or restart the mission!|")
+  SetGearMessage(leaks, band(GetGearMessage(leaks), bnot(gmAllStoppable)))
+  SetTurnTimeLeft(TurnTime)
+  local goal = loc("Get the crate on the other side of the island.")
+  local hint = loc("Hint: You might want to stay out of sight and take all the crates ...")
+  local stuck = loc("If you get stuck, use your Desert Eagle or restart the mission!")
   local conds = loc("Leaks A Lot must survive!")
   if m2DenseDead == 0 then
     conds = loc("Your hogs must survive!")
   end
-  ShowMission(loc("The Journey Back"), loc("Adventurous"), goal .. hint .. stuck .. conds, 0, 7000)
+  ShowMission(loc("The Journey Back"), loc("Adventurous"), goal .. "|" .. hint .. "|" .. stuck .. "|" .. conds, 0, 7000)
 end
 
 function SkipStartAnim()
@@ -175,12 +277,12 @@ function SkipStartAnim()
 end
 
 function PlaceCratesDuo()
-  SpawnAmmoCrate(3090, 827, amBaseballBat)
-  girderCrate1 = SpawnUtilityCrate(2466, 1814, amGirder)
-  girderCrate2 = SpawnUtilityCrate(2630, 1278, amGirder)
-  SpawnUtilityCrate(2422, 1810, amParachute)
-  SpawnUtilityCrate(3157, 1009, amLowGravity)
-  sniperCrate = SpawnAmmoCrate(784, 1715, amSniperRifle)
+  SpawnSupplyCrate(3090, 827, amBaseballBat)
+  girderCrate1 = SpawnSupplyCrate(2466, 1814, amGirder)
+  girderCrate2 = SpawnSupplyCrate(2630, 1278, amGirder)
+  SpawnSupplyCrate(2422, 1810, amParachute)
+  SpawnSupplyCrate(3157, 1009, amLowGravity)
+  sniperCrate = SpawnSupplyCrate(784, 1715, amSniperRifle)
 end
 
 function PlaceMinesDuo()
@@ -216,11 +318,9 @@ end
 function AfterPastFlowerAnim()
   PlaceMinesDuo()
   AddEvent(CheckDensePit, {}, DoDensePit, {}, 0)
-  AddEvent(CheckTookGirder1, {}, DoTookGirder1, {}, 0)
-  AddEvent(CheckTookGirder2, {}, DoTookGirder2, {}, 0)
-  SetGearMessage(leaks, 0)
-  SetGearMessage(dense, 0)
-  EndTurn(0)
+  SetGearMessage(dense, band(GetGearMessage(dense), bnot(gmAllStoppable)))
+  SetGearMessage(leaks, band(GetGearMessage(leaks), bnot(gmAllStoppable)))
+  EndTurn(true)
   ShowMission(loc("The Journey Back"), loc("The Savior"), 
     loc("Get Dense Cloud out of the pit!") .. "|" ..
     loc("Your hogs must survive!") .. "|" ..
@@ -240,8 +340,8 @@ function AfterOutPitAnim()
   AddAmmo(cannibals[5], amDEagle, 0)
   HideHedge(cannibals[5])
   AddEvent(CheckTookFire, {}, DoTookFire, {}, 0)
-  SetGearMessage(leaks, 0)
-  SetGearMessage(dense, 0)
+  SetGearMessage(dense, band(GetGearMessage(dense), bnot(gmAllStoppable)))
+  SetGearMessage(leaks, band(GetGearMessage(leaks), bnot(gmAllStoppable)))
   EndTurn(true)
   ShowMission(loc("The Journey Back"), loc("They never learn"),
     loc("Free Dense Cloud and continue the mission!") .. "|" ..
@@ -311,48 +411,65 @@ function SetupCourseDuo()
   PlaceGirder(1033, 649, 0)
   PlaceGirder(952, 650, 0)
 
-  fireCrate = SpawnAmmoCrate(1846, 1100, amFirePunch)
-  SpawnUtilityCrate(1900, 1100, amPickHammer)
-  SpawnAmmoCrate(950, 674, amDynamite)
-  SpawnUtilityCrate(994, 825, amRope)
-  SpawnUtilityCrate(570, 1357, amLowGravity)
+  fireCrate = SpawnSupplyCrate(1846, 1100, amFirePunch)
+  SpawnSupplyCrate(1900, 1100, amPickHammer)
+  SpawnSupplyCrate(950, 674, amDynamite)
+  SpawnSupplyCrate(994, 825, amRope)
+  SpawnSupplyCrate(570, 1357, amLowGravity)
 end
 
-function DumpMines()
-  AddGear(2261, 1835, gtMine, 0, 0, 0, 0)
-  AddGear(2280, 1831, gtMine, 0, 0, 0, 0)
-  AddGear(2272, 1809, gtMine, 0, 0, 0, 0)
-  AddGear(2290, 1815, gtMine, 0, 0, 0, 0)
-  AddGear(2278, 1815, gtMine, 0, 0, 0, 0)
-  AddGear(2307, 1811, gtMine, 0, 0, 0, 0)
-  AddGear(2286, 1820, gtMine, 0, 0, 0, 0)
-  AddGear(2309, 1813, gtMine, 0, 0, 0, 0)
-  AddGear(2303, 1822, gtMine, 0, 0, 0, 0)
-  AddGear(2317, 1827, gtMine, 0, 0, 0, 0)
-  AddGear(2312, 1816, gtMine, 0, 0, 0, 0)
-  AddGear(2316, 1812, gtMine, 0, 0, 0, 0)
-  AddGear(2307, 1802, gtMine, 0, 0, 0, 0)
-  AddGear(2276, 1818, gtMine, 0, 0, 0, 0)
-  AddGear(2284, 1816, gtMine, 0, 0, 0, 0)
-  AddGear(2292, 1811, gtMine, 0, 0, 0, 0)
-  AddGear(2295, 1814, gtMine, 0, 0, 0, 0)
-  AddGear(2306, 1811, gtMine, 0, 0, 0, 0)
-  AddGear(2292, 1815, gtMine, 0, 0, 0, 0)
-  AddGear(2314, 1815, gtMine, 0, 0, 0, 0)
-  AddGear(2286, 1813, gtMine, 0, 0, 0, 0)
-  AddGear(2275, 1813, gtMine, 0, 0, 0, 0)
-  AddGear(2269, 1814, gtMine, 0, 0, 0, 0)
-  AddGear(2273, 1812, gtMine, 0, 0, 0, 0)
-  AddGear(2300, 1808, gtMine, 0, 0, 0, 0)
-  AddGear(2322, 1812, gtMine, 0, 0, 0, 0)
-  AddGear(2323, 1813, gtMine, 0, 0, 0, 0)
-  AddGear(2311, 1811, gtMine, 0, 0, 0, 0)
-  AddGear(2303, 1809, gtMine, 0, 0, 0, 0)
-  AddGear(2287, 1808, gtMine, 0, 0, 0, 0)
-  AddGear(2282, 1808, gtMine, 0, 0, 0, 0)
-  AddGear(2277, 1809, gtMine, 0, 0, 0, 0)
-  AddGear(2296, 1809, gtMine, 0, 0, 0, 0)
-  AddGear(2314, 1818, gtMine, 0, 0, 0, 0)
+local trackedGears = {}
+
+-- Remove mines and crates for the princess cage scene.
+-- Some annoying gears might get in the way for this scene, like a dropped
+-- mine, or the crate on the leaf.
+function ClearTrashForPrincessCage()
+  for gear, _ in pairs(trackedGears) do
+    if GetY(gear) > 1600 and GetX(gear) > 1800 and GetX(gear) < 2700 then
+      DeleteGear(gear)
+    end
+  end
+end
+
+-- Dump mines in princess cage
+function DumpMines(t)
+  if not t then
+    t = 0
+  end
+  AddGear(2261, 1835, gtMine, 0, 0, 0, t)
+  AddGear(2280, 1831, gtMine, 0, 0, 0, t)
+  AddGear(2272, 1809, gtMine, 0, 0, 0, t)
+  AddGear(2290, 1815, gtMine, 0, 0, 0, t)
+  AddGear(2278, 1815, gtMine, 0, 0, 0, t)
+  AddGear(2307, 1811, gtMine, 0, 0, 0, t)
+  AddGear(2286, 1820, gtMine, 0, 0, 0, t)
+  AddGear(2309, 1813, gtMine, 0, 0, 0, t)
+  AddGear(2303, 1822, gtMine, 0, 0, 0, t)
+  AddGear(2317, 1827, gtMine, 0, 0, 0, t)
+  AddGear(2312, 1816, gtMine, 0, 0, 0, t)
+  AddGear(2316, 1812, gtMine, 0, 0, 0, t)
+  AddGear(2307, 1802, gtMine, 0, 0, 0, t)
+  AddGear(2276, 1818, gtMine, 0, 0, 0, t)
+  AddGear(2284, 1816, gtMine, 0, 0, 0, t)
+  AddGear(2292, 1811, gtMine, 0, 0, 0, t)
+  AddGear(2295, 1814, gtMine, 0, 0, 0, t)
+  AddGear(2306, 1811, gtMine, 0, 0, 0, t)
+  AddGear(2292, 1815, gtMine, 0, 0, 0, t)
+  AddGear(2314, 1815, gtMine, 0, 0, 0, t)
+  AddGear(2286, 1813, gtMine, 0, 0, 0, t)
+  AddGear(2275, 1813, gtMine, 0, 0, 0, t)
+  AddGear(2269, 1814, gtMine, 0, 0, 0, t)
+  AddGear(2273, 1812, gtMine, 0, 0, 0, t)
+  AddGear(2300, 1808, gtMine, 0, 0, 0, t)
+  AddGear(2322, 1812, gtMine, 0, 0, 0, t)
+  AddGear(2323, 1813, gtMine, 0, 0, 0, t)
+  AddGear(2311, 1811, gtMine, 0, 0, 0, t)
+  AddGear(2303, 1809, gtMine, 0, 0, 0, t)
+  AddGear(2287, 1808, gtMine, 0, 0, 0, t)
+  AddGear(2282, 1808, gtMine, 0, 0, 0, t)
+  AddGear(2277, 1809, gtMine, 0, 0, 0, t)
+  AddGear(2296, 1809, gtMine, 0, 0, 0, t)
+  AddGear(2314, 1818, gtMine, 0, 0, 0, t)
 end
 
 function SetupAnimRefusedDied()
@@ -376,7 +493,7 @@ function SetupAnimAttacked()
   table.insert(midAnim, {func = AnimCustomFunction, args = {cyborg, TargetPrincess, {}}})
   table.insert(midAnim, {func = AnimSay, args = {cyborg, loc("Welcome, Leaks A Lot!"), SAY_SAY, 3000}})
   table.insert(midAnim, {func = AnimSay, args = {cyborg, loc("I want to play a game..."), SAY_SAY, 3000}})
-  table.insert(midAnim, {func = AnimSay, args = {princess, loc("Help me, please!!!"), SAY_SHOUT, 3000}})
+  table.insert(midAnim, {func = AnimSay, args = {princess, loc("Help me, please!"), SAY_SHOUT, 3000}})
   table.insert(midAnim, {func = AnimSay, args = {cyborg, loc("If you can get that crate fast enough, your beloved \"princess\" may go free."), SAY_SAY, 7000}})
   table.insert(midAnim, {func = AnimSay, args = {cyborg, loc("However, if you fail to do so, she dies a most violent death! Muahahaha!"), SAY_SAY, 8000}})
   table.insert(midAnim, {func = AnimSay, args = {cyborg, loc("Good luck...or else!"), SAY_SAY, 4000}})
@@ -398,7 +515,7 @@ function SetupAnimAcceptedDied()
   table.insert(midAnimAD, {func = AnimCustomFunction, args = {cyborg, TargetPrincess, {}}})
   table.insert(midAnimAD, {func = AnimSay, args = {cyborg, loc("Welcome, Leaks A Lot!"), SAY_SAY, 3000}})
   table.insert(midAnimAD, {func = AnimSay, args = {cyborg, loc("I want to play a game..."), SAY_SAY, 3000}})
-  table.insert(midAnimAD, {func = AnimSay, args = {princess, loc("Help me, please!!!"), SAY_SHOUT, 3000}})
+  table.insert(midAnimAD, {func = AnimSay, args = {princess, loc("Help me, please!"), SAY_SHOUT, 3000}})
   table.insert(midAnimAD, {func = AnimSay, args = {cyborg, loc("If you can get that crate fast enough, your beloved \"princess\" may go free."), SAY_SAY, 7000}})
   table.insert(midAnimAD, {func = AnimSay, args = {cyborg, loc("However, if you fail to do so, she dies a most violent death, just like your friend! Muahahaha!"), SAY_SAY, 8000}})
   table.insert(midAnimAD, {func = AnimSay, args = {cyborg, loc("Good luck...or else!"), SAY_SAY, 4000}})
@@ -407,6 +524,7 @@ function SetupAnimAcceptedDied()
   table.insert(midAnimAD, {func = AnimSay, args = {leaks, loc("Hey! This is cheating!"), SAY_SHOUT, 4000}})
   AddSkipFunction(midAnimAD, SkipMidAnimAlone, {})
 
+  table.insert(failAnimAD, {func = AnimCustomFunction, args = {cyborg, ClearTrashForPrincessCage, {}}})
   table.insert(failAnimAD, {func = AnimCustomFunction, swh = false, args = {leaks, RestoreCyborg, {2299, 1687, 2294, 1841}}})
   table.insert(failAnimAD, {func = AnimTeleportGear, args = {leaks, 2090, 1841}})
   table.insert(failAnimAD, {func = AnimCustomFunction, swh = false, args = {cyborg, SetupKillRoom, {}}})
@@ -420,10 +538,12 @@ function SetupAnimAcceptedDied()
   table.insert(failAnimAD, {func = AnimSwitchHog, args = {cyborg}})
   table.insert(failAnimAD, {func = AnimCustomFunction, args = {cyborg, DumpMines, {}}})
   table.insert(failAnimAD, {func = AnimCustomFunction, args = {cyborg, KillPrincess, {}}})
-  table.insert(failAnimAD, {func = AnimWait, args = {cyborg, 12000}})
-  table.insert(failAnimAD, {func = AnimSay, args = {leaks, loc("No! What have I done?! What have YOU done?!"), SAY_SHOUT, 6000}})
+  table.insert(failAnimAD, {func = AnimWait, args = {cyborg, 500}})
+  table.insert(failAnimAD, {func = AnimSay, args = {leaks, loc("No! What have I done?! What have YOU done?!"), SAY_SHOUT, 3000}})
+  table.insert(failAnimAD, {func = AnimSwitchHog, args = {princess}})
+  AddSkipFunction(failAnimAD, SkipFailAnimAlone, {})
 
-  table.insert(endAnimAD, {func = AnimCustomFunction, swh = false, args = {leaks, RestoreCyborg, {437, 1700, 519, 1722}}})
+  table.insert(endAnimAD, {func = AnimCustomFunction, swh = false, args = {leaks, RestoreCyborg, {437, 1700, 519, 1726}}})
   table.insert(endAnimAD, {func = AnimTurn, swh = false, args = {cyborg, "Right"}})
   table.insert(endAnimAD, {func = AnimTurn, swh = false, args = {princess, "Right"}})
   table.insert(endAnimAD, {func = AnimSay, args = {princess, loc("Help me, Leaks!"), SAY_SHOUT, 3000}})
@@ -482,7 +602,7 @@ function SetupAnimAcceptedLived()
   table.insert(outPitAnimAL, {func = AnimCustomFunction, swh = false, args = {cyborg, HideCyborgOnly, {}}})
   AddSkipFunction(outPitAnimAL, SkipOutPitAnim, {})
 
-  table.insert(endAnim, {func = AnimCustomFunction, swh = false, args = {leaks, RestoreCyborg, {437, 1700, 519, 1722}}})
+  table.insert(endAnim, {func = AnimCustomFunction, swh = false, args = {leaks, RestoreCyborg, {437, 1700, 519, 1726}}})
   table.insert(endAnim, {func = AnimTeleportGear, args = {leaks, 763, 1760}})
   table.insert(endAnim, {func = AnimTeleportGear, args = {dense, 835, 1519}})
   table.insert(endAnim, {func = AnimTurn, swh = false, args = {leaks, "Left"}})
@@ -545,7 +665,7 @@ function SetupAnimRefusedLived()
   table.insert(outPitAnimRL, {func = AnimCustomFunction, swh = false, args = {cyborg, HideCyborgOnly, {}}})
   AddSkipFunction(outPitAnimRL, SkipOutPitAnim, {})
 
-  table.insert(endAnim, {func = AnimCustomFunction, args = {leaks, RestoreCyborg, {437, 1700, 519, 1722}}})
+  table.insert(endAnim, {func = AnimCustomFunction, args = {leaks, RestoreCyborg, {437, 1700, 519, 1726}}})
   table.insert(endAnim, {func = AnimTeleportGear, args = {leaks, 763, 1760}})
   table.insert(endAnim, {func = AnimTeleportGear, args = {dense, 835, 1519}})
   table.insert(endAnim, {func = AnimTurn, swh = false, args = {leaks, "Left"}})
@@ -573,7 +693,6 @@ function SetupAnimRefusedLived()
 end
 
 function KillPrincess()
-  DismissTeam(loc("Cannibal Sentry"))
   EndTurn(true)
 end
 --/////////////////////////////Misc Functions////////////////////////
@@ -605,14 +724,14 @@ end
 
 function SetupPlaceAlone()
   ------ AMMO CRATE LIST ------
-  SpawnAmmoCrate(3124, 952, amBaseballBat)
-  SpawnAmmoCrate(2508, 1110, amFirePunch)
+  SpawnSupplyCrate(3124, 952, amBaseballBat)
+  SpawnSupplyCrate(2508, 1110, amFirePunch)
   ------ UTILITY CRATE LIST ------
-  blowCrate = SpawnUtilityCrate(3675, 1480, amBlowTorch)
-  gravityCrate = SpawnUtilityCrate(3448, 1349, amLowGravity)
-  SpawnUtilityCrate(3212, 1256, amGirder)
-  SpawnUtilityCrate(3113, 911, amParachute)
-  sniperCrate = SpawnAmmoCrate(784, 1715, amSniperRifle)
+  blowCrate = SpawnSupplyCrate(3675, 1480, amBlowTorch)
+  gravityCrate = SpawnSupplyCrate(3448, 1349, amLowGravity)
+  SpawnSupplyCrate(3212, 1256, amGirder)
+  SpawnSupplyCrate(3113, 911, amParachute)
+  sniperCrate = SpawnSupplyCrate(784, 1715, amSniperRifle)
   ------ MINE LIST ------
   AddGear(3328, 1399, gtMine, 0, 0, 0, 0)
   AddGear(3028, 1262, gtMine, 0, 0, 0, 0)
@@ -666,8 +785,6 @@ function StartMission()
     end
     SetupPlaceAlone()
     SetupEventsAlone()
-    AddAnim(startAnim)
-    AddFunction({func = AfterStartAnim, args = {}})
   else
     if m2Choice == choiceAccepted then
       SetupAnimAcceptedLived()
@@ -676,8 +793,6 @@ function StartMission()
     end
     SetupPlaceDuo()
     SetupEventsDuo()
-    AddAnim(startAnim)
-    AddFunction({func = AfterStartAnim, args = {}})
   end
   HideHedge(cyborg)
   HideHedge(princess)
@@ -720,12 +835,12 @@ function SetupCourse()
   PlaceGirder(1135, 775, 1)
 
   ------ UTILITY CRATE LIST ------
-  SpawnUtilityCrate(1590, 628, amParachute)
-  SpawnAmmoCrate(1540, 100, amDynamite)
-  SpawnUtilityCrate(2175, 1815, amLowGravity)
-  SpawnUtilityCrate(2210, 1499, amFirePunch)
-  girderCrate = SpawnUtilityCrate(2300, 1663, amGirder)
-  SpawnUtilityCrate(610, 1394, amPickHammer)
+  SpawnSupplyCrate(1590, 628, amParachute)
+  SpawnSupplyCrate(1540, 100, amDynamite)
+  SpawnSupplyCrate(2175, 1815, amLowGravity)
+  SpawnSupplyCrate(2210, 1499, amFirePunch)
+  girderCrate = SpawnSupplyCrate(2300, 1663, amGirder)
+  SpawnSupplyCrate(610, 1394, amPickHammer)
   
   ------ BARREL LIST ------
   SetHealth(AddGear(1148, 736, gtExplosives, 0, 0, 0, 0), 20)
@@ -756,22 +871,6 @@ function DoTookFire()
   AddAmmo(leaks, amFirePunch, 100)
 end
 
-function CheckTookGirder1()
-  return girder1Taken
-end
-
-function CheckTookGirder2()
-  return girder2Taken
-end
-
-function DoTookGirder1()
-  AddAmmo(dense, amGirder, 2)
-end
-
-function DoTookGirder2()
-  AddAmmo(dense, amGirder, 3)
-end
-
 function CheckDensePit()
   if GetHealth(dense) ~= nil then
     return GetY(dense) < 1250 and StoppedGear(dense)
@@ -781,7 +880,7 @@ function CheckDensePit()
 end
 
 function DoDensePit()
-  EndTurn(0)
+  EndTurn(true)
   RestoreHedge(cyborg)
   AnimWait(cyborg, 1)
   AddFunction({func = AddAnim, args = {outPitAnim}})
@@ -813,7 +912,8 @@ function DoLeaksDead()
   if not princessDead then
     EndTurn(true)
     AddCaption(loc("The village, unprepared, was destroyed by the cyborgs..."))
-    DismissTeam(loc("Natives"))
+    DismissTeam(nativesTeamName)
+    DismissTeam(princessTeamName)
   end
 end
 
@@ -825,7 +925,8 @@ function DoDenseDead()
   if not princessDead then
     EndTurn(true)
     AddCaption(loc("The village, unprepared, was destroyed by the cyborgs..."))
-    DismissTeam(loc("Natives"))
+    DismissTeam(nativesTeamName)
+    DismissTeam(princessTeamName)
   end
 end
 
@@ -864,15 +965,6 @@ function DoOnBridge()
   AddFunction({func = AddFunction, args = {{func = AfterMidAnimAlone, args = {}}}})
 end
 
-function CheckGirderTaken()
-  return girderTaken
-end
-
-function DoGirderTaken()
-  AddAmmo(leaks, amGirder, 2)
---  AddAmmo(leaks, amGirder, 3)
-end
-
 function CheckOnFirstGirder()
   return leaksDead == false and GetX(leaks) < 1160 and StoppedGear(leaks)
 end
@@ -881,7 +973,8 @@ function DoOnFirstGirder()
   PlaceCourseMines()
   ShowMission(loc("The Journey Back"), loc("Slippery"), 
     loc("Collect the weapon crate at the left coast!") .. "|" ..
-    loc("You'd better watch your steps..."), 0, 4000)
+    loc("You'd better watch your steps...") .. "|" ..
+    loc("Mines time: 3 seconds"), 0, 4000)
 end
 
 function CheckTookSniper()
@@ -918,8 +1011,11 @@ function DoLost()
   if not cyborgDead then
     SwitchHog(cyborg)
   end
-  AddAnim(endFailAnim)
-  AddFunction({func = DismissTeam, args = {loc("Natives")}})
+  if not (leaksDead or denseDead) then
+    AddAnim(endFailAnim)
+  end
+  AddFunction({func = DismissTeam, args = {nativesTeamName}})
+  AddFunction({func = DismissTeam, args = {princessTeamName}})
   AddFunction({func = EndTurn, args = {true}})
 end
 
@@ -938,8 +1034,8 @@ end
 
 function FinishWon()
   SwitchHog(leaks)
-  DismissTeam(loc("Cannibal Sentry"))
-  DismissTeam(loc("011101001"))
+  DismissTeam(cannibalsTeamName)
+  DismissTeam(cyborgTeamName)
   EndTurn(true)
 end
 
@@ -956,14 +1052,18 @@ function DoFailedCourse()
   AddFunction({func = AddFunction, args = {{func = AfterMidFailAnim, args = {}}}})
 end
 
+function SkipFailAnimAlone()
+  DumpMines(1)
+  KillPrincess()
+  AnimSwitchHog(princess)
+end
+
 --////////////////////////////Main Functions/////////////////////////
 
 function onGameInit()
   progress = tonumber(GetCampaignVar("Progress"))
-  m2Choice = tonumber(GetCampaignVar("M2Choice"))
-  m2DenseDead = tonumber(GetCampaignVar("M2DenseDead"))
-  m2RamonDead = tonumber(GetCampaignVar("M2RamonDead"))
-  m2SpikyDead = tonumber(GetCampaignVar("M2SpikyDead"))
+  m2Choice = tonumber(GetCampaignVar("M2Choice")) or choiceRefused
+  m2DenseDead = tonumber(GetCampaignVar("M2DenseDead")) or 0
 
 	Seed = 0
 	GameFlags = gfSolidLand + gfDisableWind
@@ -977,7 +1077,6 @@ function onGameInit()
 		MinesTime = 5000
 	end
 	Explosives = 0
-	Delay = 5
     Map = "A_Classic_Fairytale_journey"
     Theme = "Nature"
 
@@ -985,32 +1084,37 @@ function onGameInit()
     HealthDecrease = 0
     WaterRise = 0
 
-	AddTeam(loc("Natives"), 29439, "Bone", "Island", "HillBilly", "cm_birdy")
-	leaks = AddHog(loc("Leaks A Lot"), 0, 100, "Rambo")
+  AnimInit(true)
+
+  nativesTeamName = AddMissionTeam(-2)
+  leaks = AddHog(loc("Leaks A Lot"), 0, 100, "Rambo")
   dense = AddHog(loc("Dense Cloud"), 0, 100, "RobinHood")
 
-  AddTeam(loc("Cannibal Sentry"), 14483456, "Skull", "Island", "Pirate","cm_vampire")
+  princessTeamName = AddTeam(loc("Princess"), -2, "Bone", "Island", "HillBilly", "cm_female")
+  SetTeamPassive(princessTeamName, true)
+  princess = AddHog(loc("Fell From Heaven"), 0, 200, "tiara")
+
+  cannibalsTeamName = AddTeam(loc("Cannibal Sentry"), -1, "skull", "Island", "Pirate","cm_vampire")
   cannibals = {}
   for i = 1, 4 do
     cannibals[i] = AddHog(cannibalNames[i], 3, 40, "Zombi")
     AnimSetGearPosition(cannibals[i], unpack(cannibalPos[i]))
+    SetEffect(cannibals[i], heArtillery, 1)
   end
 
   for i = 5, 8 do
     cannibals[i] = AddHog(cannibalNames[i], 3, 40, "Zombi")
     AnimSetGearPosition(cannibals[i], 0, 0)
+    SetEffect(cannibals[i], heArtillery, 1)
   end
 
-  AddTeam(loc("011101001"), 14483456, "ring", "UFO", "Robot", "cm_binary")
+  cyborgTeamName = AddTeam(loc("011101001"), -1, "ring", "UFO", "Robot", "cm_binary")
   cyborg = AddHog(loc("Y3K1337"), 0, 200, "cyborg1")
-  princess = AddHog(loc("Fell From Heaven"), 0, 200, "tiara")
 
   AnimSetGearPosition(dense, 0, 0)
   AnimSetGearPosition(leaks, 0, 0)
   AnimSetGearPosition(cyborg, 0, 0)
   AnimSetGearPosition(princess, 0, 0)
-  
-  AnimInit()
 end
 
 function onGameStart()
@@ -1026,7 +1130,18 @@ function onGameTick()
   CheckEvents()
 end
 
+-- Track gears for princess cage cleanup
+function onGearAdd(gear)
+  local gt = GetGearType(gear)
+  if gt == gtCase or gt == gtMine then
+    trackedGears[gear] = true
+  end
+end
+
 function onGearDelete(gear)
+  if trackedGears[gear] then
+    trackedGears[gear] = nil
+  end
   if gear == blowCrate then
     blowTaken = true
   elseif gear == fireCrate then
@@ -1041,12 +1156,6 @@ function onGearDelete(gear)
     cyborgDead = true
   elseif gear == princess and not victory then
     princessDead = true
-  elseif gear == girderCrate then
-    girderTaken = true
-  elseif gear == girderCrate1 then
-    girder1Taken = true
-  elseif gear == girderCrate2 then
-    girder2Taken = true
   elseif gear == sniperCrate then
     sniperTaken = true
   else
@@ -1075,33 +1184,33 @@ function onAmmoStoreInit()
 end
 
 function onNewTurn()
+  if not startAnimStarted then
+      AddAnim(startAnim)
+      AddFunction({func = AfterStartAnim, args = {}})
+      startAnimStarted = true
+  end
   if AnimInProgress() then
-    TurnTimeLeft = -1
+    SetTurnTimeLeft(MAX_TURN_TIME)
   elseif victory then
     EndTurn(true)
-  elseif stage == endStage and CurrentHedgehog ~= leaks then
-    AnimSwitchHog(leaks)
-    SetGearMessage(leaks, 0)
-    TurnTimeLeft = -1
-  elseif GetHogTeamName(CurrentHedgehog) ~= loc("Natives") then
-    for i = 1, 4 do
-      if cannibalDead[i] ~= true and leaksDead ~= true then
-        if GetX(cannibals[i]) < GetX(leaks) then
-          HogTurnLeft(cannibals[i], false)
-        else
-          HogTurnLeft(cannibals[i], true)
-        end
-      end
+  elseif stage == endStage then
+    if GetHogTeamName(CurrentHedgehog) == nativesTeamName and CurrentHedgehog ~= leaks then
+      AnimSwitchHog(leaks)
+      SetTurnTimeLeft(MAX_TURN_TIME)
+    else
+      SkipTurn()
     end
-    SetInputMask(band(0xFFFFFFFF, bnot(gmLeft + gmRight + gmLJump + gmHJump)))
-    TurnTimeLeft = 20000
+  elseif GetHogTeamName(CurrentHedgehog) ~= nativesTeamName then
+    SetTurnTimeLeft(20000)
   else
-    SetInputMask(0xFFFFFFFF)
     TurnsLeft = TurnsLeft - 1
+    if TurnsLeft >= 1 then
+      AddCaption(string.format(loc("Turns left: %d"), TurnsLeft), capcolDefault, capgrpGameState)
+    end
   end
 end
 
-function onPrecise()
+function onPreciseLocal()
   if GameTime > 2500 and AnimInProgress() then
     SetAnimSkip(true)
     return

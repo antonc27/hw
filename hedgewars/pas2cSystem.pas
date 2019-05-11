@@ -97,7 +97,8 @@ var
     glGetError, glDeleteProgram, glDeleteBuffers,
     glGenBuffers, glBufferData, glBindBuffer, glewInit,
     glUniform4f, glDisableVertexAttribArray, glTexEnvi,
-    glLoadMatrixf, glMultMatrixf, glGetFloatv: procedure;
+    glLoadMatrixf, glMultMatrixf, glGetFloatv,
+    glDrawBuffer, glReadBuffer: procedure;
 
     GL_BGRA, GL_BLEND, GL_CLAMP_TO_EDGE, GL_COLOR_ARRAY,
     GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_COMPONENT,
@@ -115,13 +116,13 @@ var
     GL_INFO_LOG_LENGTH, GL_LINK_STATUS, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER,
     GL_NO_ERROR, GL_ARRAY_BUFFER, GL_STATIC_DRAW, GLEW_OK,
     GL_AUX_BUFFERS, GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE, GL_ADD,
-    GL_MODELVIEW_MATRIX: integer;
+    GL_MODELVIEW_MATRIX, GL_AUX0, GL_BACK: integer;
 
     TThreadId : function : integer;
 
     _strconcat, _strappend, _strprepend, _chrconcat : function : string;
     _strcompare, _strncompare, _strcomparec, _strncompareA : function : boolean;
-    _strconcatA, _strappendA : function : ansistring;
+    _strconcatA, _strappendA, _strprependA: function : ansistring;
 
     png_structp, png_set_write_fn, png_get_io_ptr,
     png_get_libpng_ver, png_create_write_struct,
@@ -134,7 +135,7 @@ var
 
     PHYSFS_init, PHYSFS_deinit, PHYSFS_mount, PHYSFS_readBytes, PHYSFS_writeBytes, PHYSFS_read : function : LongInt;
     PHYSFSRWOPS_openRead, PHYSFSRWOPS_openWrite, PHYSFS_openRead, PHYSFS_openWrite : function : pointer;
-    PHYSFS_eof, PHYSFS_close, PHYSFS_exists, PHYSFS_mkdir, PHYSFS_flush, PHYSFS_setWriteDir : function : boolean;
+    PHYSFS_eof, PHYSFS_close, PHYSFS_exists, PHYSFS_mkdir, PHYSFS_flush, PHYSFS_setWriteDir, PHYSFS_setBuffer : function : boolean;
     PHYSFS_getLastError : function : PChar;
     PHYSFS_enumerateFiles : function : PPChar;
     PHYSFS_freeList : procedure;

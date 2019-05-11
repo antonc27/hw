@@ -27,7 +27,7 @@ implementation
 end.
 {$ELSE}
 
-{$IFNDEF WIN32}
+{$IFNDEF WINDOWS}
     {$linklib avwrapper}
 {$ENDIF}
 
@@ -36,7 +36,7 @@ interface
 var flagPrerecording: boolean = false;
 
 function BeginVideoRecording: Boolean;
-function LoadNextCameraPosition(out newRealTicks, newGameTicks: LongInt): Boolean;
+function LoadNextCameraPosition(var newRealTicks, newGameTicks: LongInt): Boolean;
 procedure EncodeFrame;
 procedure StopVideoRecording;
 
@@ -48,7 +48,7 @@ procedure initModule;
 procedure freeModule;
 
 implementation
-uses uVariables, GLunit, SDLh, SysUtils, uUtils, uIO, uMisc, uTypes, uDebug;
+uses uVariables, GLunit, SDLh, SysUtils, uUtils, uIO, uMisc, uConsts, uTypes, uDebug;
 
 type TAddFileLogRaw = procedure (s: pchar); cdecl;
 const AvwrapperLibName = 'libavwrapper';
@@ -67,14 +67,14 @@ type TFrame = record
                   zoom: single;
               end;
 
-var YCbCr_Planes: array[0..2] of PByte;
-    RGB_Buffer: PByte;
-    cameraFile: File of TFrame;
+var RGB_Buffer: PByte;
+    cameraFile: File;
     audioFile: File;
     numPixels: LongWord;
     startTime, numFrames, curTime, progress, maxProgress: LongWord;
     soundFilePath: shortstring;
-    thumbnailSaved : Boolean;
+    thumbnailSaved: boolean;
+    recordAudio: boolean;
 
 function BeginVideoRecording: Boolean;
 var filename, desc: shortstring;
@@ -83,9 +83,9 @@ begin
 
 {$IOCHECKS OFF}
     // open file with prerecorded camera positions
-    filename:= UserPathPrefix + '/VideoTemp/' + RecPrefix + '.txtin';
+    filename:= shortstring(UserPathPrefix) + '/VideoTemp/' + shortstring(RecPrefix) + '.txtin';
     Assign(cameraFile, filename);
-    Reset(cameraFile);
+    Reset(cameraFile, SizeOf(TFrame));
     maxProgress:= FileSize(cameraFile);
     if IOResult <> 0 then
     begin
@@ -94,7 +94,14 @@ begin
     end;
 {$IOCHECKS ON}
 
-    // store some description in output file
+    { Store some description in output file.
+    The comment must follow a particular format and must be in English.
+    This will be parsed by the frontend.
+    The frontend will parse lines of this format:
+        Key: Value
+    The key names will be localized in the frontend.
+    If you add a key/value pair, don't forget to add a localization
+    in the frontend! }
     desc:= '';
     if UserNick <> '' then
         desc:= desc + 'Player: ' + UserNick + #10;
@@ -106,8 +113,13 @@ begin
         desc:= desc + 'Theme: ' + Theme + #10;
     desc:= desc + 'prefix[' + RecPrefix + ']prefix';
 
-    filename:= UserPathPrefix + '/VideoTemp/' + RecPrefix;
-    soundFilePath:= UserPathPrefix + '/VideoTemp/' + RecPrefix + '.sw';
+    filename:= shortstring(UserPathPrefix) + '/VideoTemp/' + shortstring(RecPrefix);
+
+    recordAudio:= (cAudioCodec <> 'no');
+    if recordAudio then
+        soundFilePath:= shortstring(UserPathPrefix) + '/VideoTemp/' + shortstring(RecPrefix) + '.sw'
+    else
+        soundFilePath:= '';
 
     if checkFails(AVWrapper_Init(@AddFileLogRaw
         , PChar(ansistring(filename))
@@ -141,9 +153,20 @@ begin
     FreeMem(RGB_Buffer, 4*numPixels);
     Close(cameraFile);
     if AVWrapper_Close() < 0 then
-        halt(-1);
-    Erase(cameraFile);
-    DeleteFile(soundFilePath);
+        begin
+        AddFileLog('AVWrapper_Close() has failed.');
+        halt(HaltVideoRec);
+        end;
+{$IOCHECKS OFF}
+    // Provoke IOResult to be set
+    FileSize(cameraFile);
+    if IOResult = 0 then
+        Erase(cameraFile)
+    else
+        AddFileLog('Warning: Tried to delete the cameraFile but it was already deleted');
+{$IOCHECKS ON}
+    if recordAudio and FileExists(soundFilePath) then
+        DeleteFile(soundFilePath);
     SendIPC(_S'v'); // inform frontend that we finished
 end;
 
@@ -154,7 +177,10 @@ begin
     glReadPixels(0, 0, cScreenWidth, cScreenHeight, GL_RGBA, GL_UNSIGNED_BYTE, RGB_Buffer);
 
     if AVWrapper_WriteFrame(RGB_Buffer) < 0 then
-        halt(-1);
+        begin
+        AddFileLog('AVWrapper_WriteFrame(RGB_Buffer) has failed.');
+        halt(HaltVideoRec);
+        end;
 
     // inform frontend that we have encoded new frame
     s[0]:= #3;
@@ -164,7 +190,7 @@ begin
     inc(numFrames);
 end;
 
-function LoadNextCameraPosition(out newRealTicks, newGameTicks: LongInt): Boolean;
+function LoadNextCameraPosition(var newRealTicks, newGameTicks: LongInt): Boolean;
 var frame: TFrame = (realTicks: 0; gameTicks: 0; CamX: 0; CamY: 0; zoom: 0);
 begin
     // we need to skip or duplicate frames to match target framerate
@@ -201,7 +227,7 @@ procedure SaveThumbnail;
 var thumbpath: shortstring;
     k: LongInt;
 begin
-    thumbpath:= '/VideoTemp/' + RecPrefix;
+    thumbpath:= '/VideoThumbnails/' + RecPrefix;
     AddFileLog('Saving thumbnail ' + thumbpath);
     k:= max(max(cScreenWidth, cScreenHeight) div 400, 1); // here 400 is minimum size of thumbnail
     MakeScreenshot(thumbpath, k, 0);
@@ -259,46 +285,52 @@ begin
     begin
         if GameType <> gmtDemo then // this is save and game demo is not recording, abort
             exit;
-        CopyFile(recordFileName, UserPathPrefix + '/VideoTemp/' + RecPrefix + '.hwd');
+        CopyFile(recordFileName, shortstring(UserPathPrefix) + '/VideoTemp/' + shortstring(RecPrefix) + '.hwd');
     end;
 
-    Mix_QuerySpec(@frequency, @format, @channels);
-    AddFileLog('sound: frequency = ' + IntToStr(frequency) + ', format = ' + IntToStr(format) + ', channels = ' + IntToStr(channels));
-    if format <> $8010 then
-    begin
-        // TODO: support any audio format
-        AddFileLog('Error: Unexpected audio format ' + IntToStr(format));
-        exit;
-    end;
+    if cIsSoundEnabled then
+        begin
+        Mix_QuerySpec(@frequency, @format, @channels);
+        AddFileLog('sound: frequency = ' + IntToStr(frequency) + ', format = ' + IntToStr(format) + ', channels = ' + IntToStr(channels));
+        if format <> $8010 then
+            begin
+            // TODO: support any audio format
+            AddFileLog('Error: Unexpected audio format ' + IntToStr(format));
+            exit;
+            end;
 
 {$IOCHECKS OFF}
-    // create sound file
-    filename:= UserPathPrefix + '/VideoTemp/' + RecPrefix + '.sw';
-    Assign(audioFile, filename);
-    Rewrite(audioFile, 1);
-    if IOResult <> 0 then
-    begin
-        AddFileLog('Error: Could not write to ' + filename);
-        exit;
-    end;
+        // create sound file
+        filename:= shortstring(UserPathPrefix) + '/VideoTemp/' + shortstring(RecPrefix) + '.sw';
+        Assign(audioFile, filename);
+        Rewrite(audioFile, 1);
+        if IOResult <> 0 then
+            begin
+            AddFileLog('Error: Could not write to ' + filename);
+            exit;
+            end;
+        end;
 
     // create file with camera positions
-    filename:= UserPathPrefix + '/VideoTemp/' + RecPrefix + '.txtout';
+    filename:= shortstring(UserPathPrefix) + '/VideoTemp/' + shortstring(RecPrefix) + '.txtout';
     Assign(cameraFile, filename);
-    Rewrite(cameraFile);
+    Rewrite(cameraFile, SizeOf(TFrame));
     if IOResult <> 0 then
-    begin
+        begin
         AddFileLog('Error: Could not write to ' + filename);
         exit;
-    end;
+        end;
 
-    // save audio parameters in sound file
-    BlockWrite(audioFile, frequency, 4);
-    BlockWrite(audioFile, channels, 4);
+    if cIsSoundEnabled then
+        begin
+        // save audio parameters in sound file
+        BlockWrite(audioFile, frequency, 4);
+        BlockWrite(audioFile, channels, 4);
 {$IOCHECKS ON}
 
-    // register callback for actual audio recording
-    Mix_SetPostMix(@RecordPostMix, nil);
+        // register callback for actual audio recording
+        Mix_SetPostMix(@RecordPostMix, nil);
+        end;
 
     startTime:= SDL_GetTicks();
     flagPrerecording:= true;
@@ -309,12 +341,18 @@ begin
     AddFileLog('StopPreRecording');
     flagPrerecording:= false;
 
-    // call SDL_LockAudio because RecordPostMix may be executing right now
-    SDL_LockAudio();
-    Close(audioFile);
+    if cIsSoundEnabled then
+        begin
+        // call SDL_LockAudio because RecordPostMix may be executing right now
+        SDL_LockAudio();
+        Close(audioFile);
+        end;
     Close(cameraFile);
-    Mix_SetPostMix(nil, nil);
-    SDL_UnlockAudio();
+    if cIsSoundEnabled then
+        begin
+        Mix_SetPostMix(nil, nil);
+        SDL_UnlockAudio();
+        end;
 
     if not thumbnailSaved then
         SaveThumbnail();

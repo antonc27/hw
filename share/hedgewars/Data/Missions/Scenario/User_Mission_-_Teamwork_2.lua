@@ -9,11 +9,12 @@ local enemy = nil
 local Pack = nil
 local help = false
 local GameOver = false
+local playerTeamName
 
 function onGameInit()
 	Seed = 0
 	GameFlags = gfDisableWind
-	TurnTime = 600000000
+	TurnTime = MAX_TURN_TIME
 	CaseFreq = 0
 	MinesNum = 0
 	MinesTime = 0
@@ -22,15 +23,14 @@ function onGameInit()
 	WaterRise = 0
 
 	Explosives = 0
-	Delay = 10
 	Map = "CrazyMission"
 	Theme = "CrazyMission"
 
-	AddTeam(loc("Feeble Resistance"), 14483456, "Simple", "Island", "Default", "cm_kiwi")
-	player = AddHog(loc("Greg"), 0, 30, "NoHat")
-	hlayer = AddHog(loc("Mark"), 0, 40, "NoHat")
+	playerTeamName = AddMissionTeam(-1)
+	player = AddMissionHog(30)
+	hlayer = AddMissionHog(40)
 
-	AddTeam(loc("Cybernetic Empire"), 1175851, "Simple", "Island", "Robot", "cm_binary")
+	AddTeam(loc("Cybernetic Empire"), -6, "ring", "Island", "Robot", "cm_binary")
 	enemy = AddHog(loc("WatchBot 4000"), 5, 50, "cyborg1")
 
 	SetGearPosition(player, 180, 555)
@@ -39,13 +39,13 @@ function onGameInit()
 end
 
 function onGameStart()
-	Pack = SpawnAmmoCrate(40, 888, amPickHammer)
-	SpawnAmmoCrate(90, 888, amBaseballBat)
-	SpawnAmmoCrate(822, 750, amBlowTorch)
-	SpawnAmmoCrate(700, 580, amJetpack)
-	SpawnAmmoCrate(1400, 425, amParachute)
-	SpawnAmmoCrate(1900, 770, amDynamite)
-	SpawnAmmoCrate(1794, 970, amDynamite)
+	Pack = SpawnSupplyCrate(40, 888, amPickHammer)
+	SpawnSupplyCrate(90, 888, amBaseballBat)
+	SpawnSupplyCrate(822, 750, amBlowTorch)
+	SpawnSupplyCrate(700, 580, amJetpack)
+	SpawnSupplyCrate(1400, 425, amParachute)
+	SpawnSupplyCrate(1900, 770, amDynamite)
+	SpawnSupplyCrate(1794, 970, amDynamite)
 
 	ShowMission(loc("Teamwork 2"), loc("Scenario"), loc("Eliminate WatchBot 4000.") .. "|" .. loc("Both your hedgehogs must survive.") .. "|" .. loc("Land mines explode instantly."), -amBaseballBat, 0)
 
@@ -97,7 +97,7 @@ end
 
 function onGearDelete(gear)
 	if gear == Pack then
-		HogSay(CurrentHedgehog, loc("This will certianly come in handy."), SAY_THINK)
+		HogSay(CurrentHedgehog, loc("This will certainly come in handy."), SAY_THINK)
 	end
 	-- Note: The victory sequence is done automatically by Hedgewars
 	if ( ((gear == player) or (gear == hlayer)) and (GameOver == false)) then
@@ -105,5 +105,11 @@ function onGearDelete(gear)
 		GameOver = true
 		SetHealth(hlayer, 0)
 		SetHealth(player, 0)
+	end
+end
+
+function onGameResult(winningClan)
+	if winningClan == GetTeamClan(playerTeamName) then
+		SaveMissionVar("Won", "true")
 	end
 end

@@ -38,6 +38,7 @@ KeyBinder::KeyBinder(QWidget * parent, const QString & helpText, const QString &
 {
     this->defaultText = defaultText;
     enableSignal = false;
+    p_hasConflicts = false;
 
     // Two-column tab layout
     QHBoxLayout * pageKeysLayout = new QHBoxLayout(this);
@@ -90,6 +91,12 @@ KeyBinder::KeyBinder(QWidget * parent, const QString & helpText, const QString &
     helpLabel->setStyleSheet("color: #130F2A; background: #F6CB1C; border: solid 4px #F6CB1C; border-radius: 10px; padding: auto 20px;");
     helpLabel->setFixedHeight(24);
     rightLayout->addWidget(helpLabel, 0, Qt::AlignCenter);
+    conflictLabel = new QLabel();
+    conflictLabel->setText(tr("Warning: The same key is assigned multiple times!"));
+    conflictLabel->setStyleSheet("color: white; background: #E31A1A; border: solid 4px #E31A1A; border-radius: 10px; padding: auto 20px;");
+    conflictLabel->setFixedHeight(24);
+    conflictLabel->setHidden(true);
+    rightLayout->addWidget(conflictLabel, 0, Qt::AlignCenter);
 
     // Category list and bind table row heights
     const int rowHeight = 20;
@@ -117,6 +124,21 @@ KeyBinder::KeyBinder(QWidget * parent, const QString & helpText, const QString &
     selectedBindTable = NULL;
     bindComboBoxCellMappings = new QHash<QObject *, QTableWidgetItem *>();
     bindCellComboBoxMappings = new QHash<QTableWidgetItem *, QComboBox *>();
+
+    dropDownIcon = new QIcon();
+    QPixmap dd1 = QPixmap(":/res/dropdown.png");
+    QPixmap dd2 = QPixmap(":/res/dropdown_selected.png");
+    dropDownIcon->addPixmap(dd1, QIcon::Normal);
+    dropDownIcon->addPixmap(dd2, QIcon::Selected);
+    conflictIcon = new QIcon();
+    QPixmap kc1 = QPixmap(":/res/keyconflict.png");
+    QPixmap kc2 = QPixmap(":/res/keyconflict_selected.png");
+    conflictIcon->addPixmap(kc1, QIcon::Normal);
+    conflictIcon->addPixmap(kc2, QIcon::Selected);
+    QPixmap emptySpace = QPixmap(16, 16);
+    emptySpace.fill(QColor(0, 0, 0, 0));
+    QIcon emptyIcon = QIcon(emptySpace);
+
     for (int i = 0; i < BINDS_NUMBER; i++)
     {
         if (cbinds[i].category != NULL)
@@ -154,7 +176,7 @@ KeyBinder::KeyBinder(QWidget * parent, const QString & helpText, const QString &
             curTable = new QTableWidget(0, 2);
             curTable->verticalHeader()->setVisible(false);
             curTable->horizontalHeader()->setVisible(false);
-            curTable->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+            curTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
             curTable->verticalHeader()->setDefaultSectionSize(rowHeight);
             curTable->setShowGrid(false);
             curTable->setStyleSheet("QTableWidget { border: none; } ");
@@ -167,31 +189,55 @@ KeyBinder::KeyBinder(QWidget * parent, const QString & helpText, const QString &
         }
 
         // Hidden combo box
-        QComboBox * comboBox = CBBind[i] = new QComboBox(curTable);
-        comboBox->setModel((QAbstractItemModel*)DataManager::instance().bindsModel());
-        comboBox->setVisible(false);
-        comboBox->setFixedWidth(200);
-        comboBox->setMaxVisibleItems(50);
+        QComboBox * comboBox;
+        if (cbinds[i].action != "!MULTI")
+        {
+            comboBox = CBBind[i] = new QComboBox(curTable);
+            comboBox->setModel((QAbstractItemModel*)DataManager::instance().bindsModel());
+            comboBox->setVisible(false);
+            comboBox->setMinimumWidth(400);
+            comboBox->setMaxVisibleItems(50);
+        }
+        else
+        {
+            comboBox = CBBind[i] = NULL;
+        }
 
         // Table row
         int row = curTable->rowCount();
         QTableWidgetItem * nameCell = new QTableWidgetItem(HWApplication::translate("binds", cbinds[i].name));
-        nameCell->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         curTable->insertRow(row);
         curTable->setItem(row, 0, nameCell);
-        QTableWidgetItem * bindCell = new QTableWidgetItem(comboBox->currentText());
-        bindCell->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        QTableWidgetItem * bindCell;
+        if (cbinds[i].action != "!MULTI")
+        {
+            bindCell = new QTableWidgetItem(comboBox->currentText());
+            nameCell->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+            bindCell->setIcon(*dropDownIcon);
+            bindCell->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        }
+        else
+        {
+            bindCell = new QTableWidgetItem(HWApplication::translate("binds (combination)", cbinds[i].strbind.toUtf8().constData()));
+            nameCell->setFlags(Qt::NoItemFlags);
+            bindCell->setFlags(Qt::NoItemFlags);
+            bindCell->setIcon(emptyIcon);
+        }
         curTable->setItem(row, 1, bindCell);
         curTable->resizeColumnsToContents();
         curTable->setFixedHeight(curTable->verticalHeader()->length() + 10);
 
-        // Updates the text in the table cell
-        connect(comboBox, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(bindChanged(const QString &)));
+        if (cbinds[i].action != "!MULTI")
+        {
+            // Updates the text in the table cell
+            connect(comboBox, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(bindChanged(const QString &)));
 
-        // Map combo box and that row's cells to each other
-        bindComboBoxCellMappings->insert(comboBox, bindCell);
-        bindCellComboBoxMappings->insert(nameCell, comboBox);
-        bindCellComboBoxMappings->insert(bindCell, comboBox);
+            // Map combo box and that row's cells to each other
+            bindComboBoxCellMappings->insert(comboBox, bindCell);
+            bindCellComboBoxMappings->insert(nameCell, comboBox);
+            bindCellComboBoxMappings->insert(bindCell, comboBox);
+        }
+
     }
 
     // Add stretch at end of last layout
@@ -231,6 +277,7 @@ void KeyBinder::bindChanged(const QString & text)
             if (CBBind[i] == sender())
             {
                 emit bindUpdate(i);
+                checkConflicts();
                 break;
             }
         }
@@ -241,14 +288,15 @@ void KeyBinder::bindChanged(const QString & text)
 void KeyBinder::bindCellClicked(QTableWidgetItem * item)
 {
     QComboBox * box = bindCellComboBoxMappings->value(item);
+    if(box == NULL)
+        return;
     QTableWidget * table = item->tableWidget();
-    QFrame * frame = box->findChild<QFrame*>();
 
-    box->showPopup();
-    frame->move(
-        frame->x() + table->horizontalHeader()->sectionSize(0),
-        frame->y() + (table->verticalHeader()->defaultSectionSize() * item->row())
+    box->move(
+        table->horizontalHeader()->sectionSize(0),
+        (table->verticalHeader()->defaultSectionSize() * (item->row() + 1)) - (box->height()) + 1
     );
+    box->showPopup();
 }
 
 // When a new row in a bind table is *selected*, this clears selection in any other table
@@ -263,18 +311,95 @@ void KeyBinder::bindSelectionChanged()
     }
 }
 
+// check if the given key is bound multiple times
+bool KeyBinder::checkConflictsWith(int compareTo, bool updateState)
+{
+    for(int i=0; i<BINDS_NUMBER; i++)
+    {
+        if(i == compareTo)
+            continue;
+        if(CBBind[i] == NULL || CBBind[compareTo] == NULL)
+            continue;
+        QString bind1 = CBBind[i]->currentData(Qt::UserRole + 1).toString();
+        QString bind2 = CBBind[compareTo]->currentData(Qt::UserRole + 1).toString();
+        // TODO: For team key binds, also check collisions with global key binds
+        if((!(bind1 == "none" || bind2 == "none" || bind1 == "default" || bind2 == "default")) && (bind1 == bind2))
+        {
+            if(updateState)
+            {
+                p_hasConflicts = true;
+                conflictLabel->setHidden(false);
+            }
+            QTableWidgetItem* conflictItem = bindComboBoxCellMappings->value(CBBind[i]);
+            conflictItem->setIcon(*conflictIcon);
+            conflictItem->setBackground(QBrush(QColor(0xE3, 0x1A, 0x1A)));
+            conflictItem->setForeground(QBrush(Qt::white));
+            conflictItems.append(conflictItem);
+            conflictItem = bindComboBoxCellMappings->value(CBBind[compareTo]);
+            conflictItem->setIcon(*conflictIcon);
+            conflictItem->setBackground(QBrush(QColor(0xE3, 0x1A, 0x1A)));
+            conflictItem->setForeground(QBrush(Qt::white));
+            conflictItems.append(conflictItem);
+            return true;
+        }
+    }
+    if(updateState)
+    {
+        p_hasConflicts = false;
+        conflictLabel->setHidden(true);
+    }
+    for (int c=0; c < conflictItems.size(); c++)
+    {
+        QTableWidgetItem* conflictItem = conflictItems[c];
+        conflictItem->setIcon(*dropDownIcon);
+        conflictItem->setBackground(QBrush(Qt::transparent));
+        conflictItem->setForeground(QBrush(QColor("#F6CB1C")));
+        conflictItem = NULL;
+    }
+    conflictItems.clear();
+    return false;
+}
+
+// check if any key is bound multiple times and causing a conflict
+bool KeyBinder::checkConflicts()
+{
+    bool conflict = false;
+    for(int i=0; i<BINDS_NUMBER; i++)
+    {
+        conflict = checkConflictsWith(i, false);
+        if(conflict)
+        {
+            p_hasConflicts = true;
+            conflictLabel->setHidden(false);
+            return true;
+        }
+    }
+    p_hasConflicts = false;
+    conflictLabel->setHidden(true);
+    return false;
+}
+
+bool KeyBinder::hasConflicts()
+{
+    return p_hasConflicts;
+}
+
 // Set a combobox's index
 void KeyBinder::setBindIndex(int keyIndex, int bindIndex)
 {
     enableSignal = false;
-    CBBind[keyIndex]->setCurrentIndex(bindIndex);
+    if(CBBind[keyIndex] != NULL)
+        CBBind[keyIndex]->setCurrentIndex(bindIndex);
     enableSignal = true;
 }
 
 // Return a combobox's selected index
 int KeyBinder::bindIndex(int keyIndex)
 {
-    return CBBind[keyIndex]->currentIndex();
+    if(CBBind[keyIndex] != NULL)
+        return CBBind[keyIndex]->currentIndex();
+    else
+        return 0;
 }
 
 // Clears selection and goes to first category
@@ -294,9 +419,12 @@ void KeyBinder::resetInterface()
     DataManager::instance().bindsModel()->item(0)->setData(defaultText, Qt::DisplayRole);
     for (int i = 0; i < BINDS_NUMBER; i++)
     {
-        CBBind[i]->setModel(DataManager::instance().bindsModel());
-        CBBind[i]->setCurrentIndex(0);
-        bindComboBoxCellMappings->value(CBBind[i])->setText(defaultText);
+        if (CBBind[i] != NULL)
+        {
+            CBBind[i]->setModel(DataManager::instance().bindsModel());
+            CBBind[i]->setCurrentIndex(0);
+            bindComboBoxCellMappings->value(CBBind[i])->setText(defaultText);
+        }
     }
 
     enableSignal = true;

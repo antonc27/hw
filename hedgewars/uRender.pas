@@ -53,6 +53,8 @@ procedure DrawCircleFilled      (X, Y, Radius: LongInt; r, g, b, a: Byte);
 
 procedure DrawLine              (X0, Y0, X1, Y1, Width: Single; color: LongWord); inline;
 procedure DrawLine              (X0, Y0, X1, Y1, Width: Single; r, g, b, a: Byte);
+procedure DrawLineWrapped       (X0, Y0, X1, Y1, Width: Single; goesLeft: boolean; Wraps: LongWord; color: LongWord); inline;
+procedure DrawLineWrapped       (X0, Y0, X1, Y1, Width: Single; goesLeft: boolean; Wraps: LongWord; r, g, b, a: Byte);
 procedure DrawLineOnScreen      (X0, Y0, X1, Y1, Width: Single; r, g, b, a: Byte);
 procedure DrawRect              (rect: TSDL_Rect; r, g, b, a: Byte; Fill: boolean);
 procedure DrawHedgehog          (X, Y: LongInt; Dir: LongInt; Pos, Step: LongWord; Angle: real);
@@ -65,10 +67,10 @@ procedure RenderClear           ();
 procedure RenderClear           (mode: TRenderMode);
 {$ENDIF}
 procedure RenderSetClearColor   (r, g, b, a: real);
-procedure Tint                  (r, g, b, a: Byte); inline;
+procedure Tint                  (r, g, b, a: Byte);
 procedure Tint                  (c: Longword); inline;
 procedure untint(); inline;
-procedure setTintAdd            (f: boolean); inline;
+procedure setTintAdd            (enable: boolean); inline;
 
 // call this to finish the rendering of current frame
 procedure FinishRender();
@@ -105,8 +107,8 @@ procedure openglTranslatef      (X, Y, Z: GLfloat); inline;
 
 
 implementation
-uses {$IFNDEF PAS2C} StrUtils, {$ENDIF}uVariables, uUtils, uConsts
-     {$IFDEF GL2}, uMatrix, uConsole{$ENDIF}, uPhysFSLayer, uDebug;
+uses {$IFNDEF PAS2C} StrUtils, {$ENDIF}uVariables, uUtils
+     {$IFDEF GL2}, uMatrix, uConsole, uPhysFSLayer, uDebug{$ENDIF}, uConsts;
 
 {$IFDEF USE_TOUCH_INTERFACE}
 const
@@ -123,9 +125,8 @@ var
 var VertexBuffer : array [0 ..59] of TVertex2f;
     TextureBuffer: array [0 .. 7] of TVertex2f;
     LastTint: LongWord = 0;
+{$IFNDEF GL2}
     LastColorPointer , LastTexCoordPointer , LastVertexPointer : Pointer;
-{$IFDEF GL2}
-    LastColorPointerN, LastTexCoordPointerN, LastVertexPointerN: Integer;
 {$ENDIF}
 
 {$IFDEF USE_S3D_RENDERING}
@@ -528,7 +529,10 @@ begin
 
 {$IFNDEF PAS2C}
     if not Load_GL_VERSION_2_0 then
-        halt;
+        begin
+        WriteLnToConsole('Load_GL_VERSION_2_0 returned false!');
+        halt(HaltStartupError);
+        end;
 {$ENDIF}
 
     shaderWater:= CompileProgram('water');
@@ -719,7 +723,7 @@ begin
 end;
 
 procedure openglRotatef(RotX, RotY, RotZ: GLfloat; dir: LongInt); inline;
-{ workaround for pascal bug http://bugs.freepascal.org/view.php?id=27222 }
+{ workaround for pascal bug https://bugs.freepascal.org/view.php?id=27222 }
 var tmpdir: LongInt;
 begin
 tmpdir:=dir;
@@ -740,8 +744,8 @@ begin
         {$ELSE}
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
-        {$ENDIF}
         LastTexCoordPointer:= nil;
+        {$ENDIF}
         end
     else
         begin
@@ -751,8 +755,8 @@ begin
         {$ELSE}
         glDisableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        {$ENDIF}
         LastColorPointer:= nil;
+        {$ENDIF}
         end;
     EnableTexture(not b);
 end;
@@ -775,58 +779,49 @@ end;
 procedure SetTexCoordPointer(p: Pointer; n: Integer); inline;
 begin
 {$IFDEF GL2}
-    if (p = LastTexCoordPointer) and (n = LastTexCoordPointerN) then
-        exit;
     glBindBuffer(GL_ARRAY_BUFFER, tBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * n * 2, p, GL_STATIC_DRAW);
     glEnableVertexAttribArray(aTexCoord);
     glVertexAttribPointer(aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, pointer(0));
-    LastTexCoordPointerN:= n;
 {$ELSE}
     if p = LastTexCoordPointer then
         exit;
     n:= n;
     glTexCoordPointer(2, GL_FLOAT, 0, p);
-{$ENDIF}
     LastTexCoordPointer:= p;
+{$ENDIF}
 end;
 
 procedure SetVertexPointer(p: Pointer; n: Integer); inline;
 begin
 {$IFDEF GL2}
-    if (p = LastVertexPointer) and (n = LastVertexPointerN) then
-        exit;
     glBindBuffer(GL_ARRAY_BUFFER, vBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * n * 2, p, GL_STATIC_DRAW);
     glEnableVertexAttribArray(aVertex);
     glVertexAttribPointer(aVertex, 2, GL_FLOAT, GL_FALSE, 0, pointer(0));
-    LastVertexPointerN:= n;
 {$ELSE}
     if p = LastVertexPointer then
         exit;
     n:= n;
     glVertexPointer(2, GL_FLOAT, 0, p);
-{$ENDIF}
     LastVertexPointer:= p;
+{$ENDIF}
 end;
 
 procedure SetColorPointer(p: Pointer; n: Integer); inline;
 begin
 {$IFDEF GL2}
-    if (p = LastColorPointer) and (n = LastColorPointerN) then
-        exit;
     glBindBuffer(GL_ARRAY_BUFFER, cBuffer);
     glBufferData(GL_ARRAY_BUFFER, n * 4, p, GL_STATIC_DRAW);
     glEnableVertexAttribArray(aColor);
     glVertexAttribPointer(aColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, pointer(0));
-    LastColorPointerN:= n;
 {$ELSE}
     if p = LastColorPointer then
         exit;
     n:= n;
     glColorPointer(4, GL_UNSIGNED_BYTE, 0, p);
-{$ENDIF}
     LastColorPointer:= p;
+{$ENDIF}
 end;
 
 procedure EnableTexture(enable:Boolean);
@@ -883,7 +878,10 @@ begin
         end
     else
         begin
-        openglPushMatrix; // save default scaling in matrix
+        if cScaleFactor = cDefaultZoomLevel then
+            begin
+            openglPushMatrix; // save default scaling in matrix;
+            end;
         openglLoadIdentity();
         openglScalef(f / cScreenWidth, -f / cScreenHeight, 1.0);
         openglTranslatef(0, -cScreenHeight div 2, 0);
@@ -944,7 +942,6 @@ if Dir < 0 then
 _t:= r^.y / SourceTexture^.h * SourceTexture^.ry;
 _b:= (r^.y + r^.h) / SourceTexture^.h * SourceTexture^.ry;
 
-glBindTexture(GL_TEXTURE_2D, SourceTexture^.id);
 
 xw:= X + W;
 yh:= Y + H;
@@ -967,9 +964,13 @@ TextureBuffer[2].Y:= _b;
 TextureBuffer[3].X:= _l;
 TextureBuffer[3].Y:= _b;
 
+
+glBindTexture(GL_TEXTURE_2D, SourceTexture^.id);
 SetVertexPointer(@VertexBuffer[0], 4);
 SetTexCoordPointer(@TextureBuffer[0], 4);
+
 glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
 end;
 
 procedure DrawTexture(X, Y: LongInt; Texture: PTexture); inline;
@@ -979,7 +980,6 @@ end;
 
 procedure DrawTexture(X, Y: LongInt; Texture: PTexture; Scale: GLfloat);
 begin
-
 openglPushMatrix;
 openglTranslatef(X, Y, 0);
 
@@ -996,6 +996,7 @@ UpdateModelviewProjection;
 glDrawArrays(GL_TRIANGLE_FAN, 0, Length(Texture^.vb));
 openglPopMatrix;
 
+UpdateModelviewProjection;
 end;
 
 { this contains tweaks in order to avoid land tile borders in blurry land mode }
@@ -1025,6 +1026,8 @@ UpdateModelviewProjection;
 
 glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 openglPopMatrix;
+
+UpdateModelviewProjection;
 end;
 
 procedure DrawTextureF(Texture: PTexture; Scale: GLfloat; X, Y, Frame, Dir, w, h: LongInt);
@@ -1132,6 +1135,8 @@ glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 openglPopMatrix;
 
+UpdateModelviewProjection;
+
 end;
 
 procedure DrawSpriteRotated(Sprite: TSprite; X, Y, Dir: LongInt; Angle: real);
@@ -1148,7 +1153,7 @@ begin
 if Angle <> 0  then
     begin
     // Check the bounding circle 
-    if isCircleOffscreen(X, Y, sqr(SpritesData[Sprite].Width) + sqr(SpritesData[Sprite].Height)) then
+    if isCircleOffscreen(X, Y, (sqr(SpritesData[Sprite].Width) + sqr(SpritesData[Sprite].Height)) div 4) then
         exit;
     end
 else
@@ -1171,9 +1176,13 @@ if Dir < 0 then
 if Angle <> 0  then
     openglRotatef(Angle, 0, 0, 1);
 
+UpdateModelviewProjection;
+
 DrawSprite(Sprite, -SpritesData[Sprite].Width div 2, -SpritesData[Sprite].Height div 2, Frame);
 
 openglPopMatrix;
+
+UpdateModelviewProjection;
 
 end;
 
@@ -1212,6 +1221,8 @@ if Angle <> 0  then
 DrawSprite(Sprite, -SpritesData[Sprite].Width div 2, -SpritesData[Sprite].Height div 2, Frame);
 
 openglPopMatrix;
+
+UpdateModelviewProjection;
 end;
 
 procedure DrawTextureRotated(Texture: PTexture; hw, hh, X, Y, Dir: LongInt; Angle: real);
@@ -1259,6 +1270,7 @@ glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 openglPopMatrix;
 
+UpdateModelviewProjection;
 end;
 
 procedure DrawSprite(Sprite: TSprite; X, Y, Frame: LongInt);
@@ -1327,11 +1339,17 @@ begin
         end;
 end;
 
+// Same as below, but with color as LongWord
 procedure DrawLine(X0, Y0, X1, Y1, Width: Single; color: LongWord); inline;
 begin
 DrawLine(X0, Y0, X1, Y1, Width, (color shr 24) and $FF, (color shr 16) and $FF, (color shr 8) and $FF, color and $FF)
 end;
 
+// Draw line between 2 points
+// X0, Y0: Start point
+// X0, Y1: End point
+// Width: Visual line width
+// r, g, b, a: Color
 procedure DrawLine(X0, Y0, X1, Y1, Width: Single; r, g, b, a: Byte);
 begin
     openglPushMatrix();
@@ -1342,6 +1360,108 @@ begin
     DrawLineOnScreen(X0, Y0, X1, Y1, Width, r, g, b, a);
 
     openglPopMatrix();
+
+    UpdateModelviewProjection;
+end;
+
+// Same as below, but with color as a longword
+procedure DrawLineWrapped(X0, Y0, X1, Y1, Width: Single; goesLeft: boolean; Wraps: LongWord; color: LongWord); inline;
+begin
+DrawLineWrapped(X0, Y0, X1, Y1, Width, goesLeft, Wraps, (color shr 24) and $FF, (color shr 16) and $FF, (color shr 8) and $FF, color and $FF);
+end;
+
+// Draw a line between 2 points, but it wraps around the
+// world edge for a given number of times.
+// goesLeft: true if the line direction from the start point is left
+// Wraps: Number of times the line intersects the wrapping world edge
+// r, g, b, a: color
+procedure DrawLineWrapped(X0, Y0, X1, Y1, Width: Single; goesLeft: boolean; Wraps: LongWord; r, g, b, a: Byte);
+var w: LongWord;
+    startX, startY, endX, endY: Single;
+    // total X and Y distance the line travels if you would unwrap it
+    // with this we know the slope of the line.
+    totalX, totalY: Single;
+    // x variable for the line formula
+    x: Single;
+begin
+    openglPushMatrix();
+    openglTranslatef(WorldDx, WorldDy, 0);
+
+    UpdateModelviewProjection;
+
+    startX:= X0;
+    startY:= Y0;
+    if (Wraps = 0) then
+        begin
+        // Wraps=0 is trivial: Just draw one direct connection
+        endX:= X1;
+        endY:= Y1;
+        DrawLineOnScreen(startX, startY, endX, endY, Width, r, g, b, a);
+        end
+    else
+        begin
+        // A wrapping line is drawn using multiple line segments
+        // which stop at the left and right border. We
+        // calculate the points at which the line intersects with the border.
+        // Then we draws all line segments.
+
+        // Calculate position of first wrap point
+        if goesLeft then
+            begin
+            endX:= LeftX;
+            totalX:= (RightX - X1) + (X0 - LeftX);
+            x:= X0 - LeftX;
+            end
+        else
+            begin
+            endX:= RightX;
+            totalX:= (RightX - X0) + (X1 - LeftX);
+            x:= RightX - X0;
+            end;
+        if (Wraps >= 2) then
+            totalX:= totalX + ((RightX - LeftX) * (Wraps-1));
+        totalY:= Y1 - Y0;
+        // Calculate Y of first wrap point using the line formula
+        endY:= Y0 + (totalY / totalX) * x;
+        // Draw line segment between starting point and first wrap point
+        DrawLineOnScreen(startX, startY, endX, endY, Width, r, g, b, a);
+
+        // Calculate and draw all remaining line segments
+        for w:=1 to Wraps do
+            begin
+            startY:= endY;
+            if goesLeft then
+                begin
+                startX:= RightX;
+                if w < Wraps then
+                    endX:= LeftX
+                else
+                    endX:= X1;
+                end
+            else
+                begin
+                startX:= LeftX;
+                if w < Wraps then
+                    endX:= RightX
+                else
+                    endX:= X1;
+                end;
+            if w < Wraps then
+                begin
+                x:= x + (RightX - LeftX);
+                endY:= Y0 + (totalY / totalX) * x;
+                end
+            else
+                endY:= Y1;
+
+            DrawLineOnScreen(startX, startY, endX, endY, Width, r, g, b, a);
+            end;
+
+        end;
+
+    openglPopMatrix();
+
+    UpdateModelviewProjection;
 end;
 
 procedure DrawLineOnScreen(X0, Y0, X1, Y1, Width: Single; r, g, b, a: Byte);
@@ -1376,7 +1496,6 @@ if (abs(rect.y) > rect.h) and ((abs(rect.y + rect.h / 2 - (cScreenHeight / 2)) -
     exit;
 
 EnableTexture(False);
-
 Tint(r, g, b, a);
 
 with rect do
@@ -1510,6 +1629,8 @@ begin
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
     openglPopMatrix;
+
+    UpdateModelviewProjection;
 end;
 
 procedure DrawScreenWidget(widget: POnScreenWidget);
@@ -1724,8 +1845,8 @@ if (WorldEdge <> weSea) then
 else
     PrepareVbForWater(true,
         OffsetY + WorldDy + cWaterLine, ViewTopY,
-        LongInt(LeftX)  + WorldDx - OffsetX, ViewLeftX,
-        LongInt(RightX) + WorldDx + OffsetX, ViewRightX,
+        leftX  + WorldDx - OffsetX, ViewLeftX,
+        rightX + WorldDx + OffsetX, ViewRightX,
         ViewBottomY,
         first, count);
 
@@ -1815,8 +1936,8 @@ realHeight:= SpritesData[sprite].Texture^.ry / waterFrames;
 dY:= -cWaveHeight + dy;
 ox:= -cWaveHeight + ox;
 
-lx:= LongInt(LeftX)  + WorldDx - ox;
-rx:= LongInt(RightX) + WorldDx + ox;
+lx:= leftX  + WorldDx - ox;
+rx:= rightX + WorldDx + ox;
 
 topy:= cWaterLine + WorldDy + dY;
 
@@ -1904,8 +2025,6 @@ glBindTexture(GL_TEXTURE_2D, SpritesData[sprite].Texture^.id);
 SetVertexPointer(@VertexBuffer[0], 8);
 SetTexCoordPointer(@TextureBuffer[0], 8);
 
-UpdateModelviewProjection;
-
 glDrawArrays(GL_TRIANGLE_STRIP, first, count);
 
 untint;
@@ -1925,7 +2044,7 @@ begin
     {$ENDIF}
 end;
 
-procedure Tint(r, g, b, a: Byte); inline;
+procedure Tint(r, g, b, a: Byte);
 var
     nc, tw: Longword;
 begin
@@ -1961,12 +2080,19 @@ begin
     LastTint:= cWhiteColor;
 end;
 
-procedure setTintAdd(f: boolean); inline;
+procedure setTintAdd(enable: boolean); inline;
 begin
-    if f then
+    {$IFDEF GL2}
+        if enable then
+            glUniform1i(glGetUniformLocation(shaderMain, pchar('tintAdd')), 1)
+        else
+            glUniform1i(glGetUniformLocation(shaderMain, pchar('tintAdd')), 0);
+    {$ELSE}
+    if enable then
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD)
     else
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    {$ENDIF}
 end;
 
 procedure ChangeDepth(rm: TRenderMode; d: GLfloat);
@@ -2008,13 +2134,10 @@ end;
 procedure initModule;
 begin
     LastTint:= cWhiteColor + 1;
+{$IFNDEF GL2}
     LastColorPointer    := nil;
     LastTexCoordPointer := nil;
     LastVertexPointer   := nil;
-{$IFDEF GL2}
-    LastColorPointerN   :=   0;
-    LastTexCoordPointerN:=   0;
-    LastVertexPointerN  :=   0;
 {$ENDIF}
 end;
 

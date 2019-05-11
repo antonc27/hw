@@ -31,8 +31,6 @@
 #include "pagedata.h"
 #include "databrowser.h"
 #include "hwconsts.h"
-#include "DataManager.h"
-#include "FileEngine.h"
 
 QLayout * PageDataDownload::bodyLayoutDefinition()
 {
@@ -59,9 +57,9 @@ QLayout * PageDataDownload::footerLayoutDefinition()
     pbHome->setMinimumWidth(50);
     pbHome->setWhatsThis(tr("Load the start page"));
 
-    pbOpenDir = addButton(tr("Open packages directory"), bottomLayout, 2, false, Qt::AlignBottom);
+    pbOpenDir = addButton(":/res/folder.png", bottomLayout, 2, true, Qt::AlignBottom);
     pbOpenDir->setStyleSheet("padding: 5px 10px");
-    pbOpenDir->setWhatsThis(tr("Open the directory in which the downloaded files are stored in your system"));
+    pbOpenDir->setWhatsThis(tr("Open packages directory"));
     pbOpenDir->setMinimumHeight(50);
 
     bottomLayout->setStretch(2, 1);
@@ -136,22 +134,34 @@ void PageDataDownload::request(const QUrl &url)
 void PageDataDownload::pageDownloaded()
 {
     QNetworkReply * reply = qobject_cast<QNetworkReply *>(sender());
+    const char *html =
+        "<center><h2>Hedgewars Downloadable Content</h2><br><br>"
+        "<h4><i>%1</i></h4></center>";
 
-    if (reply && (reply->error() == QNetworkReply::NoError)) {
-        QString html = QString::fromUtf8(reply->readAll());
-        int begin = html.indexOf("<!-- BEGIN -->");
-        int end = html.indexOf("<!-- END -->");
-        if(begin != -1 && begin < end)
+    if (reply) {
+        if (reply->error() == QNetworkReply::NoError)
         {
-            html.truncate(end);
-            html.remove(0, begin);
+            QString html = QString::fromUtf8(reply->readAll());
+                    int begin = html.indexOf("<!-- BEGIN -->");
+                    int end = html.indexOf("<!-- END -->");
+                    if(begin != -1 && begin < end)
+                    {
+                        html.truncate(end);
+                        html.remove(0, begin);
+                    }
+                    web->setHtml(html);
         }
-        web->setHtml(html);
-    } else
-        web->setHtml(QString(
-            "<center><h2>Hedgewars Downloadable Content</h2><br><br>"
-            "<p><i><h4>%1</i></h4></p></center>")
-            .arg(tr("This page requires an internet connection.")));
+        else
+        {
+            QString message = reply->error() == QNetworkReply::UnknownNetworkError ?
+                tr("Unknown network error (possibly missing SSL library).") :
+                QString(tr("This feature requires an Internet connection, but you don't appear to be online (error code: %1).")).arg(reply->error());
+            web->setHtml(QString(html).arg(message));
+        }
+    }
+    else {
+        web->setHtml(QString(html).arg(tr("Internal error: Reply object is invalid.")));
+    }
 }
 
 void PageDataDownload::fileDownloaded()
@@ -185,9 +195,6 @@ void PageDataDownload::fileDownloaded()
         out.write(reply->readAll());
 
         out.close();
-
-        // now mount it
-        FileEngineHandler::mount(fileName);
     }
 }
 
@@ -217,7 +224,6 @@ void PageDataDownload::onPageLeave()
     if (m_contentDownloaded)
     {
         m_contentDownloaded = false;
-        //DataManager::instance().reload();
     }
 }
 

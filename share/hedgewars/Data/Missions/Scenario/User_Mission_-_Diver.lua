@@ -19,7 +19,6 @@ function onGameInit()
 	MinesNum = 0 -- The number of mines being placed
 	MinesTime  = 1000
 	Explosives = 0 -- The number of explosives being placed
-	Delay = 10 -- The delay between each round
 	Map = "Hydrant" -- The map to be played
 	Theme = "City" -- The theme to be used
 
@@ -27,10 +26,10 @@ function onGameInit()
 	HealthDecrease = 0
 	WaterRise = 0
 
-	AddTeam(loc("Bloody Rookies"), 14483456, "Simple", "Island", "Default", "cm_eyes")
-	player = AddHog(loc("Hunter"), 0, 1, "NoHat")
+	AddMissionTeam(-1)
+	player = AddMissionHog(1)
 			
-	AddTeam(loc("Toxic Team"), 	1175851, "Simple", "Island", "Default", "cm_magicskull")
+	AddTeam(loc("Toxic Team"), -6, "skull", "Island", "Default", "cm_magicskull")
 	enemy = AddHog(loc("Poison"), 1, 100, "Skull")
 
 	SetGearPosition(player,430,516)
@@ -42,10 +41,10 @@ end
 function onGameStart()
 
 
-	SpawnAmmoCrate(426,886,amJetpack)
-	SpawnAmmoCrate(1544,690,amFirePunch)
-	SpawnAmmoCrate(950,851,amBlowTorch)
-	SpawnAmmoCrate(1032,853,amParachute)
+	SpawnSupplyCrate(426,886,amJetpack)
+	SpawnSupplyCrate(1544,690,amFirePunch)
+	SpawnSupplyCrate(950,851,amBlowTorch)
+	SpawnSupplyCrate(1032,853,amParachute)
 
 	AddGear(579, 296, gtMine, 0, 0, 0, 0)
 
@@ -99,6 +98,7 @@ function onGearDelete(gear)
 
 	if (gear == enemy) and (GameOver == false) then
 		ShowMission(loc("Diver"), loc("MISSION SUCCESSFUL"), loc("Congratulations!"), 0, 0)
+		SaveMissionVar("Won", "true")
 	elseif gear == player then
 		ShowMission(loc("Diver"), loc("MISSION FAILED"), loc("Oh no! Just try again!"), -amSkip, 0)		
 		GameOver = true

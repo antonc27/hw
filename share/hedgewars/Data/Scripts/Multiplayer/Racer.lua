@@ -95,7 +95,6 @@ HedgewarsScriptLoad("/Scripts/Params.lua")
 -- Got Variables?
 ------------------
 
-local fMod = 1000000 -- 1
 local roundLimit = 3
 local roundNumber = 0
 local firstClan = 10
@@ -115,6 +114,11 @@ local specialPointsY = {}
 local specialPointsCount = 0
 
 local TeamRope = false
+
+local waypointCursor = false
+local waypointPreview = nil
+
+local officialChallenge
 
 --------------------------
 -- hog and team tracking variales
@@ -137,9 +141,10 @@ local teamScore = {}
 --------
 
 local cGear = nil
+local cameraGear = nil -- gear created to center the cameera on
 
 local bestClan = 10
-local bestTime = 1000000
+local bestTime = MAX_TURN_TIME
 
 local gameBegun = false
 local gameOver = false
@@ -166,9 +171,71 @@ local boostX = 0
 local boostY = 0
 local boostValue = 1
 
+-- themes with bright background
+local brightThemes = {
+	Bath = true,
+	Bamboo = true,
+	Beach = true,
+	Blox = true,
+	Compost = true,
+	Desert = true,
+	Fruit = true,
+	Golf = true,
+	Hoggywood = true,
+	Jungle = true,
+	Olympics = true,
+	Sheep = true,
+}
+-- themes with medium or heavily mixed brightness.
+-- only add themes here if both bright and dark waypoint
+-- colors fail otherwise.
+local mediumThemes = {
+	Halloween = true,
+}
+-- All themes not explicitly listed above are assumed to
+-- be "dark" and work with the default bright waypoints.
+
+-- Waypoint colors in 3 color themes!
+-- We do this so the waypoints are easy on the eyes,
+-- at least in each of the default themes.
+
+-- Bright waypoints (default)
+local waypointColourBright = 0xFFFFFFFF -- Primary colour of inactive waypoints
+local waypointColourBrightAtPlacement = 0xAAAAAAFF -- Colour of non-highlighted waypoints while placing
+-- Medium bright waypoints
+local waypointColourMedium = 0x606060FF
+local waypointColourMediumAtPlacement = 0x404040FF
+-- Dark waypoints
+local waypointColourDark = 0x000000FF
+local waypointColourDarkAtPlacement = 0x303030FF
+
+-- Waypoints touched by the players assume the clan color, which is unchanged.
+-- Touched waypoints are not important to be visible.
+
+-- Default waypoint colors (only use these color variables in the code below)
+local waypointColour = waypointColourBright
+local waypointColourAtPlacement = waypointColourBrightAtPlacement
+
 -------------------
 -- general methods
 -------------------
+
+-- Returns brightness level of background from 1-3.
+-- 1 = brightest
+function GetBackgroundBrightness()
+	-- This just looks at the theme names above.
+	-- This code will fail for bright unofficial themes.
+	-- TODO: Change how this thing works.
+	-- Consider adding a function into the Lua API which looks
+	-- up the theme's sky color, so we could use thit instead.
+	if brightThemes[Theme] then
+		return 1
+	elseif mediumThemes[Theme] then
+		return 2
+	else
+		return 3
+	end
+end
 
 --[[
 Parameters syntax:
@@ -220,7 +287,7 @@ function RebuildTeamInfo()
                 teamNameArr[i] = " "
                 teamSize[i] = 0
                 teamIndex[i] = 0
-                teamScore[i] = 1000000
+                teamScore[i] = MAX_TURN_TIME
         end
         numTeams = 0
 
@@ -316,7 +383,7 @@ function CheckWaypoints()
 
                 if dist < (NR*NR) then
                         wpCol[i] = GetClanColor(GetHogClan(CurrentHedgehog))
-                        SetVisualGearValues(wpCirc[i], wpX[i], wpY[i], 20, 100, 1, 10, 0, wpRad, 5, wpCol[i])
+                        SetVisualGearValues(wpCirc[i], wpX[i], wpY[i], 64, 64, 1, 10, 0, wpRad, 5, wpCol[i])
 
                         wpRem = 0
                         for k = 0, (wpCount-1) do
@@ -373,7 +440,7 @@ function AdjustScores()
                 end
         end
 
-        if bestTime ~= 1000000 then
+        if bestTime ~= MAX_TURN_TIME then
                 bestTimeComment = string.format(loc("%.1fs"), (bestTime/1000))
         end
 
@@ -398,6 +465,11 @@ function AdjustScores()
                 PlaySound(sndHellish)
         end
 
+        for i = 0, (TeamsCount-1) do
+                if teamNameArr[i] ~= " " and teamScore[i] ~= MAX_TURN_TIME then
+                        SetTeamLabel(teamNameArr[i], string.format(loc("%.1fs"), teamScore[i]/1000))
+                end
+        end
 
         if bestTime == trackTime then
 
@@ -425,7 +497,7 @@ function onNewRound()
 
         totalComment = ""
         for i = 0, (TeamsCount-1) do
-                        if teamNameArr[i] ~= " " and teamScore[i] ~= 1000000 then
+                        if teamNameArr[i] ~= " " and teamScore[i] ~= MAX_TURN_TIME then
                                 teamComment[i] = string.format(loc("%s: %.1fs"), teamNameArr[i], (teamScore[i]/1000)) .. "|"
                         else
                                 teamComment[i] = string.format(loc("%s: Did not finish"), teamNameArr[i]) .. "|"
@@ -444,33 +516,68 @@ function onNewRound()
                 local unfinishedArray = {}
                 local sortedTeams = {}
                 local k = 1
+                local c = 1
+                local clanScores = {}
+                local previousClan
                 for i = 0, TeamsCount-1 do
-                        if teamScore[i] ~= 1000000 and teamNameArr[i] ~= " " then
+                        local clan = GetTeamClan(teamNameArr[i])
+                        if not clanScores[clan+1] then
+	                       clanScores[clan+1] = {}
+	                       clanScores[clan+1].index = clan
+	                       clanScores[clan+1].score = teamScore[i]
+                        end
+                        if teamScore[i] ~= MAX_TURN_TIME and teamNameArr[i] ~= " " then
                                sortedTeams[k] = {}
                                sortedTeams[k].name = teamNameArr[i]
                                sortedTeams[k].score = teamScore[i]
+	                       sortedTeams[k].clan = clan
                                k = k + 1
                         else
                                table.insert(unfinishedArray, string.format(loc("%s did not finish the race."), teamNameArr[i]))
                         end
                 end
-                table.sort(sortedTeams, function(team1, team2) return team1.score < team2.score end)
+                table.sort(sortedTeams, function(team1, team2)
+                        if team1.score == team2.score then
+                                return team1.clan < team2.clan
+                        else
+                                return team1.score < team2.score
+                        end
+                end)
+                table.sort(clanScores, function(clan1, clan2) return clan1.score < clan2.score end)
+                local rank = 0
+                local rankPlus = 0
+                local prevScore
+                local clanRanks = {}
+                for c = 1, #clanScores do
+                        rankPlus = rankPlus + 1
+                        if clanScores[c].score ~= prevScore then
+                                rank = rank + rankPlus
+                                rankPlus = 0
+                        end
+                        prevScore = clanScores[c].score
+                        clanRanks[clanScores[c].index] = rank
+                end
 
                 -- Write all the stats!
-
                 for i = 1, #sortedTeams do
-                        SendStat(siPointType, loc("milliseconds"))
+                        SendStat(siPointType, "!TIME")
+			SendStat(siTeamRank, tostring(clanRanks[GetTeamClan(sortedTeams[i].name)]))
                         SendStat(siPlayerKills, sortedTeams[i].score, sortedTeams[i].name)
                 end
 
-                if #sortedTeams >= 1 then
-                        SendStat(siGameResult, string.format(loc("%s wins!"), sortedTeams[1].name))
+		local roundDraw = false
+		if #clanScores >= 2 and clanScores[1].score == clanScores[2].score and clanScores[1].score ~= MAX_TURN_TIME then
+			roundDraw = true
+                        SendStat(siGameResult, loc("Round draw"))
+                        SendStat(siCustomAchievement, loc("The teams are tied for the fastest time."))
+                elseif #sortedTeams >= 1 then
                         SendStat(siGameResult, string.format(loc("%s wins!"), sortedTeams[1].name))
                         SendStat(siCustomAchievement, string.format(loc("%s wins with a best time of %.1fs."), sortedTeams[1].name, (sortedTeams[1].score/1000)))
                         for i=1,#unfinishedArray do
                                  SendStat(siCustomAchievement, unfinishedArray[i])
                         end
                 else
+			roundDraw = true
                         SendStat(siGameResult, loc("Round draw"))
                         SendStat(siCustomAchievement, loc("Nobody managed to finish the race. What a shame!"))
                         if specialPointsCount > 0 then
@@ -482,13 +589,17 @@ function onNewRound()
 
 		-- Kill all the losers
 		for i = 0, (numhhs-1) do
-			if GetHogClan(hhs[i]) ~= bestClan then
+			if GetHogClan(hhs[i]) ~= bestClan or roundDraw then
 				SetEffect(hhs[i], heResurrectable, 0)
 				SetHealth(hhs[i],0)
 			end
 		end
 
 		gameOver = true
+                for i=0, wpCount-1 do
+                         -- Fade out waypoints
+                         SetVisualGearValues(wpCirc[i], nil, nil, 0, 0, nil, 6)
+                end
 		EndTurn(true)
 
         end
@@ -512,6 +623,16 @@ function DisableTumbler(endTurn)
                         EndTurn(true)
                 end
                 racerActive = false -- newadd
+
+		if trackFinished and not gameOver then
+                         for i=0, wpCount-1 do
+                       	         SetVisualGearValues(wpCirc[i], nil, nil, 255, 255, nil, 2)
+                         end
+                elseif not gameOver then
+                         for i=0, wpCount-1 do
+                       	         SetVisualGearValues(wpCirc[i], nil, nil, 32, 32, nil, 1)
+                         end
+                end
         end
 end
 
@@ -527,9 +648,8 @@ function HandleGhost()
 
                 fastIndex = fastIndex + 1
 
-                tempE = AddVisualGear(fastX[fastIndex], fastY[fastIndex], vgtSmoke, 0, false)
-                g1, g2, g3, g4, g5, g6, g7, g8, g9, g10 = GetVisualGearValues(tempE)
-                SetVisualGearValues(tempE, g1, g2, g3, g4, g5, g6, g7, g8, g9, fastColour )
+                local tempE = AddVisualGear(fastX[fastIndex], fastY[fastIndex], vgtSmoke, 0, false)
+                SetVisualGearValues(tempE, nil, nil, nil, nil, nil, nil, nil, nil, nil, fastColour )
 
         end
 
@@ -579,14 +699,30 @@ function InstructionsRace()
 end
 
 function onGameStart()
-	SendGameResultOff()
-	SendRankingStatsOff()
-        SendHealthStatsOff()
-	SendAchievementsStatsOff()
+	if ClansCount >= 2 then
+		SendGameResultOff()
+		SendRankingStatsOff()
+        	SendHealthStatsOff()
+		SendAchievementsStatsOff()
+	end
+
+        SetSoundMask(sndIncoming, true)
+        SetSoundMask(sndMissed, true)
 
         roundN = 0
         lastRound = TotalRounds
         RoundHasChanged = false
+        officialChallenge = detectMapWithDigest()
+
+	if GetBackgroundBrightness() == 1 then
+		-- Dark waypoint colour theme
+		waypointColour = waypointColourDark
+		waypointColourAtPlacement = waypointColourDarkAtPlacement
+	elseif GetBackgroundBrightness() == 2 then
+		-- Medium waypoint colour theme
+		waypointColour = waypointColourMedium
+		waypointColourAtPlacement = waypointColourMediumAtPlacement
+	end
 
         for i = 0, (specialPointsCount-1) do
                 PlaceWayPoint(specialPointsX[i], specialPointsY[i], false)
@@ -621,19 +757,29 @@ function PlaceWayPoint(x,y,placedByUser)
 
             wpX[wpCount] = x
             wpY[wpCount] = y
-            if wpCount == 0 then
-                wpCol[wpCount] = 0x80ff80ff
-            else
-                wpCol[wpCount] = 0xffffffff
-            end
+            wpCol[wpCount] = waypointColour
             wpCirc[wpCount] = AddVisualGear(wpX[wpCount],wpY[wpCount],vgtCircle,0,true)
 
-            SetVisualGearValues(wpCirc[wpCount], wpX[wpCount], wpY[wpCount], 20, 100, 1, 10, 0, wpRad, 5, wpCol[wpCount])
+            local flashing, minO, maxO
+            if wpCount == 0 then
+                -- First waypoint flashes. Useful to know since this is the spawn position.
+                minO, maxO = 164, 255
+                flashing = 5
+            else
+                -- Other waypoints are not animated (before the race starts)
+                minO, maxO = 255, 255
+                flashing = 0
+            end
+            SetVisualGearValues(wpCirc[wpCount], wpX[wpCount], wpY[wpCount], minO, maxO, 1, flashing, 0, wpRad, 5, wpCol[wpCount])
+
+            -- Use alternate waypoint color for all waypoints but the last one. This gives a subtle “highlighting” effect.
+            SetVisualGearValues(wpCirc[wpCount-1], nil, nil, nil, nil, nil, nil, nil, nil, nil, waypointColourAtPlacement)
 
             wpCount = wpCount + 1
 
             if placedByUser then
                 AddCaption(string.format(loc("Waypoint placed. Available points remaining: %d"), wpLimit-wpCount))
+                PlaySound(sndPlaced)
             end
         end
     end
@@ -653,7 +799,9 @@ function DeletePreviousWayPoint()
         wpCol[wpCount] = nil
         DeleteVisualGear(wpCirc[wpCount])
         wpCirc[wpCount] = nil
+        SetVisualGearValues(wpCirc[wpCount-1], nil, nil, nil, nil, nil, nil, nil, nil, nil, waypointColour)
         AddCaption(string.format(loc("Waypoint removed. Available points: %d"), wpLimit-wpCount))
+        PlaySound(sndBump)
     else
         PlaySound(sndDenied)
         AddCaption(loc("No waypoint to be removed!"))
@@ -686,15 +834,9 @@ function onNewTurn()
         trackTime = 0
 
         currCount = 0 -- hopefully this solves problem
+        fastIndex = 0
         AddAmmo(CurrentHedgehog, amAirAttack, 0)
         gTimer = 0
-
-        -- Set the waypoints to unactive on new round
-        for i = 0,(wpCount-1) do
-                wpActive[i] = false
-                wpCol[i] = 0xffffffff
-                SetVisualGearValues(wpCirc[i], wpX[i], wpY[i], 20, 100, 1, 10, 0, wpRad, 5, wpCol[i])
-        end
 
         -- Handle Starting Stage of Game
         if (gameOver == false) and (gameBegun == false) then
@@ -721,17 +863,45 @@ function onNewTurn()
                 end
         end
 
+        -- Set the waypoints to unactive on new round
+        if gameBegun and not gameOver then
+                for i = 0,(wpCount-1) do
+                        wpActive[i] = false
+                        wpCol[i] = waypointColour
+                        local flashing, minO, maxO
+                        if i == 0 then
+                            -- Make first waypoint flash very noticably
+                            minO, maxO = 92, 255
+                            flashing = 2
+                        else
+                            minO, maxO = 164, 224
+                            flashing = 10
+                        end
+                        SetVisualGearValues(wpCirc[i], nil, nil, minO, maxO, nil, flashing, nil, nil, nil, wpCol[i])
+                end
+
+                if cameraGear then
+                        DeleteGear(cameraGear)
+                end
+                -- Move camera to first waypoint
+		-- We use a dummy gear to feed FollowGear. It does not affect the race.
+                cameraGear = AddGear(wpX[0], wpY[0], gtGenericFaller, 0, 0, 0, 5000)
+                SetState(cameraGear, bor(GetState(cameraGear), gstNoGravity+gstInvisible))
+                FollowGear(cameraGear)
+        end
+
         if gameOver == true then
                 gameBegun = false
                 racerActive = false -- newadd
         end
 
         AddAmmo(CurrentHedgehog, amTardis, 0)
+        AddAmmo(CurrentHedgehog, amResurrector, 0)
+        AddAmmo(CurrentHedgehog, amInvulnerable, 0)
         AddAmmo(CurrentHedgehog, amDrillStrike, 0)
         AddAmmo(CurrentHedgehog, amMineStrike, 0)
         AddAmmo(CurrentHedgehog, amNapalm, 0)
         AddAmmo(CurrentHedgehog, amPiano, 0)
-
 end
 
 function onGameTick20()
@@ -789,9 +959,15 @@ function onGameTick20()
                                 -- still in placement mode
                         end
 
-                end
-        end
-
+        	end
+		if not racerActive and not gameBegun and GetCurAmmoType() == amAirAttack then
+			waypointCursor = true
+		else
+			waypointCursor = false
+		end
+	else
+		waypointCursor = false
+	end
 
         -- has the player started his tumbling spree?
         if (CurrentHedgehog ~= nil) then
@@ -830,12 +1006,27 @@ function onGameTick20()
 
 end
 
-function onGearResurrect(gear)
+function onGameTick()
+	if waypointCursor then
+		if not waypointPreview then
+			waypointPreview = AddVisualGear(CursorX, CursorY, vgtCircle, 0, true)
+		end
+		SetVisualGearValues(waypointPreview, CursorX, CursorY, 200, 200, 0, 0, 0, div(wpRad, 5), 5, waypointColourAtPlacement)
+	else
+		if waypointPreview then
+			DeleteVisualGear(waypointPreview)
+			waypointPreview = nil
+		end
+	end
+end
 
-        AddVisualGear(GetX(gear), GetY(gear), vgtBigExplosion, 0, false)
+function onGearResurrect(gear, vGear)
 
         if gear == CurrentHedgehog then
                 DisableTumbler(false)
+        end
+        if vGear then
+                DeleteVisualGear(vGear)
         end
 
 end
@@ -851,8 +1042,6 @@ function onGearAdd(gear)
         elseif GetGearType(gear) == gtRope and TeamRope then
             SetTag(gear,1)
             SetGearValues(gear,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,GetClanColor(GetHogClan(CurrentHedgehog)))
-        elseif GetGearType(gear) == gtAirMine then
-            DeleteGear(gear)
         end
 end
 
@@ -860,6 +1049,8 @@ function onGearDelete(gear)
 
         if GetGearType(gear) == gtAirAttack then
                 cGear = nil
+        elseif gear == cameraGear then
+                cameraGear = nil
         end
 
 end
@@ -905,15 +1096,13 @@ function onAchievementsDeclaration()
         raceType = "mixed race"
     end
 
-    map = detectMapWithDigest()
-
     for i = 0, (numTeams-1) do
-        if teamScore[i] < 1000000 then
-            DeclareAchievement(raceType, teamNameArr[i], map, teamScore[i])
+        if teamScore[i] < MAX_TURN_TIME then
+            DeclareAchievement(raceType, teamNameArr[i], officialChallenge, teamScore[i])
         end
     end
 
-    if map ~= nil and fastCount > 0 then
+    if officialChallenge ~= nil and fastCount > 0 then
         StartGhostPoints(fastCount)
 
         for i = 0, (fastCount - 1) do

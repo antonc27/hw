@@ -23,17 +23,15 @@ function onGameInit()
 	MinesNum = 0 -- The number of mines being placed
 	MinesTime  = 1
 	Explosives = 0 -- The number of explosives being placed
-	Delay = 10 -- The delay between each round
 	Map = "Tree" -- The map to be played
 	Theme = "Halloween" -- The theme to be used
 	-- Disable Sudden Death
 	HealthDecrease = 0
 	WaterRise = 0
 
-	AddTeam(loc("Bloody Rookies"), 14483456, "Simple", "Island", "Default", "cm_eyes")
-	player = AddHog(loc("Hunter"), 0, 1, "NoHat")
-			--852718
-	AddTeam(loc("Toxic Team"), 	1175851, "Simple", "Island", "Default", "cm_magicskull")
+	AddMissionTeam(-1)
+	player = AddMissionHog(1)
+	AddTeam(loc("Toxic Team"), -6, "skull", "Island", "Default", "cm_magicskull")
 	enemy = AddHog(loc("Poison"), 1, 10, "Skull")
 
 	SetGearPosition(player,970,23)
@@ -71,16 +69,16 @@ function onGameStart()
 	AddGear(640,412,gtMine, 0, 0, 0, 0)
 
 	-- crates crates and more crates
-	SpawnAmmoCrate(1208,576,amBlowTorch)
-	SpawnAmmoCrate(1467,376,amPickHammer)
-	SpawnUtilityCrate(373,165,amGirder)
-	SpawnUtilityCrate(704,623,amJetpack)
-	SpawnUtilityCrate(1646,749,amLaserSight)
+	SpawnSupplyCrate(1208,576,amBlowTorch)
+	SpawnSupplyCrate(1467,376,amPickHammer)
+	SpawnSupplyCrate(373,165,amGirder)
+	SpawnSupplyCrate(704,623,amJetpack)
+	SpawnSupplyCrate(1646,749,amLaserSight)
 
-	SpawnAmmoCrate(745,418,amShotgun) --shotgun1
-	SpawnAmmoCrate(833,432,amFirePunch) --fire punch
-	GirderCrate = SpawnAmmoCrate(1789,514,amShotgun) -- final shotgun
-	SpawnAmmoCrate(1181,419,amBee)
+	SpawnSupplyCrate(745,418,amShotgun) --shotgun1
+	SpawnSupplyCrate(833,432,amFirePunch) --fire punch
+	GirderCrate = SpawnSupplyCrate(1789,514,amShotgun) -- final shotgun
+	SpawnSupplyCrate(1181,419,amBee)
 
 	ShowMission(loc("Spooky Tree"), loc("Scenario"),
 		loc("Eliminate the enemy before the time runs out.") .. "|" ..
@@ -141,15 +139,16 @@ end
 function onGearDelete(gear)
 
 	if gear == GirderCrate then
-		TurnTimeLeft = TurnTimeLeft + 30000
+		SetTurnTimeLeft(TurnTimeLeft + 30000)
 	end
 
 	if GetGearType(gear) == gtCase then
-		TurnTimeLeft = TurnTimeLeft + 5000
+		SetTurnTimeLeft(TurnTimeLeft + 5000)
 	end
 
 	if (gear == enemy) and (GameOver == false) then
 		ShowMission(loc("Spooky Tree"), loc("MISSION SUCCESSFUL"), loc("Congratulations!"), 0, 0);
+		SaveMissionVar("Won", "true")
 	elseif gear == player then
 		ShowMission(loc("Spooky Tree"), loc("MISSION FAILED"), loc("Oh no! Just try again!"), -amSkip, 0)
 		GameOver = true

@@ -37,6 +37,8 @@ type
          end;
 procedure RenderGear(Gear: PGear; x, y: LongInt);
 procedure RenderGearTimer(Gear: PGear; x, y: LongInt);
+procedure RenderGearHealth(Gear: PGear; x, y: LongInt);
+procedure RenderHHGuiExtras(Gear: PGear; ox, oy: LongInt);
 procedure DrawHHOrder();
 
 var RopePoints: record
@@ -52,7 +54,7 @@ var RopePoints: record
                 end;
 
 implementation
-uses uRender, uUtils, uVariables, uAmmos, Math, uVisualGearsList;
+uses uRender, uRenderUtils, uUtils, uVariables, uAmmos, Math, uVisualGearsList;
 
 procedure DrawRopeLinesRQ(Gear: PGear);
 var n: LongInt;
@@ -68,8 +70,6 @@ with RopePoints do
 if (RopePoints.Count > 0) or (Gear^.Elasticity.QWordValue > 0) then
     begin
     EnableTexture(false);
-    //glEnable(GL_LINE_SMOOTH);
-
     
     Tint(Gear^.Tint shr 24 div 3, Gear^.Tint shr 16 and $FF div 3, Gear^.Tint shr 8 and $FF div 3, Gear^.Tint and $FF);
 
@@ -91,7 +91,6 @@ if (RopePoints.Count > 0) or (Gear^.Elasticity.QWordValue > 0) then
     openglPopMatrix();
 
     EnableTexture(true);
-    //glDisable(GL_LINE_SMOOTH)
     end
 end;
 
@@ -242,7 +241,7 @@ if TeamsArray[t] <> nil then
         repeat
         hh:= @TeamsArray[t]^.Hedgehogs[i];
         inc(i);
-        if (hh <> nil) and (hh^.Gear <> nil) then
+        if (hh <> nil) and (hh^.Gear <> nil) and (not hh^.Unplaced) then
             begin
             inc(c);
             HHGear:= hh^.Gear;
@@ -259,13 +258,110 @@ if TeamsArray[t] <> nil then
 
 end;
 
+// Render some informational GUI next to hedgehog, like fuel and alternate weapon
+procedure RenderHHGuiExtras(Gear: PGear; ox, oy: LongInt);
+var HH: PHedgehog;
+    sx, sy, tx, ty, t, sign, m: LongInt;
+    dAngle: real;
+begin
+    HH:= Gear^.Hedgehog;
+    sx:= ox + 1; // this offset is very common
+    sy:= oy - 3;
+    if HH^.Unplaced then
+        exit;
+    if (Gear^.State and gstHHDeath) <> 0 then
+        exit;
+    if (Gear^.State and gstHHGone) <> 0 then
+        exit;
+    if (CinematicScript) then
+        exit;
+
+    // render finger (pointing arrow)
+    if bShowFinger and ((Gear^.State and gstHHDriven) <> 0) then
+        begin
+        ty := oy - 32;
+        // move finger higher up if tags are above hog
+        if (cTagsMask and htTeamName) <> 0 then
+            ty := ty - HH^.Team^.NameTagTex^.h - 2;
+        if (cTagsMask and htName) <> 0 then
+            ty := ty - HH^.NameTagTex^.h - 2;
+        if (cTagsMask and htHealth) <> 0 then
+            ty := ty - HH^.HealthTagTex^.h - 2;
+        tx := ox;
+
+        // don't go offscreen
+        t:= 32;
+        tx := min(max(tx, ViewLeftX + t), ViewRightX - t);
+        ty := min(ty, ViewBottomY - 96);
+        // don't overlap with HH or HH tags
+        if ty < ViewTopY + t then
+            begin
+            if abs(tx - ox) < abs(ty - oy)  then
+                ty:= max(ViewTopY + t, oy + t)
+            else
+                ty:= max(ViewTopY + t, ty);
+            end;
+
+        dAngle := DxDy2Angle(int2hwfloat(ty - oy), int2hwfloat(tx - ox)) + 90;
+
+        if (IsTooDarkToRead(HH^.Team^.Clan^.Color)) then
+            DrawSpriteRotatedF(sprFingerBackInv, tx, ty, RealTicks div 32 mod 16, 1, dAngle)
+        else
+            DrawSpriteRotatedF(sprFingerBack, tx, ty, RealTicks div 32 mod 16, 1, dAngle);
+        Tint(HH^.Team^.Clan^.Color shl 8 or $FF);
+        DrawSpriteRotatedF(sprFinger, tx, ty, RealTicks div 32 mod 16, 1, dAngle);
+        untint;
+        end;
+
+    // render crosshair
+    if (CrosshairGear <> nil) and (Gear = CrosshairGear) then
+        begin
+        sign:= hwSign(Gear^.dX);
+        m:= 1;
+        if ((Gear^.State and gstHHHJump) <> 0) and (HH^.Effects[heArtillery] = 0) then
+            m:= -1;
+        setTintAdd(true);
+        Tint(HH^.Team^.Clan^.Color shl 8 or $FF);
+        DrawTextureRotated(CrosshairTexture,
+                12, 12, CrosshairX + WorldDx, CrosshairY + WorldDy, 0,
+                sign * m * (Gear^.Angle * 180.0) / cMaxAngle);
+        untint;
+        setTintAdd(false);
+        end;
+
+    // render gear-related extras: alt weapon, fuel, other
+    if ((Gear^.State and gstHHDriven) <> 0) and (CurAmmoGear <> nil) then
+        begin
+        case CurAmmoGear^.Kind of
+            gtJetpack:      begin
+                            // render jetpack contour if underwater
+                            if (((not SuddenDeathDmg) and (WaterOpacity > 179)) or (SuddenDeathDmg and (SDWaterOpacity > 179))) and
+                                    ((cWaterLine < (hwRound(Gear^.Y) + Gear^.Radius - 16)) or
+                                    ((WorldEdge = weSea) and ((hwRound(Gear^.X) < LeftX) or (hwRound(Gear^.X) > RightX)))) then
+                                DrawSprite(sprJetpack, sx-32, sy-32, 4);
+                            if CurAmmoGear^.Tex <> nil then
+                                DrawTextureCentered(sx, sy - 40, CurAmmoGear^.Tex);
+                            DrawAltWeapon(Gear, sx, sy);
+                            end;
+            gtRope:         DrawAltWeapon(Gear, sx, sy);
+            gtParachute:    DrawAltWeapon(Gear, sx, sy);
+            gtLandGun:      if CurAmmoGear^.Tex <> nil then
+                                DrawTextureCentered(sx, sy - 40, CurAmmoGear^.Tex);
+            gtFlamethrower: if CurAmmoGear^.Tex <> nil then
+                                DrawTextureCentered(sx, sy - 40, CurAmmoGear^.Tex);
+            gtIceGun:       if CurAmmoGear^.Tex <> nil then
+                                DrawTextureCentered(sx, sy - 40, CurAmmoGear^.Tex);
+        end;
+        end;
+end;
 
 procedure DrawHH(Gear: PGear; ox, oy: LongInt);
 var i, t: LongInt;
     amt: TAmmoType;
     sign, hx, hy, tx, ty, sx, sy, m: LongInt;  // hedgehog, crosshair, temp, sprite, direction
     dx, dy, ax, ay, aAngle, dAngle, hAngle, lx, ly: real;  // laser, change
-    defaultPos, HatVisible: boolean;
+    wraps: LongWord; // numbe of wraps for laser in world wrap
+    defaultPos, HatVisible, inWorldBounds: boolean;
     HH: PHedgehog;
     CurWeapon: PAmmo;
     iceOffset:Longint;
@@ -273,13 +369,14 @@ var i, t: LongInt;
     curhat: PTexture;
 begin
     HH:= Gear^.Hedgehog;
+    CrosshairGear:= nil;
     if HH^.Unplaced then
         exit;
     if (HH^.CurAmmoType = amKnife) and (HH = CurrentHedgehog) then
          curhat:= ChefHatTexture
     else curhat:= HH^.HatTex;
     m:= 1;
-    if ((Gear^.State and gstHHHJump) <> 0) and (not cArtillery) then
+    if ((Gear^.State and gstHHHJump) <> 0) and (HH^.Effects[heArtillery] = 0) then
         m:= -1;
     sx:= ox + 1; // this offset is very common
     sy:= oy - 3;
@@ -368,7 +465,7 @@ begin
         begin
         if ((Gear^.State and (gstHHThinking or gstAnimation)) = 0) and
 /// If current ammo is active, and current ammo has alt attack and uses a crosshair  (rope, basically, right now, with no crosshair for parachute/saucer
-            (((CurAmmoGear <> nil) and //((Ammoz[CurAmmoGear^.AmmoType].Ammo.Propz and ammoprop_AltAttack) <> 0) and
+            (((CurAmmoGear <> nil) and
             // don't render crosshair/laser during kamikaze
             ((CurAmmoGear^.AmmoType <> amKamikaze) or ((Gear^.State and gstAttacking) = 0)) and
              ((Ammoz[CurAmmoGear^.AmmoType].Ammo.Propz and ammoprop_NoCrossHair) = 0)) or
@@ -407,38 +504,60 @@ begin
                 ty:= round(ly);
                 hx:= tx;
                 hy:= ty;
-                while ((ty and LAND_HEIGHT_MASK) = 0) and
-                    ((tx and LAND_WIDTH_MASK) = 0) and
-                    (Land[ty, tx] = 0) do // TODO: check for constant variable instead
+                wraps:= 0;
+                inWorldBounds := ((ty and LAND_HEIGHT_MASK) or (tx and LAND_WIDTH_MASK)) = 0;
+                while inWorldBounds and ((Land[ty, tx] and lfAll) = 0) do
                     begin
+                    if wraps > cMaxLaserSightWraps then
+                        break;
                     lx:= lx + ax;
                     ly:= ly + ay;
                     tx:= round(lx);
-                    ty:= round(ly)
-                    end;
-                // reached edge of land. assume infinite beam. Extend it way out past camera
-                if ((ty and LAND_HEIGHT_MASK) <> 0) or ((tx and LAND_WIDTH_MASK) <> 0) then
-                    begin
-                    tx:= round(lx + ax * (max(LAND_WIDTH,4096) div 2));
-                    ty:= round(ly + ay * (max(LAND_WIDTH,4096) div 2));
+                    ty:= round(ly);
+                    // reached edge of land.
+                    if ((ty and LAND_HEIGHT_MASK) <> 0) then
+                        begin
+                        // assume infinite beam. Extend it way out past camera
+                        tx:= round(lx + ax * (max(LAND_WIDTH,4096) div 2));
+                        ty:= round(ly + ay * (max(LAND_WIDTH,4096) div 2));
+                        break;
+                        end;
+
+                    if ((sign*m < 0) and (tx < LeftX)) or ((sign*m > 0) and (tx >= RightX)) then
+                        if (WorldEdge = weWrap) then
+                            // wrap beam
+                            begin
+                            if (sign*m) < 0 then
+                                lx:= RightX - (ax - (lx - LeftX))
+                            else
+                                lx:= LeftX + (ax - (RightX - lx));
+                            tx:= round(lx);
+                            inc(wraps);
+                            end
+                        else if (WorldEdge = weBounce) then
+                            // just stop
+                            break;
+
+                    if ((tx and LAND_WIDTH_MASK) <> 0) then
+                        begin
+                        if (WorldEdge <> weWrap) and (WorldEdge <> weBounce) then
+                            // assume infinite beam. Extend it way out past camera
+                            begin
+                            tx:= round(lx + ax * (max(LAND_WIDTH,4096) div 2));
+                            ty:= round(ly + ay * (max(LAND_WIDTH,4096) div 2));
+                            end;
+                        break;
+                        end;
                     end;
 
-                //if (abs(lx-tx)>8) or (abs(ly-ty)>8) then
-                    begin
-                    DrawLine(hx, hy, tx, ty, 1.0, $FF, $00, $00, $C0);
-                    end;
+                DrawLineWrapped(hx, hy, tx, ty, 1.0, (sign*m) < 0, wraps, $FF, $00, $00, $C0);
                 end;
-            // draw crosshair
+
+            // calculate crosshair position
             CrosshairX := Round(hwRound(Gear^.X) + dx * 80 + GetLaunchX(HH^.CurAmmoType, sign * m, Gear^.Angle));
             CrosshairY := Round(hwRound(Gear^.Y) + dy * 80 + GetLaunchY(HH^.CurAmmoType, Gear^.Angle));
-
-            setTintAdd(true);
-            Tint(HH^.Team^.Clan^.Color shl 8 or $FF);
-            DrawTextureRotated(CrosshairTexture,
-                    12, 12, CrosshairX + WorldDx, CrosshairY + WorldDy, 0,
-                    sign * m * (Gear^.Angle * 180.0) / cMaxAngle);
-            untint;
-            setTintAdd(false);
+            // crosshair will be rendered in RenderHHGuiExtras
+            CrosshairGear := Gear;
             end;
 
         hx:= ox + 8 * sign;
@@ -490,16 +609,19 @@ begin
                                 begin
                                 DrawTextureRotatedF(curhat, 1.0, -1.0, -6.0, ox, oy, 0, i, 32, 32,
                                     i*DxDy2Angle(CurAmmoGear^.dY, CurAmmoGear^.dX) + hAngle);
-                                if curhat^.w > 64 then
+                                if (curhat^.w > 64) or ((curhat^.w = 64) and (curhat^.h = 32)) then
                                     begin
+                                    if ((curhat^.w = 64) and (curhat^.h = 32)) then
+                                        tx := 1
+                                    else
+                                        tx := 32;
                                     Tint(HH^.Team^.Clan^.Color shl 8 or $FF);
-                                    DrawTextureRotatedF(curhat, 1.0, -1.0, -6.0, ox, oy, 32, i, 32, 32,
+                                    DrawTextureRotatedF(curhat, 1.0, -1.0, -6.0, ox, oy, tx, i, 32, 32,
                                         i*DxDy2Angle(CurAmmoGear^.dY, CurAmmoGear^.dX) + hAngle);
                                     untint
                                     end
                                 end
                     end;
-                    DrawAltWeapon(Gear, ox, oy);
                     defaultPos:= false
                     end;
                 gtBlowTorch:
@@ -521,14 +643,18 @@ begin
                                 sign,
                                 32,
                                 32);
-                            if curhat^.w > 64 then
+                            if (curhat^.w > 64) or ((curhat^.w = 64) and (curhat^.h = 32)) then
                                 begin
+                                if ((curhat^.w = 64) and (curhat^.h = 32)) then
+                                    tx := 1
+                                else
+                                    tx := 32;
                                 Tint(HH^.Team^.Clan^.Color shl 8 or $FF);
                                 DrawTextureF(curhat,
                                     1,
                                     sx,
                                     sy - 5,
-                                    32,
+                                    tx,
                                     sign,
                                     32,
                                     32);
@@ -608,26 +734,16 @@ begin
                                 CurAmmoGear^.Pos,
                                 sign,
                                 0);
-                        DrawSprite(sprCensored, ox - 32, oy - 20, 0)
+                        // sprCensored contains English text, so only show it for English locales
+                        // TODO: Make text translatable. But how?
+                        if Copy(cLanguage, 1, 2) = 'en' then
+                            DrawSprite(sprCensored, ox - 32, oy - 20, 0);
                         end;
                     defaultPos:= false
                     end;
-                gtFlamethrower:
-                    begin
-                    DrawSpriteRotatedF(sprHandFlamethrower, hx, hy, (RealTicks div 125) mod 4, sign, aangle);
-                    if CurAmmoGear^.Tex <> nil then
-                        DrawTextureCentered(sx, sy - 40, CurAmmoGear^.Tex)
-                    end;
-                gtLandGun:
-                    begin DrawSpriteRotated(sprHandBallgun, hx, hy, sign, aangle);
-                    if CurAmmoGear^.Tex <> nil then
-                        DrawTextureCentered(sx, sy - 40, CurAmmoGear^.Tex)
-                    end;
-                gtIceGun:
-                    begin DrawSpriteRotated(sprIceGun, hx, hy, sign, aangle);
-                    if CurAmmoGear^.Tex <> nil then
-                        DrawTextureCentered(sx, sy - 40, CurAmmoGear^.Tex)
-                    end;
+                gtFlamethrower: DrawSpriteRotatedF(sprHandFlamethrower, hx, hy, (RealTicks div 125) mod 4, sign, aangle);
+                gtLandGun: DrawSpriteRotated(sprHandBallgun, hx, hy, sign, aangle);
+                gtIceGun: DrawSpriteRotated(sprIceGun, hx, hy, sign, aangle);
             end;
 
             case CurAmmoGear^.Kind of
@@ -639,7 +755,7 @@ begin
                     defaultPos:= false;
                     HatVisible:= true
                     end;
-                gtShover:
+                gtShover, gtMinigun:
                     begin
                     DrawHedgehog(sx, sy, sign, 0, 5, 0);
                     defaultPos:= false;
@@ -730,7 +846,7 @@ begin
                 amSkip: DrawSpriteRotated(sprHandSkip, hx, hy, sign, aangle);
                 amClusterBomb: DrawSpriteRotated(sprHandCluster, hx, hy, sign, aangle);
                 amDynamite: DrawSpriteRotated(sprHandDynamite, hx, hy, sign, aangle);
-                amDuck: DrawSpriteRotatedF(sprHandDuck, hx, hy, 0, sign, aangle);
+                amCreeper: DrawSpriteRotatedF(sprHandCreeper, hx, hy, 0, sign, aangle);
                 amHellishBomb: DrawSpriteRotated(sprHandHellish, hx, hy, sign, aangle);
                 amGasBomb: DrawSpriteRotated(sprHandCheese, hx, hy, sign, aangle);
                 amMine: DrawSpriteRotated(sprHandMine, hx, hy, sign, aangle);
@@ -740,9 +856,6 @@ begin
                 amSeduction: begin
                              DrawSpriteRotated(sprHandSeduction, hx, hy, sign, aangle);
                              DrawCircle(ox, oy, 248, 4, $FF, $00, $00, $AA);
-                             //Tint($FF, $0, $0, $AA);
-                             //DrawTexture(ox - 240, oy - 240, SpritesData[sprVampiric].Texture, 10);
-                             //untint;
                              end;
                 amVampiric: DrawSpriteRotatedF(sprHandVamp, hx, hy, (RealTicks div 125) mod 4, sign, aangle);
                 amRCPlane: begin
@@ -756,30 +869,30 @@ begin
                         begin
                         if WorldEdge = weWrap then
                             begin
-                            if hwRound(Gear^.X) < LongInt(leftX) + 256 then
+                            if hwRound(Gear^.X) < leftX + 256 then
                                 DrawSpriteClipped(sprGirder,
                                                 rightX+(ox-leftX)-256,
                                                 oy-256,
-                                                LongInt(topY)+WorldDy,
-                                                LongInt(rightX)+WorldDx,
+                                                topY+WorldDy,
+                                                rightX+WorldDx,
                                                 cWaterLine+WorldDy,
-                                                LongInt(leftX)+WorldDx);
-                            if hwRound(Gear^.X) > LongInt(rightX) - 256 then
+                                                leftX+WorldDx);
+                            if hwRound(Gear^.X) > rightX - 256 then
                                 DrawSpriteClipped(sprGirder,
                                                 leftX-(rightX-ox)-256,
                                                 oy-256,
-                                                LongInt(topY)+WorldDy,
-                                                LongInt(rightX)+WorldDx,
+                                                topY+WorldDy,
+                                                rightX+WorldDx,
                                                 cWaterLine+WorldDy,
-                                                LongInt(leftX)+WorldDx)
+                                                leftX+WorldDx)
                             end;
                         DrawSpriteClipped(sprGirder,
                                         ox-256,
                                         oy-256,
-                                        LongInt(topY)+WorldDy,
-                                        LongInt(rightX)+WorldDx,
+                                        topY+WorldDy,
+                                        rightX+WorldDx,
                                         cWaterLine+WorldDy,
-                                        LongInt(leftX)+WorldDx)
+                                        leftX+WorldDx)
                         end
                     else if cBuildMaxDist > 0 then
                         begin
@@ -795,6 +908,7 @@ begin
 
             case amt of
                 amAirAttack,
+                amNapalm,
                 amMineStrike,
                 amDrillStrike: DrawSpriteRotated(sprHandAirAttack, sx, oy, sign, 0);
                 amPickHammer: DrawHedgehog(sx, sy,
@@ -802,7 +916,8 @@ begin
                             1,
                             2,
                             0);
-                amTeleport: DrawSpriteRotatedF(sprTeleport, sx, sy, 0, sign, 0);
+                amTeleport,
+                amPiano: DrawSpriteRotatedF(sprTeleport, sx, sy, 0, sign, 0);
                 amKamikaze: DrawHedgehog(sx, sy,
                             sign,
                             1,
@@ -820,7 +935,7 @@ begin
                             0,
                             sign,
                             0);
-                amBaseballBat:
+                amBaseballBat, amMinigun:
                     begin
                     HatVisible:= true;
                     DrawHedgehog(sx, sy,
@@ -837,23 +952,6 @@ begin
                     0);
 
                 HatVisible:= true;
-                (* with HH^ do
-                    if (HatTex <> nil)
-                    and (HatVisibility > 0) then
-                        DrawTextureF(HatTex,
-                            HatVisibility,
-                            sx,
-                            sy - 5,
-                            0,
-                            sign,
-                            32,
-                            32); *)
-            end;
-
-            case amt of
-                amBaseballBat: DrawSpritePivotedF(sprHandBaseball,
-                        sx + 9 * sign,
-                        sy + 2, 0, sign, -8, 1, aangle);
             end;
 
             defaultPos:= false
@@ -1023,26 +1121,22 @@ begin
                     end
                 end
         end;
+
     if (Gear^.State and gstHHDriven) <> 0 then
         begin
-    (*    if (CurAmmoGear = nil) then
-            begin
-            amt:= CurrentHedgehog^.CurAmmoType;
-            case amt of
-                amJetpack: DrawSprite(sprJetpack, sx-32, sy-32, 0);
-                end
-            end; *)
         if (CurAmmoGear = nil) then
             begin
-            if ((Gear^.State and (gstAttacked or gstAnimation or gstHHJumping)) = 0)
-            and (Gear^.Message and (gmLeft or gmRight) = 0) then
-            begin
+                if ((Gear^.State and (gstAttacked or gstAnimation or gstHHJumping)) = 0)
+                and (Gear^.Message and (gmLeft or gmRight) = 0) then
+                begin
                 amt:= CurrentHedgehog^.CurAmmoType;
-                case amt of
-                    amBaseballBat: DrawSpritePivotedF(sprHandBaseball,
-                        sx + 9 * sign, sy + 2, 0, sign, -8, 1, aangle);
+                    case amt of
+                        amBaseballBat: DrawSpritePivotedF(sprHandBaseball,
+                            sx + 9 * sign, sy + 2, 0, sign, -8, 1, aangle);
+                        amMinigun: DrawSpritePivotedF(sprMinigun,
+                            sx + 20 * sign, sy + 4, 0, sign, -18, -2, aangle);
+                    end;
                 end;
-            end;
             end
         else
             begin
@@ -1059,11 +1153,11 @@ begin
                             if (CurAmmoGear^.MsgParam and gmRight) <> 0 then
                                 DrawSprite(sprJetpack, sx-36, sy-28, 3)
                             end;
-                        if CurAmmoGear^.Tex <> nil then
-                            DrawTextureCentered(sx, sy - 40, CurAmmoGear^.Tex);
-                        DrawAltWeapon(Gear, sx, sy)
                         end;
-                gtShover: DrawSpritePivotedF(sprHandBaseball, sx + 9 * sign, sy + 2, CurAmmoGear^.Tag, sign, -8, 1, aangle);
+                gtShover: DrawSpritePivotedF(sprHandBaseball,
+                    sx + 9 * sign, sy + 2, CurAmmoGear^.Tag, sign, -8, 1, aangle);
+                gtMinigun: DrawSpritePivotedF(sprMinigun,
+                    sx + 20 * sign, sy + 4, CurAmmoGear^.Tag, sign, -18, -2, aangle);
                 end;
             end
         end;
@@ -1100,42 +1194,8 @@ begin
             if (CurAmmoGear <> nil) and (CurAmmoGear^.Kind = gtResurrector) then
                 DrawTextureCentered(ox, sy - cHHRadius - 7 - HealthTagTex^.h, HealthTagTex);
 
-            if bShowFinger and ((Gear^.State and gstHHDriven) <> 0) then
-                begin
-                ty := oy - 32;
-                // move finger higher up if tags are above hog
-                if (cTagsMask and htTeamName) <> 0 then
-                    ty := ty - Team^.NameTagTex^.h - 2;
-                if (cTagsMask and htName) <> 0 then
-                    ty := ty - NameTagTex^.h - 2;
-                if (cTagsMask and htHealth) <> 0 then
-                    ty := ty - HealthTagTex^.h - 2;
-                tx := ox;
-
-                // don't go offscreen
-                //tx := round(max(((-cScreenWidth + 16) / cScaleFactor) + SpritesData[sprFinger].Width div 2, min(((cScreenWidth - 16) / cScaleFactor) - SpritesData[sprFinger].Width div 2, tx)));
-                //ty := round(max(cScreenHeight div 2 - ((cScreenHeight - 16) / cScaleFactor) + SpritesData[sprFinger].Height div 2, min(cScreenHeight div 2 - ((-cScreenHeight + SpritesData[sprFinger].Height) / (cScaleFactor)) - SpritesData[sprFinger].Width div 2 - 96, ty)));
-                t:= 32;//trunc((SpritesData[sprFinger].Width + t) / cScaleFactor);
-                tx := min(max(tx, ViewLeftX + t), ViewRightX  - t);
-                t:= 32;//trunc((SpritesData[sprFinger].Height + t) / cScaleFactor);
-                ty := min(ty, ViewBottomY - 96);
-                // don't overlap with HH or HH tags
-                if ty < ViewTopY + t then
-                    begin
-                    if abs(tx - ox) < abs(ty - oy)  then
-                        ty:= max(ViewTopY + t, oy + t)
-                    else
-                        ty:= max(ViewTopY + t, ty);
-                    end;
-
-                dAngle := DxDy2Angle(int2hwfloat(ty - oy), int2hwfloat(tx - ox)) + 90;
-
-                DrawSpriteRotatedF(sprFinger, tx, ty, RealTicks div 32 mod 16, 1, dAngle);
-                end;
-
-
             if (Gear^.State and gstDrowning) = 0 then
-                if (Gear^.State and gstHHThinking) <> 0 then
+                if ((Gear^.State and gstHHThinking) <> 0) and (not CinematicScript) then
                     DrawSprite(sprQuestion, ox - 10, oy - cHHRadius - 34, (RealTicks shr 9) mod 8)
             end
         end;
@@ -1194,17 +1254,27 @@ var
     aAngle: real;
     startX, endX, startY, endY: LongInt;
 begin
-    if Gear^.State and gstFrozen <> 0 then Tint($A0, $A0, $FF, $FF);
-    //if Gear^.State and gstFrozen <> 0 then Tint(IceColor or $FF);
+    // airmine has its own sprite
+    if (Gear^.State and gstFrozen <> 0) and (Gear^.Kind <> gtAirMine) then Tint($A0, $A0, $FF, $FF);
     if Gear^.Target.X <> NoPointX then
         if Gear^.AmmoType = amBee then
             DrawSpriteRotatedF(sprTargetBee, Gear^.Target.X + WorldDx, Gear^.Target.Y + WorldDy, 0, 0, (RealTicks shr 3) mod 360)
     else if Gear^.AmmoType = amIceGun then
-        //DrawSprite(sprSnowDust, Gear^.Target.X + WorldDx, Gear^.Target.Y + WorldDy, (RealTicks shr 2) mod 8)
-        //DrawTextureRotatedF(SpritesData[sprSnowDust].Texture, 1, 0, 0, Gear^.Target.X + WorldDx, Gear^.Target.Y + WorldDy, (RealTicks shr 2) mod 8, 1, 22, 22, (RealTicks shr 3) mod 360)
         DrawTextureRotatedF(SpritesData[sprSnowDust].Texture, 1/(1+(RealTicks shr 8) mod 5), 0, 0, Gear^.Target.X + WorldDx, Gear^.Target.Y + WorldDy, (RealTicks shr 2) mod 8, 1, 22, 22, (RealTicks shr 3) mod 360)
     else
+        begin
+        if CurrentHedgehog <> nil then
+            begin
+            if (IsTooDarkToRead(CurrentHedgehog^.Team^.Clan^.Color)) then
+                DrawSpriteRotatedF(sprTargetPBackInv, Gear^.Target.X + WorldDx, Gear^.Target.Y + WorldDy, 0, 0, (RealTicks shr 3) mod 360)
+            else
+                DrawSpriteRotatedF(sprTargetPBack, Gear^.Target.X + WorldDx, Gear^.Target.Y + WorldDy, 0, 0, (RealTicks shr 3) mod 360);
+            Tint(CurrentHedgehog^.Team^.Clan^.Color shl 8 or $FF);
+            end;
         DrawSpriteRotatedF(sprTargetP, Gear^.Target.X + WorldDx, Gear^.Target.Y + WorldDy, 0, 0, (RealTicks shr 3) mod 360);
+        if CurrentHedgehog <> nil then
+            untint;
+        end;
 
     case Gear^.Kind of
           gtGrenade: DrawSpriteRotated(sprBomb, x, y, 0, Gear^.DirAngle);
@@ -1225,11 +1295,25 @@ begin
                   end;
        gtBall: DrawSpriteRotatedF(sprBalls, x, y, Gear^.Tag,0, Gear^.DirAngle);
 
-       gtPortal: if ((Gear^.Tag and 1) = 0) // still moving?
+       gtPortal: begin
+                 if ((Gear^.Tag and 1) = 0) // still moving?
                  or (Gear^.LinkedGear = nil) or (Gear^.LinkedGear^.LinkedGear <> Gear) // not linked&backlinked?
                  or ((Gear^.LinkedGear^.Tag and 1) = 0) then // linked portal still moving?
-                      DrawSpriteRotatedF(sprPortal, x, y, Gear^.Tag, hwSign(Gear^.dX), Gear^.DirAngle)
-                 else DrawSpriteRotatedF(sprPortal, x, y, 4 + Gear^.Tag div 2, hwSign(Gear^.dX), Gear^.DirAngle);
+                     DrawSpriteRotatedF(sprPortal, x, y, Gear^.Tag, hwSign(Gear^.dX), Gear^.DirAngle)
+                 else
+                     DrawSpriteRotatedF(sprPortal, x, y, 4 + Gear^.Tag div 2, hwSign(Gear^.dX), Gear^.DirAngle);
+
+                 // Portal ball trace effects
+                 if ((Gear^.Tag and 1) = 0) and ((GameTicks mod 4) = 0) and (not isPaused) then
+                     begin
+                     vg:= AddVisualGear(hwRound(Gear^.X), hwRound(Gear^.Y), vgtDust, 1);
+                     if vg <> nil then
+                         if Gear^.Tag = 0 then
+                             vg^.Tint:= $fab02ab0
+                         else if Gear^.Tag = 2 then
+                             vg^.Tint:= $364df7b0;
+                     end;
+                 end;
 
            gtDrill: if (Gear^.State and gsttmpFlag) <> 0 then
                         DrawSpriteRotated(sprAirDrill, x, y, 0, DxDy2Angle(Gear^.dY, Gear^.dX))
@@ -1241,17 +1325,15 @@ begin
            gtShell: DrawSpriteRotated(sprBazookaShell, x, y, 0, DxDy2Angle(Gear^.dY, Gear^.dX));
 
            gtGrave: begin
-                    DrawTextureF(Gear^.Hedgehog^.Team^.GraveTex, 1, x, y, (GameTicks shr 7+Gear^.uid) and 15, 1, 32, 32);
+                    DrawTextureF(Gear^.Hedgehog^.Team^.GraveTex, 1, x, y, (RealTicks shr 7+Gear^.uid) and 15, 1, 32, 32);
                     if Gear^.Health > 0 then
                         begin
-                        //Tint($33, $33, $FF, max($40, round($FF * abs(1 - (GameTicks mod (6000 div Gear^.Health)) / 750))));
-                        Tint($f5, $db, $35, max($40, round($FF * abs(1 - (GameTicks mod 1500) / (750 + Gear^.Health)))));
-                        //Tint($FF, $FF, $FF, max($40, round($FF * abs(1 - (RealTicks mod 1500) / 750))));
+                        Tint($f5, $db, $35, max($40, round($FF * abs(1 - (RealTicks mod 1500) / (750 + Gear^.Health)))));
                         DrawSprite(sprVampiric, x - 24, y - 24, 0);
                         untint
                         end
                     end;
-             gtBee: DrawSpriteRotatedF(sprBee, x, y, (GameTicks shr 5) mod 2, 0, DxDy2Angle(Gear^.dY, Gear^.dX));
+             gtBee: DrawSpriteRotatedF(sprBee, x, y, (RealTicks shr 5) mod 2, 0, DxDy2Angle(Gear^.dY, Gear^.dX));
       gtPickHammer: DrawSprite(sprPHammer, x - 16, y - 50 + LongInt(((GameTicks shr 5) and 1) * 2), 0);
             gtRope: DrawRope(Gear);
 
@@ -1262,16 +1344,21 @@ begin
                        DrawSpriteRotated(sprMineOn, x, y, 0, Gear^.DirAngle)
                     else DrawSpriteRotated(sprMineDead, x, y, 0, Gear^.DirAngle);
                     end;
-         gtAirMine: if Gear^.State and gstTmpFlag = 0 then                // mine is inactive
+         gtAirMine: 
+					if (Gear^.State and gstFrozen <> 0) then
+                        DrawSprite(sprFrozenAirMine, x-16, y-16, 0)
+					else if (Gear^.Tag <> 0) then
+                        DrawSprite(sprAirMine, x-16, y-16, 16 + ((RealTicks div 50 + Gear^.Uid) mod 16))
+					else if (Gear^.State and gstTmpFlag = 0) then                // mine is inactive
                         begin
-                        Tint(150,150,150,255);
+						if (Gear^.State and gstTmpFlag = 0) then Tint(150,150,150,255);
                         DrawSprite(sprAirMine, x-16, y-16, 15);
                         untint
                         end
                     else if (Gear^.Hedgehog <> nil) and (Gear^.Hedgehog^.Gear <> nil) then  // mine is chasing a hog
-                         DrawSprite(sprAirMine, x-16, y-16, (RealTicks div 25) mod 16)
+                         DrawSprite(sprAirMine, x-16, y-16, (RealTicks div 25 + Gear^.Uid) mod 16)
                     else if Gear^.State and gstChooseTarget <> 0 then   // mine is seeking for hogs
-                         DrawSprite(sprAirMine, x-16, y-16, (RealTicks div 125) mod 16)
+                         DrawSprite(sprAirMine, x-16, y-16, (RealTicks div 125 + Gear^.Uid) mod 16)
                     else
                          DrawSprite(sprAirMine, x-16, y-16, 4);           // mine is active but not seeking
 
@@ -1291,7 +1378,7 @@ begin
                                 DrawSprite(sprCase, x - 24, y - 28, 0)
                             else
                                 begin
-                                i:= (GameTicks shr 6) mod 64;
+                                i:= (RealTicks shr 6) mod 64;
                                 if i > 18 then i:= 0;
                                 DrawSprite(sprCase, x - 24, y - 24, i)
                                 end
@@ -1302,7 +1389,7 @@ begin
                                 DrawSprite(sprFAid, x - 24, y - 28, 0)
                             else
                                 begin
-                                i:= ((GameTicks shr 6) + 38) mod 64;
+                                i:= ((RealTicks shr 6) + 38) mod 64;
                                 if i > 13 then i:= 0;
                                 DrawSprite(sprFAid, x - 24, y - 24, i)
                                 end
@@ -1313,7 +1400,7 @@ begin
                                 DrawSprite(sprUtility, x - 24, y - 28, 0)
                             else
                                 begin
-                                i:= (GameTicks shr 6) mod 70;
+                                i:= (RealTicks shr 6) mod 70;
                                 if i > 23 then i:= 0;
                                 i:= i mod 12;
                                 DrawSprite(sprUtility, x - 24, y - 24, i)
@@ -1331,7 +1418,7 @@ begin
                         DrawSprite(sprExplosivesRoll, x - 24, y - 24, 0)
                     else if Gear^.State and gstAnimation = 0 then
                         begin
-                        i:= (GameTicks shr 6 + Gear^.uid*3) mod 64;
+                        i:= (RealTicks shr 6 + Gear^.uid*3) mod 64;
                         if i > 18 then
                             i:= 0;
                         DrawSprite(sprExplosives, x - 24, y - 24, i)
@@ -1367,11 +1454,10 @@ begin
      gtClusterBomb: DrawSpriteRotated(sprClusterBomb, x, y, 0, Gear^.DirAngle);
          gtCluster: DrawSprite(sprClusterParticle, x - 8, y - 8, 0);
            gtFlame: if Gear^.Tag and 1 = 0 then
-                         DrawTextureF(SpritesData[sprFlame].Texture, 2 / (Gear^.Tag mod 3 + 2), x, y, (GameTicks shr 7 + LongWord(Gear^.Tag)) mod 8, 1, 16, 16)
-                    else DrawTextureF(SpritesData[sprFlame].Texture, 2 / (Gear^.Tag mod 3 + 2), x, y, (GameTicks shr 7 + LongWord(Gear^.Tag)) mod 8, -1, 16, 16);
+                         DrawTextureF(SpritesData[sprFlame].Texture, 2 / (Gear^.Tag mod 3 + 2), x, y, (RealTicks shr 7 + LongWord(Gear^.Tag)) mod 8, 1, 16, 16)
+                    else DrawTextureF(SpritesData[sprFlame].Texture, 2 / (Gear^.Tag mod 3 + 2), x, y, (RealTicks shr 7 + LongWord(Gear^.Tag)) mod 8, -1, 16, 16);
        gtParachute: begin
                     DrawSprite(sprParachute, x - 24, y - 48, 0);
-                    DrawAltWeapon(Gear, x + 1, y - 3)
                     end;
        gtAirAttack: begin
                     Tint(Gear^.Tint);
@@ -1389,7 +1475,13 @@ begin
                         DrawSpriteRotatedF(sprTeleport, hwRound(HHGear^.X) + 1 + WorldDx, hwRound(HHGear^.Y) - 3 + WorldDy, 11 - Gear^.Pos, hwSign(HHGear^.dX), 0)
                         end
                     end;
-        gtSwitcher: DrawSprite(sprSwitch, x - 16, y - 56, (GameTicks shr 6) mod 12);
+        gtSwitcher: begin
+                    setTintAdd(true);
+                    Tint(Gear^.Hedgehog^.Team^.Clan^.Color shl 8 or $FF);
+                    DrawSprite(sprSwitch, x - 16, y - 56, (RealTicks shr 6) mod 12);
+                    untint;
+                    setTintAdd(false);
+                    end;
           gtTarget: begin
                     Tint($FF, $FF, $FF, round($FF * Gear^.Timer / 1000));
                     DrawSprite(sprTarget, x - 16, y - 16, 0);
@@ -1473,8 +1565,6 @@ begin
                         Tint(Gear^.Tint);
                         // Needs a nicer white texture to tint
                         DrawTextureRotatedF(SpritesData[sprSnowDust].Texture, 1, 0, 0, x, y, 0, 1, 8, 8, Gear^.DirAngle);
-                        //DrawSpriteRotated(sprSnowDust, x, y, 0, Gear^.DirAngle);
-                        //DrawTexture(x, y, SpritesData[sprVampiric].Texture, 0.1);
                         untint;
                         end
                     else //if not isInLag then
@@ -1489,12 +1579,9 @@ begin
                             DrawSprite(sprFlake, x, y, Gear^.Timer)
                         else
                             DrawSpriteRotatedF(sprFlake, x, y, Gear^.Timer, 1, Gear^.DirAngle);
-//DrawSprite(sprFlake, x-SpritesData[sprFlake].Width div 2, y-SpritesData[sprFlake].Height div 2, Gear^.Timer)
-//DrawSpriteRotatedF(sprFlake, x-SpritesData[sprFlake].Width div 2, y-SpritesData[sprFlake].Height div 2, Gear^.Timer, 1, Gear^.DirAngle);
                         if Gear^.FlightTime > 0 then
                             untint;
                         end;
-       //gtStructure: DrawSprite(sprTarget, x - 16, y - 16, 0);
           gtTardis: if Gear^.Pos <> 4 then
                         begin
                         if Gear^.Pos = 2 then
@@ -1509,11 +1596,6 @@ begin
                         DrawSprite(sprTardis, x-25, y-64,1);
                         if Gear^.Pos <> 2 then
                             untint
-(*
-                        Tint(Gear^.Hedgehog^.Team^.Clan^.Color shl 8 or max($00, round(Gear^.Power * abs(1 - (RealTicks mod 500) / 250))));
-                        DrawTexture(x-6, y-70, SpritesData[sprVampiric].Texture, 0.25);
-                        untint
-*)
                         end;
             gtIceGun: begin
                       HHGear := Gear^.Hedgehog^.Gear;
@@ -1537,25 +1619,45 @@ begin
                                 i:= random(100)+100;
                                 if Gear^.Target.X <> NoPointX then
                                     begin
-                                    DrawLine(Gear^.Target.X, Gear^.Target.Y, hwRound(HHGear^.X), hwRound(HHGear^.Y), 4.0, i, i, $FF, $40);
+                                    DrawLineWrapped(hwRound(HHGear^.X), hwRound(HHGear^.Y), Gear^.Target.X, Gear^.Target.Y, 4.0, hwSign(HHGear^.dX) < 0, Gear^.FlightTime, i, i, $FF, $40);
                                     end
                                 else
                                     begin
-                                    DrawLine(hwRound(HHGear^.X), hwRound(HHGear^.Y), hwRound(Gear^.X), hwRound(Gear^.Y), 4.0, i, i, $FF, $40);
+                                    DrawLineWrapped(hwRound(HHGear^.X), hwRound(HHGear^.Y), hwRound(Gear^.X), hwRound(Gear^.Y), 4.0, hwSign(HHGear^.dX) < 0, Gear^.FlightTime, i, i, $FF, $40);
                                     end;
                                 end
                           end
                       end;
-            gtDuck: DrawSpriteRotatedF(sprDuck, x, y, 1, Gear^.Tag, Gear^.Angle);
-            gtGenericFaller: DrawCircle(x, y, 3, 3, $FF, $00, $00, $FF);  // debug
+            gtCreeper: if (Gear^.Hedgehog <> nil) and (Gear^.Hedgehog^.Gear <> nil) then
+					     DrawSpriteRotatedF(sprCreeper, x, y, 1, hwRound(SignAs(_1,Gear^.Hedgehog^.Gear^.X-Gear^.X)), 0)
+					else DrawSpriteRotatedF(sprCreeper, x, y, 1, hwRound(SignAs(_1,Gear^.dX)), 0);
+
+            gtGenericFaller: begin
+                             // DEBUG: draw gtGenericFaller
+                             if Gear^.Tag <> 0 then
+                                 DrawCircle(x, y, max(3, Gear^.Radius), 3, $FF, $00, $00, $FF)
+                             else
+                                 DrawCircle(x, y, max(3, Gear^.Radius), 3, $80, $FF, $80, $8F);
+                             end;
          end;
     if Gear^.State and gstFrozen <> 0 then untint
 end;
 
 procedure RenderGearTimer(Gear: PGear; x, y: LongInt);
 begin
-if Gear^.RenderTimer and (Gear^.Tex <> nil) then
+if Gear^.RenderTimer and (Gear^.Tex <> nil) and (isShowGearInfo or (not (Gear^.Kind in [gtMine, gtSMine, gtAirMine]))) then
     DrawTextureCentered(x + 8, y + 8, Gear^.Tex);
+end;
+
+procedure RenderGearHealth(Gear: PGear; x, y: LongInt);
+begin
+if isShowGearInfo and (Gear^.RenderHealth) and (Gear^.Tex <> nil) then
+    begin
+    if (Gear^.Kind = gtCase) and ((Gear^.Pos and $02) <> 0) then
+        DrawTextureCentered(x, y - 38, Gear^.Tex);
+    if (Gear^.Kind = gtExplosives) then
+        DrawTextureCentered(x, y - 38, Gear^.Tex);
+    end;
 end;
 
 end.

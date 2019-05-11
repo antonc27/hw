@@ -3,15 +3,14 @@ HedgewarsScriptLoad("/Scripts/TargetPractice.lua")
 local params = {
 	ammoType = amClusterBomb,
 	gearType = gtClusterBomb,
+	secGearType = gtCluster,
 	missionTitle = loc("Cluster Bomb Training"),
 	solidLand = false,
 	map = "Trash",
 	theme = "Golf",
 	hog_x = 756,
-	hog_y = 370,
-	hogName = loc("Private Nolak"),
-	hogHat = "war_desertgrenadier1",
-	teamName = loc("The Hogies"),
+	hog_y = 403,
+	faceLeft = true,
 	targets = {
 		{ x = 628, y = 0 },
 		{ x = 891, y = 0 },

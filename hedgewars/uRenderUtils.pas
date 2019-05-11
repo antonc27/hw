@@ -38,6 +38,8 @@ function  RenderStringTex(s: ansistring; Color: Longword; font: THWFont): PTextu
 function  RenderStringTexLim(s: ansistring; Color: Longword; font: THWFont; maxLength: LongWord): PTexture;
 function  RenderSpeechBubbleTex(s: ansistring; SpeechType: Longword; font: THWFont): PTexture;
 
+function IsTooDarkToRead(TextColor: Longword): boolean; inline;
+
 implementation
 uses uVariables, uConsts, uTextures, SysUtils, uUtils, uDebug;
 
@@ -46,7 +48,7 @@ var r: TSDL_Rect;
 begin
     r:= rect^;
     if Clear then
-        SDL_FillRect(Surface, @r, 0);
+        SDL_FillRect(Surface, @r, SDL_MapRGBA(Surface^.format, 0, 0, 0, 0));
 
     BorderColor:= SDL_MapRGB(Surface^.format, BorderColor shr 16, BorderColor shr 8, BorderColor and $FF);
     FillColor:= SDL_MapRGB(Surface^.format, FillColor shr 16, FillColor shr 8, FillColor and $FF);
@@ -76,11 +78,20 @@ begin
     WriteInRoundRect:= WriteInRoundRect(Surface, X, Y, Color, Font, s, 0);
 end;*)
 
+function IsTooDarkToRead(TextColor: LongWord): boolean; inline;
+var clr: TSDL_Color;
+begin
+    clr.r:= (TextColor shr 16) and $FF;
+    clr.g:= (TextColor shr 8) and $FF;
+    clr.b:= TextColor and $FF;
+    IsTooDarkToRead:= not ((clr.r >= cInvertTextColorAt) or (clr.g >= cInvertTextColorAt) or (clr.b >= cInvertTextColorAt));
+end;
+
 function WriteInRoundRect(Surface: PSDL_Surface; X, Y: LongInt; Color: LongWord; Font: THWFont; s: ansistring; maxLength: LongWord): TSDL_Rect;
 var w, h: Longword;
     tmpsurf: PSDL_Surface;
-    clr: TSDL_Color;
     finalRect, textRect: TSDL_Rect;
+    clr: TSDL_Color;
 begin
     TTF_SizeUTF8(Fontz[Font].Handle, PChar(s), @w, @h);
     if (maxLength > 0) and (w > maxLength * HDPIScaleFactor) then w := maxLength * HDPIScaleFactor;
@@ -92,10 +103,14 @@ begin
     textRect.y:= Y;
     textRect.w:= w;
     textRect.h:= h;
-    DrawRoundRect(@finalRect, cWhiteColor, cNearBlackColor, Surface, true);
     clr.r:= (Color shr 16) and $FF;
     clr.g:= (Color shr 8) and $FF;
     clr.b:= Color and $FF;
+    clr.a:= $FF;
+    if (not IsTooDarkToRead(Color)) then
+        DrawRoundRect(@finalRect, cWhiteColor, cNearBlackColor, Surface, true)
+    else
+        DrawRoundRect(@finalRect, cNearBlackColor, cWhiteColor, Surface, true);
     tmpsurf:= TTF_RenderUTF8_Blended(Fontz[Font].Handle, PChar(s), clr);
     finalRect.x:= X + cFontBorder + cFontPadding;
     finalRect.y:= Y + cFontBorder;
@@ -336,7 +351,7 @@ begin
 
         WriteInRoundRect(finalSurface, 0, 0, Color, font, s, maxLength);
 
-        checkFails(SDL_SetColorKey(finalSurface, SDL_SRCCOLORKEY, 0) = 0, errmsgTransparentSet, false);
+        checkFails(SDL_SetColorKey(finalSurface, SDL_TRUE, 0) = 0, errmsgTransparentSet, false);
 
         RenderStringTexLim:= Surface2Tex(finalSurface, false);
 
@@ -554,7 +569,7 @@ begin
     rect.h:= textHeight + cornerHeight * 2 - edgeHeight * 2;
     i:= rect.w;
     j:= rect.h;
-    SDL_FillRect(finalSurface, @rect, cWhiteColor);
+    SDL_FillRect(finalSurface, @rect, SDL_MapRGB(finalSurface^.format, cWhiteColor shr 16, cWhiteColor shr 8, cWhiteColor and $FF));
 
     pos:= 1; line:= 0;
     while GetNextSpeechLine(s, #1, pos, substr) do

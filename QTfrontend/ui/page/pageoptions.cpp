@@ -134,6 +134,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
 
             CBTeamName = new QComboBox(groupTeams);
             CBTeamName->setMaxVisibleItems(50);
+            CBTeamName->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
             groupTeams->layout()->addWidget(CBTeamName, 0, 0);
 
             BtnNewTeam = new QPushButton(groupTeams);
@@ -141,6 +142,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
             BtnNewTeam->setIconSize(pmNew.size());
             BtnNewTeam->setIcon(pmNew);
             BtnNewTeam->setMaximumWidth(pmNew.width() + 6);
+            BtnNewTeam->setStyleSheet("padding: 0px;");
             connect(BtnNewTeam, SIGNAL(clicked()), this, SIGNAL(newTeamRequested()));
             groupTeams->layout()->addWidget(BtnNewTeam, 0, 1);
 
@@ -149,6 +151,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
             BtnEditTeam->setIconSize(pmEdit.size());
             BtnEditTeam->setIcon(pmEdit);
             BtnEditTeam->setMaximumWidth(pmEdit.width() + 6);
+            BtnEditTeam->setStyleSheet("padding: 0px;");
             connect(BtnEditTeam, SIGNAL(clicked()), this, SLOT(requestEditSelectedTeam()));
             groupTeams->layout()->addWidget(BtnEditTeam, 0, 2);
 
@@ -157,6 +160,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
             BtnDeleteTeam->setIconSize(pmDelete.size());
             BtnDeleteTeam->setIcon(pmDelete);
             BtnDeleteTeam->setMaximumWidth(pmDelete.width() + 6);
+            BtnDeleteTeam->setStyleSheet("padding: 0px;");
             connect(BtnDeleteTeam, SIGNAL(clicked()), this, SLOT(requestDeleteSelectedTeam()));
             groupTeams->layout()->addWidget(BtnDeleteTeam, 0, 3);
 
@@ -168,13 +172,14 @@ QLayout * PageOptions::bodyLayoutDefinition()
         }
 
         { // group: schemes
-            OptionGroupBox * groupSchemes = new OptionGroupBox(":/res/weaponsicon.png", tr("Schemes"), this);
+            OptionGroupBox * groupSchemes = new OptionGroupBox(":/res/schemeicon.png", tr("Schemes"), this);
             leftColumn->addWidget(groupSchemes);
 
             groupSchemes->layout()->setColumnStretch(0, 1);
 
             SchemesName = new QComboBox(groupSchemes);
             SchemesName->setMaxVisibleItems(50);
+            SchemesName->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
             groupSchemes->layout()->addWidget(SchemesName, 0, 0);
 
             SchemeNew = new QPushButton(groupSchemes);
@@ -182,6 +187,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
             SchemeNew->setIconSize(pmNew.size());
             SchemeNew->setIcon(pmNew);
             SchemeNew->setMaximumWidth(pmNew.width() + 6);
+            SchemeNew->setStyleSheet("padding: 0px;");
             groupSchemes->layout()->addWidget(SchemeNew, 0, 1);
 
             SchemeEdit = new QPushButton(groupSchemes);
@@ -189,6 +195,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
             SchemeEdit->setIconSize(pmEdit.size());
             SchemeEdit->setIcon(pmEdit);
             SchemeEdit->setMaximumWidth(pmEdit.width() + 6);
+            SchemeEdit->setStyleSheet("padding: 0px;");
             groupSchemes->layout()->addWidget(SchemeEdit, 0, 2);
 
             SchemeDelete = new QPushButton(groupSchemes);
@@ -196,6 +203,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
             SchemeDelete->setIconSize(pmDelete.size());
             SchemeDelete->setIcon(pmDelete);
             SchemeDelete->setMaximumWidth(pmDelete.width() + 6);
+            SchemeDelete->setStyleSheet("padding: 0px;");
             groupSchemes->layout()->addWidget(SchemeDelete, 0, 3);
         }
 
@@ -207,6 +215,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
 
             WeaponsName = new QComboBox(groupWeapons);
             WeaponsName->setMaxVisibleItems(50);
+            WeaponsName->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
             groupWeapons->layout()->addWidget(WeaponsName, 0, 0);
 
             WeaponNew = new QPushButton(groupWeapons);
@@ -214,6 +223,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
             WeaponNew->setIconSize(pmNew.size());
             WeaponNew->setIcon(pmNew);
             WeaponNew->setMaximumWidth(pmNew.width() + 6);
+            WeaponNew->setStyleSheet("padding: 0px;");
             groupWeapons->layout()->addWidget(WeaponNew, 0, 1);
 
             WeaponEdit = new QPushButton(groupWeapons);
@@ -221,6 +231,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
             WeaponEdit->setIconSize(pmEdit.size());
             WeaponEdit->setIcon(pmEdit);
             WeaponEdit->setMaximumWidth(pmEdit.width() + 6);
+            WeaponEdit->setStyleSheet("padding: 0px;");
             groupWeapons->layout()->addWidget(WeaponEdit, 0, 2);
 
             WeaponDelete = new QPushButton(groupWeapons);
@@ -228,6 +239,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
             WeaponDelete->setIconSize(pmDelete.size());
             WeaponDelete->setIcon(pmDelete);
             WeaponDelete->setMaximumWidth(pmDelete.width() + 6);
+            WeaponDelete->setStyleSheet("padding: 0px;");
             groupWeapons->layout()->addWidget(WeaponDelete, 0, 3);
         }
 
@@ -276,7 +288,8 @@ QLayout * PageOptions::bodyLayoutDefinition()
             groupGame->layout()->addWidget(winResContainer, 2, 1);
 
             QLabel *winLabelX = new QLabel(groupGame);
-            winLabelX->setText("x"); // decorational x
+            //: Multiplication sign, to be used between two numbers. Note the “x” is only a dummy character, we recommend to use “×” if your language permits it
+            winLabelX->setText(tr("x"));
             winLabelX->setFixedWidth(40);
             winLabelX->setAlignment(Qt::AlignCenter);
 
@@ -308,11 +321,23 @@ QLayout * PageOptions::bodyLayoutDefinition()
             SLQuality->setFixedWidth(150);
             groupGame->layout()->addWidget(SLQuality, 3, 1, Qt::AlignLeft);
 
+            // Zoom
+            QLabel * lblZoom = new QLabel(groupGame);
+            lblZoom->setText(QLabel::tr("Zoom (%)"));
+            lblZoom->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+            groupGame->layout()->addWidget(lblZoom, 4, 0);
+
+            SLZoom = new QSpinBox(groupGame);
+            SLZoom->setSingleStep(5);
+            SLZoom->setMaximum(150);
+            SLZoom->setMinimum(50);
+            groupGame->layout()->addWidget(SLZoom, 4, 1, Qt::AlignLeft);
+
             // Stereo spacing
 
             QLabel * lblStereo = new QLabel(groupGame);
             lblStereo->setText(QLabel::tr("Stereoscopy"));
-            groupGame->layout()->addWidget(lblStereo, 4, 0);
+            groupGame->layout()->addWidget(lblStereo, 5, 0);
 
             CBStereoMode = new QComboBox(groupGame);
             CBStereoMode->setWhatsThis(QComboBox::tr("Stereoscopy creates an illusion of depth when you wear 3D glasses."));
@@ -333,16 +358,16 @@ QLayout * PageOptions::bodyLayoutDefinition()
             CBStereoMode->addItem(QComboBox::tr("Side-by-side"));
             CBStereoMode->addItem(QComboBox::tr("Top-Bottom"));
             CBStereoMode->setFixedWidth(CBResolution->width());
-            groupGame->layout()->addWidget(CBStereoMode, 4, 1);
+            groupGame->layout()->addWidget(CBStereoMode, 5, 1);
 
             // Divider
 
-            groupGame->addDivider(); // row 5
+            groupGame->addDivider(); // row 6
 
             // FPS limit
 
             QHBoxLayout * fpsLayout = new QHBoxLayout();
-            groupGame->layout()->addLayout(fpsLayout, 6, 0, 1, 2);
+            groupGame->layout()->addLayout(fpsLayout, 7, 0, 1, 2);
             QLabel * maxfps = new QLabel(groupGame);
             maxfps->setText(QLabel::tr("FPS limit"));
             fpsLayout->addWidget(maxfps);
@@ -359,30 +384,30 @@ QLayout * PageOptions::bodyLayoutDefinition()
 
             // Divider
 
-            groupGame->addDivider(); // row 7
+            groupGame->addDivider(); // row 8
 
             // Alternative damage show
 
             CBAltDamage = new QCheckBox(groupGame);
             CBAltDamage->setText(QCheckBox::tr("Alternative damage show"));
-            groupGame->layout()->addWidget(CBAltDamage, 8, 0, 1, 2);
+            groupGame->layout()->addWidget(CBAltDamage, 9, 0, 1, 2);
 
             // Show ammo menu tooltips
 
             WeaponTooltip = new QCheckBox(groupGame);
             WeaponTooltip->setText(QCheckBox::tr("Show ammo menu tooltips"));
-            groupGame->layout()->addWidget(WeaponTooltip, 9, 0, 1, 2);
+            groupGame->layout()->addWidget(WeaponTooltip, 10, 0, 1, 2);
 
             groupGame->addDivider();
 
             lblTags = new QLabel(groupGame);
             lblTags->setText(QLabel::tr("Displayed tags above hogs and translucent tags"));
-            groupGame->layout()->addWidget(lblTags, 11, 0, 1, 2);
+            groupGame->layout()->addWidget(lblTags, 12, 0, 1, 2);
 
             tagsContainer = new QWidget();
             QHBoxLayout * tagsLayout = new QHBoxLayout(tagsContainer);
             tagsLayout->setSpacing(0);
-            groupGame->layout()->addWidget(tagsContainer, 12, 0, 1, 2);
+            groupGame->layout()->addWidget(tagsContainer, 13, 0, 1, 2);
 
             CBTeamTag = new QCheckBox(groupGame);
             CBTeamTag->setText(QCheckBox::tr("Team"));
@@ -408,7 +433,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
         }
 
         { // group: frontend
-            OptionGroupBox * groupFrontend = new OptionGroupBox(":/res/graphicsicon.png", tr("Frontend"), this);
+            OptionGroupBox * groupFrontend = new OptionGroupBox(":/res/frontendicon.png", tr("Frontend"), this);
             rightColumn->addWidget(groupFrontend);
 
             // Fullscreen
@@ -504,6 +529,14 @@ QLayout * PageOptions::bodyLayoutDefinition()
             CBMusic->setText(QCheckBox::tr("Music"));
             CBMusic->setWhatsThis(QCheckBox::tr("In-game music"));
             groupGame->layout()->addWidget(CBMusic, 1, 2, 1, 2, Qt::AlignLeft);
+
+            // Dampen
+
+            CBDampenAudio = new QCheckBox(groupGame);
+            //: Checkbox text. If checked, the in-game audio volume is reduced (=dampened) when the game window loses its focus
+            CBDampenAudio->setText(QCheckBox::tr("Dampen when losing focus"));
+            CBDampenAudio->setWhatsThis(QCheckBox::tr("Reduce the game audio volume if the game window has lost its focus"));
+            groupGame->layout()->addWidget(CBDampenAudio, 2, 1, 1, 3, Qt::AlignLeft);
         }
 
         { // group: frontend
@@ -651,17 +684,9 @@ QLayout * PageOptions::bodyLayoutDefinition()
                 // Fallback code, if language name is empty for some reason. This should normally not happen
                 if(entryName.isEmpty())
                 {
-                    if(lname == "gd")
-                    {
-                        /* Workaround for Qt4: nativeLanguageName does not return correct name for Scottish Gaelic (QTBUG-59929),
-                           so we have to add it ourselves :-/ */
-                        entryName = QString::fromUtf8("Gàidhlig");
-                    }
-                    else
-                    {
-                        // If all else fails, show error and the locale identifier
-                        entryName = tr("MISSING LANGUAGE NAME [%1]").arg(lname);
-                    }
+                    // Show error and the locale identifier
+                    //: In the case of an error, this is shown in the language selection for a language with unknown name. %1 = language code
+                    entryName = tr("MISSING LANGUAGE NAME [%1]").arg(lname);
                 }
                 CBLanguage->addItem(entryName, lname);
             }
@@ -707,7 +732,7 @@ QLayout * PageOptions::bodyLayoutDefinition()
             btnUpdateNow = new QPushButton(groupUpdates);
             connect(btnUpdateNow, SIGNAL(clicked()), this, SLOT(checkForUpdates()));
             btnUpdateNow->setWhatsThis(tr("Check for updates"));
-            btnUpdateNow->setText("Check now");
+            btnUpdateNow->setText(tr("Check now"));
             btnUpdateNow->setFixedSize(130, 30);
             groupUpdates->layout()->addWidget(btnUpdateNow, 0, 1);
         }
@@ -797,10 +822,10 @@ QLayout * PageOptions::bodyLayoutDefinition()
         widthEdit->setValidator(new QIntValidator(this));
         groupVideoRec->layout()->addWidget(widthEdit, 5, 1);
 
-        // x
+        // multiplication sign
 
         QLabel *labelX = new QLabel(groupVideoRec);
-        labelX->setText("X");
+        labelX->setText(tr("x"));
         groupVideoRec->layout()->addWidget(labelX, 5, 2);
 
         // height
@@ -1193,6 +1218,7 @@ void PageOptions::tabIndexChanged(int index)
             QModelIndexList mdl = binds->match(binds->index(0, 0), Qt::UserRole + 1, value, 1, Qt::MatchExactly);
             if(mdl.size() == 1) binder->setBindIndex(i, mdl[0].row());
         }
+        binder->checkConflicts();
     }
 
     currentTab = index;
@@ -1215,9 +1241,12 @@ void PageOptions::bindUpdated(int bindID)
 // Returns: The bind model index of the default.
 int PageOptions::resetBindToDefault(int bindID)
 {
+    if (QString(cbinds[bindID].action) == QString("!MULTI"))
+        return -1;
     QStandardItemModel * binds = DataManager::instance().bindsModel();
     QModelIndexList mdl = binds->match(binds->index(0, 0), Qt::UserRole + 1, cbinds[bindID].strbind, 1, Qt::MatchExactly);
-    if(mdl.size() == 1) binder->setBindIndex(bindID, mdl[0].row());
+    if(mdl.size() == 1)
+        binder->setBindIndex(bindID, mdl[0].row());
     return mdl[0].row();
 }
 
@@ -1226,7 +1255,9 @@ void PageOptions::resetAllBinds()
 {
     for (int i = 0; i < BINDS_NUMBER; i++)
     {
-        resetBindToDefault(i);
-        bindUpdated(i);
+        int ret = resetBindToDefault(i);
+        if(ret != -1)
+            bindUpdated(i);
     }
+    binder->checkConflicts();
 }

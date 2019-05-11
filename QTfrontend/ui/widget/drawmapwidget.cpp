@@ -56,12 +56,16 @@ void DrawMapWidget::setScene(DrawMapScene * scene)
 
     ui->graphicsView->setScene(scene);
     connect(scene, SIGNAL(pathChanged()), this, SLOT(pathChanged()));
+    connect(scene, SIGNAL(brushSizeChanged(int)), this, SLOT(brushSizeChanged_slot(int)));
 }
 
 void DrawMapWidget::resizeEvent(QResizeEvent * event)
 {
     Q_UNUSED(event);
 
+	if(!m_scene)
+		return;
+		
     int height = this->height();
     int width = this->width();
 
@@ -133,6 +137,11 @@ void DrawMapWidget::setPathType(DrawMapScene::PathType pathType)
     if(m_scene) m_scene->setPathType(pathType);
 }
 
+void DrawMapWidget::setBrushSize(int brushSize)
+{
+    if(m_scene) m_scene->setBrushSize(brushSize);
+}
+
 void DrawMapWidget::save(const QString & fileName)
 {
     if(m_scene)
@@ -145,6 +154,7 @@ void DrawMapWidget::save(const QString & fileName)
             errorMsg.setIcon(QMessageBox::Warning);
             errorMsg.setWindowTitle(QMessageBox::tr("File error"));
             errorMsg.setText(QMessageBox::tr("Cannot open '%1' for writing").arg(fileName));
+            errorMsg.setTextFormat(Qt::PlainText);
             errorMsg.setWindowModality(Qt::WindowModal);
             errorMsg.exec();
         }
@@ -165,6 +175,7 @@ void DrawMapWidget::load(const QString & fileName)
             errorMsg.setIcon(QMessageBox::Warning);
             errorMsg.setWindowTitle(QMessageBox::tr("File error"));
             errorMsg.setText(QMessageBox::tr("Cannot open '%1' for reading").arg(fileName));
+            errorMsg.setTextFormat(Qt::PlainText);
             errorMsg.setWindowModality(Qt::WindowModal);
             errorMsg.exec();
         }
@@ -179,7 +190,10 @@ void DrawMapWidget::pathChanged()
     ui->lblPoints->setNum(m_scene->pointsCount());
 }
 
-
+void DrawMapWidget::brushSizeChanged_slot(int brushSize)
+{
+    emit brushSizeChanged(brushSize);
+}
 
 DrawMapView::DrawMapView(QWidget *parent) :
     QGraphicsView(parent)

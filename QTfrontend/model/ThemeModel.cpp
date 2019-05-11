@@ -33,19 +33,46 @@ ThemeModel::ThemeModel(QObject *parent) :
     m_themesLoaded = false;
 
     m_filteredNoDLC = NULL;
+    m_filteredNoHidden = NULL;
+    m_filteredNoDLCOrHidden = NULL;
 }
 
-QSortFilterProxyModel * ThemeModel::withoutDLC()
+// Filters out DLC themes, e.g. themes which do not come by default
+ThemeFilterProxyModel * ThemeModel::withoutDLC()
 {
     if (m_filteredNoDLC == NULL)
     {
-        m_filteredNoDLC = new QSortFilterProxyModel(this);
+        m_filteredNoDLC = new ThemeFilterProxyModel(this);
         m_filteredNoDLC->setSourceModel(this);
-        // filtering based on IsDlcRole would be nicer
-        // but seems this model can only do string-based filtering :|
-        m_filteredNoDLC->setFilterRegExp(QRegExp("^[^*]"));
+        m_filteredNoDLC->setFilterDLC(true);
     }
     return m_filteredNoDLC;
+}
+
+// Filters out hidden themes, these are themes which are not supposed to be
+// seen by the user.
+ThemeFilterProxyModel * ThemeModel::withoutHidden()
+{
+    if (m_filteredNoHidden == NULL)
+    {
+        m_filteredNoHidden = new ThemeFilterProxyModel(this);
+        m_filteredNoHidden->setSourceModel(this);
+        m_filteredNoHidden->setFilterHidden(true);
+    }
+    return m_filteredNoHidden;
+}
+
+// Combination of the two above for convenience
+ThemeFilterProxyModel * ThemeModel::withoutDLCOrHidden()
+{
+    if (m_filteredNoDLCOrHidden == NULL)
+    {
+        m_filteredNoDLCOrHidden = new ThemeFilterProxyModel(this);
+        m_filteredNoDLCOrHidden->setSourceModel(this);
+        m_filteredNoDLCOrHidden->setFilterDLC(true);
+        m_filteredNoDLCOrHidden->setFilterHidden(true);
+    }
+    return m_filteredNoDLCOrHidden;
 }
 
 int ThemeModel::rowCount(const QModelIndex &parent) const
@@ -95,16 +122,52 @@ void ThemeModel::loadThemes() const
 
     foreach (QString theme, themes)
     {
-        // themes without icon are supposed to be hidden
-        QString iconpath = QString("physfs://Themes/%1/icon.png").arg(theme);
-
-        if (!QFile::exists(iconpath))
-            continue;
-
         QMap<int, QVariant> dataset;
 
+        // Ignore directories without theme.cfg
+        QFile themeCfgFile(QString("physfs://Themes/%1/theme.cfg").arg(theme));
+        if (!themeCfgFile.open(QFile::ReadOnly))
+        {
+            continue;
+        }
+
+        // themes without icon are supposed to be hidden
+        QString iconpath = QString("physfs://Themes/%1/icon.png").arg(theme);
+        if (!QFile::exists(iconpath))
+        {
+            dataset.insert(IsHiddenRole, true);
+        }
+        else
+        {
+            QTextStream stream(&themeCfgFile);
+            QString line = stream.readLine();
+            QString key;
+            while (!line.isNull())
+            {
+                key = QString(line);
+                int equalsPos = line.indexOf('=');
+                key.truncate(equalsPos - 1);
+                key = key.simplified();
+                if (!line.startsWith(';') && key == "hidden")
+                {
+                    dataset.insert(IsHiddenRole, true);
+                    break;
+                }
+                line = stream.readLine();
+            }
+        }
+
+        // Themes without land textures are considered "background themes"
+        // since they cannot be used for generated maps, but they can be used
+        // for image maps.
+        QString landtexpath = QString("physfs://Themes/%1/LandTex.png").arg(theme);
+        if (!QFile::exists(landtexpath))
+        {
+            dataset.insert(IsBackgroundThemeRole, true);
+        }
+
         // detect if theme is dlc
-        QString themeDir = PHYSFS_getRealDir(QString("Themes/%1/icon.png").arg(theme).toLocal8Bit().data());
+        QString themeDir = PHYSFS_getRealDir(QString("Themes/%1").arg(theme).toLocal8Bit().data());
         bool isDLC = !themeDir.startsWith(datadir->absolutePath());
         dataset.insert(IsDlcRole, isDLC);
 
@@ -118,9 +181,14 @@ void ThemeModel::loadThemes() const
         dataset.insert(Qt::DisplayRole, (isDLC ? "*" : "") + theme);
 
         // load and set preview icon
-        QIcon preview(QString("physfs://Themes/%1/icon@2x.png").arg(theme));
-        dataset.insert(Qt::DecorationRole, preview);
+        iconpath = QString("physfs://Themes/%1/icon@2x.png").arg(theme);
+        if (QFile::exists(iconpath))
+        {
+            QIcon preview(QString("physfs://Themes/%1/icon@2x.png").arg(theme));
+            dataset.insert(Qt::DecorationRole, preview);
+        }
 
         m_data.append(dataset);
+        themeCfgFile.close();
     }
 }

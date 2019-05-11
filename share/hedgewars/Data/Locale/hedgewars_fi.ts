@@ -1,11 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="fi">
+<TS version="2.1" language="fi">
 <context>
     <name>About</name>
     <message>
         <source>Unknown Compiler</source>
         <translation>Tuntematon kääntäjä</translation>
+    </message>
+    <message>
+        <source>Hedgewars %1</source>
+        <extracomment>%1 contains Hedgewars&apos; version number</extracomment>
+        <translation type="unfinished">Hedgewars %1</translation>
+    </message>
+    <message>
+        <source>Revision %1 (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Visit our homepage: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This program is distributed under the %1.</source>
+        <translation type="unfinished">Tämän ohjelman lisenssi: %1.</translation>
+    </message>
+    <message>
+        <source>GNU GPL v2</source>
+        <extracomment>Short for “GNU General Public License version 2”</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dependency versions:</source>
+        <extracomment>For the version numbers of Hedgewars&apos; software dependencies</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://gcc.gnu.org&quot;&gt;GCC&lt;/a&gt;: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://www.libsdl.org/&quot;&gt;SDL2&lt;/a&gt;: %1.%2.%3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://www.libsdl.org/&quot;&gt;SDL2_mixer&lt;/a&gt;: %1.%2.%3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://www.libsdl.org/&quot;&gt;SDL2_net&lt;/a&gt;: %1.%2.%3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://www.libsdl.org/&quot;&gt;SDL2_image&lt;/a&gt;: %1.%2.%3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://www.libsdl.org/&quot;&gt;SDL2_ttf&lt;/a&gt;: %1.%2.%3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://www.qt.io/developers/&quot;&gt;Qt&lt;/a&gt;: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://libav.org&quot;&gt;libavcodec&lt;/a&gt;: %1.%2.%3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://libav.org&quot;&gt;libavformat&lt;/a&gt;: %1.%2.%3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://libav.org&quot;&gt;libavutil&lt;/a&gt;: %1.%2.%3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://icculus.org/physfs/&quot;&gt;PhysFS&lt;/a&gt;: %1.%2.%3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Credits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Other people</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (alias %2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 &amp;lt;%2&amp;gt;</source>
+        <extracomment>Part of credits. %1: Contributor name. %2: E-mail address</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <extracomment>Part of credits. %1: Description of contribution. %2: Contributor name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1: %2 &amp;lt;%3&amp;gt;</source>
+        <extracomment>Part of credits. %1: Description of contribution. %2: Contributor name. %3: E-mail address</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extended Credits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An extended credits list can be found in the CREDITS text file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;https://visualstudio.microsoft.com&quot;&gt;VC++&lt;/a&gt;: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown Compiler: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13,17 +127,6 @@
     <message>
         <source>Go back</source>
         <translation>Takaisin</translation>
-    </message>
-</context>
-<context>
-    <name>AmmoSchemeModel</name>
-    <message>
-        <source>New</source>
-        <translation>Uusi</translation>
-    </message>
-    <message>
-        <source>Copy of %1</source>
-        <translation>%1 kopio</translation>
     </message>
 </context>
 <context>
@@ -66,11 +169,11 @@
     </message>
     <message>
         <source>Please, specify %1</source>
-        <translation>Tarkenna: %1</translation>
+        <translation type="vanished">Tarkenna: %1</translation>
     </message>
     <message>
         <source>nickname</source>
-        <translation>nimimerkki</translation>
+        <translation type="vanished">nimimerkki</translation>
     </message>
     <message>
         <source>permanent</source>
@@ -79,6 +182,14 @@
     <message>
         <source>Ban player</source>
         <translation>Bannaa pelaaja</translation>
+    </message>
+    <message>
+        <source>Please specify an IP address.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please specify a nickname.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -122,6 +233,10 @@
         <source>Feedback</source>
         <translation>Palaute</translation>
     </message>
+    <message>
+        <source>This is optional, but this information might help us to resolve bugs and other technical problems.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FreqSpinBox</name>
@@ -158,6 +273,25 @@
     <message>
         <source>Game options</source>
         <translation>Peliasetukset</translation>
+    </message>
+</context>
+<context>
+    <name>GameSchemeModel</name>
+    <message>
+        <source>New</source>
+        <translation>Uusi</translation>
+    </message>
+    <message>
+        <source>Copy of %1</source>
+        <translation>%1 kopio</translation>
+    </message>
+    <message>
+        <source>New (%1)</source>
+        <translation type="unfinished">Uusi (%1)</translation>
+    </message>
+    <message>
+        <source>Copy of %1 (%2)</source>
+        <translation type="unfinished">%1 kopio (%2)</translation>
     </message>
 </context>
 <context>
@@ -225,21 +359,25 @@ Tarkista, että peli on asennettu oikein!</translation>
     <message>
         <source>Usage</source>
         <comment>command-line</comment>
+        <extracomment>“Usage” as in “how the command-line syntax works”. Shown when running “hedgewars --help” in command-line</extracomment>
         <translation>Käyttö</translation>
     </message>
     <message>
         <source>OPTION</source>
         <comment>command-line</comment>
+        <extracomment>Name of a command-line argument, shown when running “hedgewars --help” in command-line. “OPTION” as in “command-line option”</extracomment>
         <translation>PARAMETRI</translation>
     </message>
     <message>
         <source>CONNECTSTRING</source>
         <comment>command-line</comment>
+        <extracomment>Name of a command-line argument, shown when running “hedgewars --help” in command-line</extracomment>
         <translation>YHTEYSOSOITE</translation>
     </message>
     <message>
         <source>Options</source>
         <comment>command-line</comment>
+        <extracomment>“Options” as in “command-line options”</extracomment>
         <translation>Valinnat</translation>
     </message>
     <message>
@@ -355,7 +493,7 @@ Tarkista, että peli on asennettu oikein!</translation>
     </message>
     <message>
         <source>DefaultTeam</source>
-        <translation>Oletusjoukkue</translation>
+        <translation type="vanished">Oletusjoukkue</translation>
     </message>
     <message>
         <source>Hedgewars Demo File</source>
@@ -457,11 +595,11 @@ Odota hetki ja yritä uudelleen.</translation>
     </message>
     <message>
         <source>This page requires an internet connection.</source>
-        <translation>Tämä sivu vaatii internet-yhteyden.</translation>
+        <translation type="vanished">Tämä sivu vaatii internet-yhteyden.</translation>
     </message>
     <message>
         <source>Guest</source>
-        <translation>Vieras</translation>
+        <translation type="vanished">Vieras</translation>
     </message>
     <message>
         <source>Room password</source>
@@ -473,11 +611,38 @@ Please, enter the password:</source>
         <translation>Huoneeseen pääsee vain salasanalla.
 Salasana:</translation>
     </message>
+    <message>
+        <source>Team 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Team %1</source>
+        <extracomment>Default team name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Computer %1</source>
+        <extracomment>Default computer team name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown network error (possibly missing SSL library).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This feature requires an Internet connection, but you don&apos;t appear to be online (error code: %1).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Internal error: Reply object is invalid.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HWGame</name>
     <message>
         <source>en.txt</source>
+        <extracomment>IMPORTANT: This text has a special meaning, do not translate it directly. This is the file name of translation files for the game engine, found in Data/Locale/. Usually, you replace “en” with the ISO-639-1 language code of your language.</extracomment>
         <translation>fi.txt</translation>
     </message>
     <message>
@@ -493,7 +658,7 @@ If this keeps happening, please click the &apos;%1&apos; button in the main menu
 
 Last two engine messages:
 %2</source>
-        <translation>Vakava virhe tapahtui, ja pelimoottori kaatui!
+        <translation type="vanished">Vakava virhe tapahtui, ja pelimoottori kaatui!
 
 Olemme pahoillamme, että näin pääsi käymään :(
 
@@ -501,6 +666,17 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon %1-napista!
 
 Kaksi viimeistä pelimoottorin viestiä:
 %2</translation>
+    </message>
+    <message>
+        <source>A fatal ERROR occured! The game engine had to stop.
+
+We are very sorry for the inconvenience. :-(
+
+If this keeps happening, please click the &apos;Feedback&apos; button in the main menu!
+
+Last engine message:
+%1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -546,6 +722,7 @@ Kaksi viimeistä pelimoottorin viestiä:
     </message>
     <message>
         <source>Seed</source>
+        <extracomment>Refers to the &quot;random seed&quot;; the source of randomness in the game</extracomment>
         <translation>Siemen</translation>
     </message>
     <message>
@@ -692,6 +869,18 @@ Kaksi viimeistä pelimoottorin viestiä:
         <source>Click to edit</source>
         <translation>Klikkaa muokataksesi</translation>
     </message>
+    <message>
+        <source>Scale size of the drawn map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation type="unfinished">Lataa</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HWNetServersModel</name>
@@ -701,10 +890,12 @@ Kaksi viimeistä pelimoottorin viestiä:
     </message>
     <message>
         <source>IP</source>
+        <extracomment>short for &quot;IP address&quot; (Internet Protocol), part of server address</extracomment>
         <translation>IP</translation>
     </message>
     <message>
         <source>Port</source>
+        <extracomment>short for &quot;port number&quot;, part of server address</extracomment>
         <translation>Portti</translation>
     </message>
 </context>
@@ -716,7 +907,7 @@ Kaksi viimeistä pelimoottorin viestiä:
     </message>
     <message>
         <source>Connection refused</source>
-        <translation>Yhteys hylätty</translation>
+        <translation type="vanished">Yhteys hylätty</translation>
     </message>
     <message>
         <source>Room destroyed</source>
@@ -724,7 +915,7 @@ Kaksi viimeistä pelimoottorin viestiä:
     </message>
     <message>
         <source>Quit reason: </source>
-        <translation>Poistumissyy: </translation>
+        <translation type="vanished">Poistumissyy: </translation>
     </message>
     <message>
         <source>You got kicked</source>
@@ -744,7 +935,7 @@ Kaksi viimeistä pelimoottorin viestiä:
     </message>
     <message>
         <source>User quit</source>
-        <translation>Pelaaja poistui</translation>
+        <translation type="vanished">Pelaaja poistui</translation>
     </message>
     <message>
         <source>Remote host has closed connection</source>
@@ -757,6 +948,23 @@ Kaksi viimeistä pelimoottorin viestiä:
     <message>
         <source>Server authentication error</source>
         <translation>Palvelimen tunnistamisvirhe</translation>
+    </message>
+    <message>
+        <source>Reason:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The connection was refused by the official server or timed out. Something seems to be wrong with the official server at the moment. This might be a temporary problem. Please try again later.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The connection was refused by the host or timed out. This might have one of the following reasons:
+- The Hedgewars Server program does currently not run on the host
+- The specified port number is incorrect
+- There is a temporary network problem
+
+Please check the host name and port settings and/or try again later.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -789,14 +997,28 @@ pelkkä nimimerkki riittää.</translation>
     </message>
 </context>
 <context>
+    <name>HWRecorder</name>
+    <message>
+        <source>A fatal ERROR occured while processing the video recording! The video could not be saved.
+
+As a workaround, you could try to reset the Hedgewars video recorder settings to the defaults.
+
+To report this error, please click the &apos;Feedback&apos; button in the main menu!
+
+Last engine message:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>HWUploadVideoDialog</name>
     <message>
         <source>Upload video</source>
-        <translation>Julkaise video</translation>
+        <translation type="vanished">Julkaise video</translation>
     </message>
     <message>
         <source>Upload</source>
-        <translation>Julkaise</translation>
+        <translation type="vanished">Julkaise</translation>
     </message>
 </context>
 <context>
@@ -844,15 +1066,47 @@ pelkkä nimimerkki riittää.</translation>
     </message>
     <message>
         <source>Duration: %1m %2s</source>
-        <translation>Kesto: %1min %2sek</translation>
+        <translation type="vanished">Kesto: %1min %2sek</translation>
     </message>
     <message>
         <source>Video: %1x%2</source>
-        <translation>Video: %1x%2</translation>
+        <translation type="vanished">Video: %1x%2</translation>
     </message>
     <message>
         <source>%1 fps</source>
-        <translation>%1 kuvaa/s</translation>
+        <translation type="vanished">%1 kuvaa/s</translation>
+    </message>
+    <message>
+        <source>Duration: %1min %2s</source>
+        <extracomment>Duration in minutes and seconds (SI units)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Video: %1x%2, %3 FPS, %4</source>
+        <extracomment>Video metadata. %1 = video width, %2 = video height, %3 = frames per second = %4 = decoder name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Video: %1x%2, %3</source>
+        <extracomment>Video metadata. %1 = video width, %2 = video height, %3 = decoder name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Player: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme: %1</source>
+        <translation type="unfinished">Teema: %1</translation>
+    </message>
+    <message>
+        <source>Map: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record: %1</source>
+        <extracomment>As in ‘recording’</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -860,6 +1114,20 @@ pelkkä nimimerkki riittää.</translation>
     <message>
         <source>No description available.</source>
         <translation>Ei kuvausta saatavilla.</translation>
+    </message>
+</context>
+<context>
+    <name>MinesTimeSpinBox</name>
+    <message>
+        <source>Random</source>
+        <translation type="unfinished">Sekoita</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1 seconds</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -886,6 +1154,7 @@ pelkkä nimimerkki riittää.</translation>
     </message>
     <message>
         <source>MOTD preview:</source>
+        <extracomment>MOTD = Message Of The Day, the message which is shown to players joining the server</extracomment>
         <translation>Päivän viestin esikatselu:</translation>
     </message>
     <message>
@@ -939,6 +1208,10 @@ pelkkä nimimerkki riittää.</translation>
         <source>Mission</source>
         <translation>Tehtävä</translation>
     </message>
+    <message>
+        <source>Start fighting</source>
+        <translation type="unfinished">Käynnistä harjoitus</translation>
+    </message>
 </context>
 <context>
     <name>PageConnecting</name>
@@ -955,11 +1228,27 @@ pelkkä nimimerkki riittää.</translation>
     </message>
     <message>
         <source>This page requires an internet connection.</source>
-        <translation>Tämä sivu vaatii internet-yhteyden.</translation>
+        <translation type="vanished">Tämä sivu vaatii internet-yhteyden.</translation>
     </message>
     <message>
         <source>Open packages directory</source>
         <translation>Avaa pakettikansio</translation>
+    </message>
+    <message>
+        <source>Load the start page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown network error (possibly missing SSL library).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This feature requires an Internet connection, but you don&apos;t appear to be online (error code: %1).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Internal error: Reply object is invalid.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1016,6 +1305,10 @@ pelkkä nimimerkki riittää.</translation>
         <source>Optimize</source>
         <translation>Optimoi</translation>
     </message>
+    <message>
+        <source>Brush size</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PageEditTeam</name>
@@ -1063,6 +1356,43 @@ pelkkä nimimerkki riittää.</translation>
         <source>Play a random example of this voice</source>
         <translation>Kuuntele ääninäyte</translation>
     </message>
+    <message>
+        <source>Random Hats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random Names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize the team name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize the grave</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize the flag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize the voice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize the fort</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CPU %1</source>
+        <extracomment>Name of a flag for computer-controlled enemies. %1 is replaced with the computer level</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PageGameStats</name>
@@ -1101,6 +1431,7 @@ pelkkä nimimerkki riittää.</translation>
     </message>
     <message numerus="yes">
         <source>(%1 kill)</source>
+        <extracomment>Number of kills in stats screen, written after the team name</extracomment>
         <translation>
             <numerusform>(%1 tappo)</numerusform>
             <numerusform>(%1 tappoa)</numerusform>
@@ -1108,14 +1439,14 @@ pelkkä nimimerkki riittää.</translation>
     </message>
     <message numerus="yes">
         <source>&lt;b&gt;%1&lt;/b&gt; thought it&apos;s good to shoot his own hedgehogs with &lt;b&gt;%2&lt;/b&gt; pts.</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>&lt;b&gt;%1&lt;/b&gt; ajatteli, että omia siilijä on hienoa vahingoittaa &lt;b&gt;%2&lt;/b&gt; vahinkopisteellä.</numerusform>
             <numerusform>&lt;b&gt;%1&lt;/b&gt; ajatteli, että omia siilijä on hienoa vahingoittaa &lt;b&gt;%2&lt;/b&gt; vahinkopisteellä.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>&lt;b&gt;%1&lt;/b&gt; killed &lt;b&gt;%2&lt;/b&gt; of his own hedgehogs.</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>&lt;b&gt;%1&lt;/b&gt; tappoi &lt;b&gt;%2&lt;/b&gt; omaa siiltä.</numerusform>
             <numerusform>&lt;b&gt;%1&lt;/b&gt; tappoi &lt;b&gt;%2&lt;/b&gt; omaa siiltä.</numerusform>
         </translation>
@@ -1137,7 +1468,49 @@ pelkkä nimimerkki riittää.</translation>
     </message>
     <message numerus="yes">
         <source>(%1 %2)</source>
+        <extracomment>For custom number of points in the stats screen, written after the team name. %1 is the number, %2 is the word. Example: “4 points”</extracomment>
         <translation>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>&lt;b&gt;%1&lt;/b&gt; thought it&apos;s good to shoot their own hedgehogs for &lt;b&gt;%2&lt;/b&gt; pts.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>&lt;b&gt;%1&lt;/b&gt; killed &lt;b&gt;%2&lt;/b&gt; of their own hedgehogs.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>With everyone having the same clan color, there was no reason to fight. And so the hedgehogs happily lived in peace ever after.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>(%1 point(s))</source>
+        <extracomment>Number of points in stats screen, written after the team name</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%L1 second(s))</source>
+        <extracomment>Time in seconds</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%1 crate(s))</source>
+        <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
@@ -1215,6 +1588,10 @@ pelkkä nimimerkki riittää.</translation>
         <source>Play official network game</source>
         <translation>Internet-peli</translation>
     </message>
+    <message>
+        <source>Open the Hedgewars online game manual in your web browser</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PageMultiplayer</name>
@@ -1229,6 +1606,25 @@ pelkkä nimimerkki riittää.</translation>
     <message>
         <source>Start fighting (requires at least 2 teams)</source>
         <translation>Aloita tappelu (vaatii vähintään kaksi joukkuetta)</translation>
+    </message>
+</context>
+<context>
+    <name>PageNet</name>
+    <message>
+        <source>Connect to the selected server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update the list of servers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specify the address and port number of a known server and connect to it directly</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start private server</source>
+        <translation type="unfinished">Käynnistä oma palvelin</translation>
     </message>
 </context>
 <context>
@@ -1447,6 +1843,28 @@ pelkkä nimimerkki riittää.</translation>
         <source>Video recording options</source>
         <translation>Videotallennusasetukset</translation>
     </message>
+    <message>
+        <source>x</source>
+        <extracomment>Multiplication sign, to be used between two numbers. Note the “x” is only a dummy character, we recommend to use “×” if your language permits it</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MISSING LANGUAGE NAME [%1]</source>
+        <extracomment>In the case of an error, this is shown in the language selection for a language with unknown name. %1 = language code</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Check now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Can&apos;t delete last team</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You can&apos;t delete the last team!</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PagePlayDemo</name>
@@ -1509,7 +1927,7 @@ pelkkä nimimerkki riittää.</translation>
     <name>PageScheme</name>
     <message>
         <source>Land can not be destroyed!</source>
-        <translation>Maata ei voi tuhota!</translation>
+        <translation type="vanished">Maata ei voi tuhota!</translation>
     </message>
     <message>
         <source>Lower gravity</source>
@@ -1633,6 +2051,7 @@ pelkkä nimimerkki riittää.</translation>
     </message>
     <message>
         <source>Overall damage and knockback in percent</source>
+        <extracomment>Description of the game scheme setting “Damage Modifier”. “Knockback” means how much hedgehogs and objects get pushed by explosions and other forces</extracomment>
         <translation>Mitä isompi luku, sitä enemmän vahinkoa kaikki tuottaa, prosentteina oletustasosta</translation>
     </message>
     <message>
@@ -1707,6 +2126,18 @@ pelkkä nimimerkki riittää.</translation>
         <source>Name of this scheme</source>
         <translation>Sääntöjen nimi</translation>
     </message>
+    <message>
+        <source>Select a hedgehog at the beginning of a turn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Land can not be destroyed by most weapons.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PageSelectWeapon</name>
@@ -1743,7 +2174,7 @@ pelkkä nimimerkki riittää.</translation>
     </message>
     <message>
         <source>Practice your skills in a range of training missions</source>
-        <translation>Harjoittele taitojasi tehtäväradoilla</translation>
+        <translation type="vanished">Harjoittele taitojasi tehtäväradoilla</translation>
     </message>
     <message>
         <source>Watch recorded demos</source>
@@ -1752,6 +2183,10 @@ pelkkä nimimerkki riittää.</translation>
     <message>
         <source>Load a previously saved game</source>
         <translation>Avaa tallennettu peli</translation>
+    </message>
+    <message>
+        <source>Singleplayer missions: Learn how to play in the training, practice your skills in challenges or try to complete goals in scenarios.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1792,6 +2227,33 @@ pelkkä nimimerkki riittää.</translation>
         <source>Scenarios</source>
         <translation>Tilanteet</translation>
     </message>
+    <message>
+        <source>Team</source>
+        <translation type="unfinished">Joukkue</translation>
+    </message>
+    <message>
+        <source>Team highscore: %1</source>
+        <extracomment>Highest score of a team</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Team lowscore: %1</source>
+        <extracomment>Lowest score of a team</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Team&apos;s top accuracy: %1%</source>
+        <extracomment>Best accuracy of a team (in a challenge)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Team&apos;s best time: %L1 s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Team&apos;s longest time: %L1 s</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PageVideos</name>
@@ -1820,7 +2282,7 @@ pelkkä nimimerkki riittää.</translation>
     </message>
     <message>
         <source>uploading</source>
-        <translation>lähetetään</translation>
+        <translation type="vanished">lähetetään</translation>
     </message>
     <message>
         <source>Date: %1</source>
@@ -1829,6 +2291,16 @@ pelkkä nimimerkki riittää.</translation>
     <message>
         <source>Size: %1</source>
         <translation>Koko: %1</translation>
+    </message>
+    <message>
+        <source>%1%</source>
+        <extracomment>Video encoding progress. %1 = number</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (%2%) - %3</source>
+        <extracomment>Video encoding list entry. %1 = file name, %2 = percent complete, %3 = video operation type (e.g. “encoding”)</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1934,11 +2406,11 @@ pelkkä nimimerkki riittää.</translation>
     </message>
     <message>
         <source>Save account name and password</source>
-        <translation>Tallenna tunnus ja salasana</translation>
+        <translation type="vanished">Tallenna tunnus ja salasana</translation>
     </message>
     <message>
         <source>Video is private</source>
-        <translation>Video on yksityinen</translation>
+        <translation type="vanished">Video on yksityinen</translation>
     </message>
     <message>
         <source>Record audio</source>
@@ -2007,6 +2479,23 @@ pelkkä nimimerkki riittää.</translation>
     <message>
         <source>Enable translucent tags by default</source>
         <translation>Näytä kuplat läpinäkyvinä</translation>
+    </message>
+    <message>
+        <source>Enable visual effects such as animated menu transitions and falling stars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If enabled, Hedgewars adds the date and time in the form &quot;YYYY-MM-DD_hh-mm&quot; for automatically created demos.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dampen when losing focus</source>
+        <extracomment>Checkbox text. If checked, the in-game audio volume is reduced (=dampened) when the game window loses its focus</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reduce the game audio volume if the game window has lost its focus</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2086,6 +2575,30 @@ pelkkä nimimerkki riittää.</translation>
     <message>
         <source>Computer (Level %1)</source>
         <translation>Tekoäly (Taso %1)</translation>
+    </message>
+    <message>
+        <source>Stereoscopy creates an illusion of depth when you wear 3D glasses.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>24 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>25 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>30 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>50 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>60 FPS</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2243,7 +2756,7 @@ pelkkä nimimerkki riittää.</translation>
     </message>
     <message>
         <source>Stereo rendering</source>
-        <translation>Stereoskopia</translation>
+        <translation type="vanished">Stereoskopia</translation>
     </message>
     <message>
         <source>Style</source>
@@ -2263,27 +2776,27 @@ Haluatko varmasti lopettaa?</translation>
     </message>
     <message>
         <source>Please provide either the YouTube account name or the email address associated with the Google Account.</source>
-        <translation>Anna joko YouTube-tunnuksesi tai siihen liitetty Google Account -sähköpostiosoite.</translation>
+        <translation type="vanished">Anna joko YouTube-tunnuksesi tai siihen liitetty Google Account -sähköpostiosoite.</translation>
     </message>
     <message>
         <source>Account name (or email): </source>
-        <translation>Tunnus (tai sähköposti):</translation>
+        <translation type="vanished">Tunnus (tai sähköposti):</translation>
     </message>
     <message>
         <source>Password: </source>
-        <translation>Salasana: </translation>
+        <translation type="vanished">Salasana: </translation>
     </message>
     <message>
         <source>Video title: </source>
-        <translation>Videon otsikko: </translation>
+        <translation type="vanished">Videon otsikko: </translation>
     </message>
     <message>
         <source>Video description: </source>
-        <translation>Videon kuvaus: </translation>
+        <translation type="vanished">Videon kuvaus: </translation>
     </message>
     <message>
         <source>Tags (comma separated): </source>
-        <translation>Hakusanat (pilkulla eroteltuna): </translation>
+        <translation type="vanished">Hakusanat (pilkulla eroteltuna): </translation>
     </message>
     <message>
         <source>Description</source>
@@ -2311,7 +2824,7 @@ Haluatko varmasti lopettaa?</translation>
     </message>
     <message>
         <source>Bitrate (Kbps)</source>
-        <translation>Laatu (Kbps)</translation>
+        <translation type="vanished">Laatu (Kbps)</translation>
     </message>
     <message>
         <source>This development build is &apos;work in progress&apos; and may not be compatible with other versions of the game, while some features might be broken or incomplete!</source>
@@ -2347,11 +2860,11 @@ Haluatko varmasti lopettaa?</translation>
     </message>
     <message>
         <source>Revision</source>
-        <translation>Revisio</translation>
+        <translation type="vanished">Revisio</translation>
     </message>
     <message>
         <source>This program is distributed under the %1</source>
-        <translation>Tämän ohjelman lisenssi: %1</translation>
+        <translation type="vanished">Tämän ohjelman lisenssi: %1</translation>
     </message>
     <message>
         <source>This setting will be effective at next restart.</source>
@@ -2387,7 +2900,25 @@ Haluatko varmasti lopettaa?</translation>
     </message>
     <message>
         <source>% Retreat Time</source>
+        <extracomment>Label of game scheme setting for the time you get after an attack</extracomment>
         <translation>% Pakoaika</translation>
+    </message>
+    <message>
+        <source>Stereoscopy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bitrate (Kibit/s)</source>
+        <extracomment>“Kibit/s” is the symbol for 1024 bits per second</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loading&lt;br&gt;CAPTCHA ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom (%)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2404,6 +2935,14 @@ Haluatko varmasti lopettaa?</translation>
         <source>anonymous</source>
         <translation>anonyymi</translation>
     </message>
+    <message>
+        <source>unnamed (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hedgehog %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QMainWindow</name>
@@ -2416,7 +2955,7 @@ Haluatko varmasti lopettaa?</translation>
     <name>QMessageBox</name>
     <message>
         <source>Connection to server is lost</source>
-        <translation>Yhteys palvelimeen katosi</translation>
+        <translation type="vanished">Yhteys palvelimeen katosi</translation>
     </message>
     <message>
         <source>Error</source>
@@ -2429,17 +2968,17 @@ Haluatko varmasti lopettaa?</translation>
     <message>
         <source>Error while authenticating at google.com:
 </source>
-        <translation>Virhe kirjautuessa google.comiin:
+        <translation type="vanished">Virhe kirjautuessa google.comiin:
 </translation>
     </message>
     <message>
         <source>Login or password is incorrect</source>
-        <translation>Tunnus tai salasana ovat virheellisiä</translation>
+        <translation type="vanished">Tunnus tai salasana ovat virheellisiä</translation>
     </message>
     <message>
         <source>Error while sending metadata to youtube.com:
 </source>
-        <translation>Virhe lähetettäessä oheistietoja youtube.comiin:
+        <translation type="vanished">Virhe lähetettäessä oheistietoja youtube.comiin:
 </translation>
     </message>
     <message>
@@ -2476,7 +3015,7 @@ Haluatko varmasti lopettaa?</translation>
     </message>
     <message>
         <source>Video upload - Error</source>
-        <translation>Videon lähetys - Virhe</translation>
+        <translation type="vanished">Videon lähetys - Virhe</translation>
     </message>
     <message>
         <source>Netgame - Error</source>
@@ -2492,19 +3031,19 @@ Haluatko varmasti lopettaa?</translation>
     </message>
     <message>
         <source>Record Play - Error</source>
-        <translation>Nauhoituksen katselu - Virhe</translation>
+        <translation type="vanished">Nauhoituksen katselu - Virhe</translation>
     </message>
     <message>
         <source>Please select record from the list</source>
-        <translation>Ole hyvä ja valitse nauhoite listasta</translation>
+        <translation type="vanished">Ole hyvä ja valitse nauhoite listasta</translation>
     </message>
     <message>
         <source>Cannot rename to </source>
-        <translation>Ei voi uudelleennimetä: </translation>
+        <translation type="vanished">Ei voi uudelleennimetä: </translation>
     </message>
     <message>
         <source>Cannot delete file </source>
-        <translation>Ei voi poistaa: </translation>
+        <translation type="vanished">Ei voi poistaa: </translation>
     </message>
     <message>
         <source>Room Name - Error</source>
@@ -2553,7 +3092,7 @@ Haluatko silti liittyä huoneeseen?</translation>
     </message>
     <message>
         <source>Do you really want to cancel uploading %1?</source>
-        <translation>Haluatko varmasti peruuttaa %1 lähetyksen?</translation>
+        <translation type="vanished">Haluatko varmasti peruuttaa %1 lähetyksen?</translation>
     </message>
     <message>
         <source>File error</source>
@@ -2569,7 +3108,7 @@ Haluatko silti liittyä huoneeseen?</translation>
     </message>
     <message>
         <source>Cannot use the ammo &apos;%1&apos;!</source>
-        <translation>Ei voi käyttää ammusta &apos;%1&apos;!</translation>
+        <translation type="vanished">Ei voi käyttää ammusta &apos;%1&apos;!</translation>
     </message>
     <message>
         <source>Weapons - Warning</source>
@@ -2577,7 +3116,7 @@ Haluatko silti liittyä huoneeseen?</translation>
     </message>
     <message>
         <source>Cannot overwrite default weapon set &apos;%1&apos;!</source>
-        <translation>Ei voi ylikirjoittaa asesettiä &apos;%1&apos;!</translation>
+        <translation type="vanished">Ei voi ylikirjoittaa asesettiä &apos;%1&apos;!</translation>
     </message>
     <message>
         <source>Cannot delete default weapon set &apos;%1&apos;!</source>
@@ -2629,6 +3168,65 @@ Not all players are ready.</source>
         <translation>Haluatko varmasti aloittaa pelin?
 Kaikki pelaajat eivät ole valmiita.</translation>
     </message>
+    <message>
+        <source>Teams - Name already taken</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The team name &apos;%1&apos; is already taken, so your team has been renamed to &apos;%2&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please select a file from the list.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot rename file to %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot delete file %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Welcome to Hedgewars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Welcome to Hedgewars!
+
+You seem to be new around here. Would you like to play some training missions first to learn the basics of Hedgewars?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot use the weapon scheme &apos;%1&apos;!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The connection to the server is lost.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Schemes - Name already taken</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A scheme with the name &apos;%1&apos; already exists. Your scheme has been renamed to &apos;%2&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A weapon scheme with the name &apos;%1&apos; already exists. Changes made to the weapon scheme have been discarded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Server redirection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This server supports secure connections on port %1.
+Would you like to reconnect securely?</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -2665,7 +3263,7 @@ Kaikki pelaajat eivät ole valmiita.</translation>
     </message>
     <message>
         <source>Specify</source>
-        <translation>Määritä</translation>
+        <translation type="vanished">Määritä</translation>
     </message>
     <message>
         <source>Start</source>
@@ -2709,11 +3307,11 @@ Kaikki pelaajat eivät ole valmiita.</translation>
     </message>
     <message>
         <source>Upload to YouTube</source>
-        <translation>Julkaise YouTubessa</translation>
+        <translation type="vanished">Julkaise YouTubessa</translation>
     </message>
     <message>
         <source>Cancel uploading</source>
-        <translation>Peruuta lähetys</translation>
+        <translation type="vanished">Peruuta lähetys</translation>
     </message>
     <message>
         <source>Restore default coding parameters</source>
@@ -2733,7 +3331,7 @@ Kaikki pelaajat eivät ole valmiita.</translation>
     </message>
     <message>
         <source>Upload this video to your Youtube account</source>
-        <translation>Julkaise tämä video YouTube-tililläsi</translation>
+        <translation type="vanished">Julkaise tämä video YouTube-tililläsi</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -2754,6 +3352,17 @@ Kaikki pelaajat eivät ole valmiita.</translation>
     <message>
         <source>Start private server</source>
         <translation>Käynnistä oma palvelin</translation>
+    </message>
+    <message>
+        <source>Specify address</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QSpinBox</name>
+    <message>
+        <source>Specify the bitrate of recorded videos as a multiple of 1024 bits per second</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2787,10 +3396,12 @@ Kaikki pelaajat eivät ole valmiita.</translation>
     </message>
     <message>
         <source>C</source>
+        <extracomment>Caption of the column for the number of connected clients in the list of rooms</extracomment>
         <translation>A</translation>
     </message>
     <message>
         <source>T</source>
+        <extracomment>Caption of the column for the number of teams in the list of rooms</extracomment>
         <translation>J</translation>
     </message>
     <message>
@@ -2854,6 +3465,7 @@ Kaikki pelaajat eivät ole valmiita.</translation>
     </message>
     <message>
         <source>Seed</source>
+        <extracomment>Refers to the &quot;random seed&quot;; the source of randomness in the game</extracomment>
         <translation>Siemen</translation>
     </message>
 </context>
@@ -3049,7 +3661,7 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>pause</source>
-        <translation>tauko</translation>
+        <translation type="vanished">tauko</translation>
     </message>
     <message>
         <source>confirmation</source>
@@ -3085,7 +3697,7 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>reset zoom</source>
-        <translation>nollaa zoom</translation>
+        <translation type="vanished">nollaa zoom</translation>
     </message>
     <message>
         <source>long jump</source>
@@ -3109,7 +3721,7 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>hedgehog info</source>
-        <translation>siilitiedot</translation>
+        <translation type="vanished">siilitiedot</translation>
     </message>
     <message>
         <source>autocam / find hedgehog</source>
@@ -3118,6 +3730,79 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     <message>
         <source>speed up replay</source>
         <translation>nopeuta videoa</translation>
+    </message>
+    <message>
+        <source>toggle team bars</source>
+        <extracomment>This refers to the team info bars (name/flag/health) of all teams. These are shown at the bottom center of the screen</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pause / auto skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>toggle hedgehog tags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>change timer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>show mission information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>clan chat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>unselect weapon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>stand still on slippery land</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>change direction without moving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>switch backwards</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>change bounciness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>reset zoom to start value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>set zoom to 100%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>save map as image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>show object information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>change hedgehog tag types</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>toggle hedgehog tag translucency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>toggle HUD</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3137,6 +3822,45 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     <message>
         <source>Miscellaneous</source>
         <translation>Sekalaiset</translation>
+    </message>
+</context>
+<context>
+    <name>binds (combination)</name>
+    <message>
+        <source>hold down precise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>precise + left/right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>precise + switch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>precise + timer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>precise + reset zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>precise + capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>precise + toggle hedgehog tags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>switch + toggle hedgehog tags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>precise + switch + toggle hedgehog tags</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3175,7 +3899,7 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>Talk to your team or all participants:</source>
-        <translation>Puhu joukkueellesi tai kaikille osanottajille:</translation>
+        <translation type="vanished">Puhu joukkueellesi tai kaikille osanottajille:</translation>
     </message>
     <message>
         <source>Pause, continue or leave your game:</source>
@@ -3195,7 +3919,7 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>Toggle labels above hedgehogs:</source>
-        <translation>Vaihda siilien yläpuolella näkyviä &quot;leimoja&quot;:</translation>
+        <translation type="vanished">Vaihda siilien yläpuolella näkyviä &quot;leimoja&quot;:</translation>
     </message>
     <message>
         <source>Record video:</source>
@@ -3213,36 +3937,44 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
         <source>Demo replay:</source>
         <translation>Demojen katselu:</translation>
     </message>
+    <message>
+        <source>Heads-up display:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Talk to your clan or all participants:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>binds (keys)</name>
     <message>
         <source>Axis</source>
-        <translation>Akselit</translation>
+        <translation type="vanished">Akselit</translation>
     </message>
     <message>
         <source>(Up)</source>
-        <translation>(Ylös)</translation>
+        <translation type="vanished">(Ylös)</translation>
     </message>
     <message>
         <source>(Down)</source>
-        <translation>(Alas)</translation>
+        <translation type="vanished">(Alas)</translation>
     </message>
     <message>
         <source>Hat</source>
-        <translation>Hattu</translation>
+        <translation type="vanished">Hattu</translation>
     </message>
     <message>
         <source>(Left)</source>
-        <translation>(Vasen)</translation>
+        <translation type="vanished">(Vasen)</translation>
     </message>
     <message>
         <source>(Right)</source>
-        <translation>(Oikea)</translation>
+        <translation type="vanished">(Oikea)</translation>
     </message>
     <message>
         <source>Button</source>
-        <translation>Nappi</translation>
+        <translation type="vanished">Nappi</translation>
     </message>
     <message>
         <source>Keyboard</source>
@@ -3298,71 +4030,71 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>Numpad 0</source>
-        <translation>Numeronäppäimistö 0</translation>
+        <translation type="vanished">Numeronäppäimistö 0</translation>
     </message>
     <message>
         <source>Numpad 1</source>
-        <translation>Numeronäppäimistö 1</translation>
+        <translation type="vanished">Numeronäppäimistö 1</translation>
     </message>
     <message>
         <source>Numpad 2</source>
-        <translation>Numeronäppäimistö 2</translation>
+        <translation type="vanished">Numeronäppäimistö 2</translation>
     </message>
     <message>
         <source>Numpad 3</source>
-        <translation>Numeronäppäimistö 3</translation>
+        <translation type="vanished">Numeronäppäimistö 3</translation>
     </message>
     <message>
         <source>Numpad 4</source>
-        <translation>Numeronäppäimistö 4</translation>
+        <translation type="vanished">Numeronäppäimistö 4</translation>
     </message>
     <message>
         <source>Numpad 5</source>
-        <translation>Numeronäppäimistö 5</translation>
+        <translation type="vanished">Numeronäppäimistö 5</translation>
     </message>
     <message>
         <source>Numpad 6</source>
-        <translation>Numeronäppäimistö 6</translation>
+        <translation type="vanished">Numeronäppäimistö 6</translation>
     </message>
     <message>
         <source>Numpad 7</source>
-        <translation>Numeronäppäimistö 7</translation>
+        <translation type="vanished">Numeronäppäimistö 7</translation>
     </message>
     <message>
         <source>Numpad 8</source>
-        <translation>Numeronäppäimistö 8</translation>
+        <translation type="vanished">Numeronäppäimistö 8</translation>
     </message>
     <message>
         <source>Numpad 9</source>
-        <translation>Numeronäppäimistö 9</translation>
+        <translation type="vanished">Numeronäppäimistö 9</translation>
     </message>
     <message>
         <source>Numpad .</source>
-        <translation>Numeronäppäimistö .</translation>
+        <translation type="vanished">Numeronäppäimistö .</translation>
     </message>
     <message>
         <source>Numpad /</source>
-        <translation>Numeronäppäimistö /</translation>
+        <translation type="vanished">Numeronäppäimistö /</translation>
     </message>
     <message>
         <source>Numpad *</source>
-        <translation>Numeronäppäimistö *</translation>
+        <translation type="vanished">Numeronäppäimistö *</translation>
     </message>
     <message>
         <source>Numpad -</source>
-        <translation>Numeronäppäimistö -</translation>
+        <translation type="vanished">Numeronäppäimistö -</translation>
     </message>
     <message>
         <source>Numpad +</source>
-        <translation>Numeronäppäimistö +</translation>
+        <translation type="vanished">Numeronäppäimistö +</translation>
     </message>
     <message>
         <source>Enter</source>
-        <translation>Rivinvaihto</translation>
+        <translation type="vanished">Rivinvaihto</translation>
     </message>
     <message>
         <source>Equals</source>
-        <translation>=</translation>
+        <translation type="vanished">=</translation>
     </message>
     <message>
         <source>Up</source>
@@ -3394,55 +4126,55 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>Page up</source>
-        <translation>Sivu ylös</translation>
+        <translation type="vanished">Sivu ylös</translation>
     </message>
     <message>
         <source>Page down</source>
-        <translation>Sivu alas</translation>
+        <translation type="vanished">Sivu alas</translation>
     </message>
     <message>
         <source>Num lock</source>
-        <translation>Num lock</translation>
+        <translation type="vanished">Num lock</translation>
     </message>
     <message>
         <source>Caps lock</source>
-        <translation>Caps lock</translation>
+        <translation type="vanished">Caps lock</translation>
     </message>
     <message>
         <source>Scroll lock</source>
-        <translation>Scroll lock</translation>
+        <translation type="vanished">Scroll lock</translation>
     </message>
     <message>
         <source>Right shift</source>
-        <translation>Oikea vaihtonäppäin</translation>
+        <translation type="vanished">Oikea vaihtonäppäin</translation>
     </message>
     <message>
         <source>Left shift</source>
-        <translation>Vasen vaihtonäppäin</translation>
+        <translation type="vanished">Vasen vaihtonäppäin</translation>
     </message>
     <message>
         <source>Right ctrl</source>
-        <translation>Oikea ctrl</translation>
+        <translation type="vanished">Oikea ctrl</translation>
     </message>
     <message>
         <source>Left ctrl</source>
-        <translation>Vasen ctrl</translation>
+        <translation type="vanished">Vasen ctrl</translation>
     </message>
     <message>
         <source>Right alt</source>
-        <translation>Oikea alt</translation>
+        <translation type="vanished">Oikea alt</translation>
     </message>
     <message>
         <source>Left alt</source>
-        <translation>Vasen alt</translation>
+        <translation type="vanished">Vasen alt</translation>
     </message>
     <message>
         <source>Right meta</source>
-        <translation>Oikea meta</translation>
+        <translation type="vanished">Oikea meta</translation>
     </message>
     <message>
         <source>Left meta</source>
-        <translation>Vasen meta</translation>
+        <translation type="vanished">Vasen meta</translation>
     </message>
     <message>
         <source>A button</source>
@@ -3526,82 +4258,700 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>DPad</source>
-        <translation>DPad</translation>
+        <translation type="vanished">DPad</translation>
     </message>
     <message>
         <source>Mouse: Left button</source>
         <translation>Hiiri: Vasen nappi</translation>
+    </message>
+    <message>
+        <source>D-pad</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Axis %1 %2</source>
+        <extracomment>Game controller axis direction. %1 = axis number, %2 = direction</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Button %1</source>
+        <extracomment>Game controller button. %1 = button number</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D-pad %1 %2</source>
+        <extracomment>Game controller D-pad button. %1 = D-pad number, %2 = direction</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(Don&apos;t use)</source>
+        <extracomment>Special entry in key selection when an action has no control assigned</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mouse: X1 button </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mouse: X2 button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad 0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad 3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad 5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad 6</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad 7</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad 8</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad 9</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad .</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad /</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad *</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad -</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad +</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keypad Enter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PageUp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PageDown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Numlock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CapsLock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ScrollLock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right Shift</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left Shift</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right Ctrl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left Ctrl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right Alt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left Alt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right GUI</source>
+        <extracomment>Windows key / Command key / Meta key /Super key (right)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left GUI</source>
+        <extracomment>Windows key / Command key / Meta key /Super key (left)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(QWERTY)</source>
+        <extracomment>Name of QWERTY US keyboard layout</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>credits</name>
+    <message>
+        <source>Programming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Game engine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Creator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Many engine improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gamepad and Lua integration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Campaign support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme customization improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Some Pas2C and GLES2 work</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Video recording</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Other improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map generation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Core map generators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Perlin maps and other improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maze maps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Weapons</source>
+        <translation type="unfinished">Aseet</translation>
+    </message>
+    <message>
+        <source>Most core weapons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Air mine, rubber, others</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drill rocket, ballgun, RC plane</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Freezer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mine number and time game settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frontend / main menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Many frontend improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keybinds, feedback, maps and hats interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Login dialogs, other improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Missions and styles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A Classic Fairytale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A Space Adventure</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created Capture the Flag, Construction Mode, Control, HedgeEditor, Highlander, Racer, TechRacer, The Specialists, WxW</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training, time-trial and target practice challenges, Bazooka Battlefield, Tentacle Terror, Big Armory, bugfixes and maintenance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Some styles and missions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Battalion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Continental supplies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Teamwork 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Climb Home</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portal Mind Challenge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Game server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>macOS/iPhone port, OpenGL-ES conversion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Android port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Android netplay, portability abstraction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>WebGL port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iPhone/iPad ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Graphics</source>
+        <translation type="unfinished">Grafiikka</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished">Yleiset</translation>
+    </message>
+    <message>
+        <source>Themes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nature, Snow, City, Castle, Halloween, Island</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bamboo, EarthRise, BambooPlinko</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Golf, Hoggywood, Stage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hoggywood</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cave, Olympics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fruit, Cake</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Art</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Beach</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Brick</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jungle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sheep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Basketball, BasketballField, Bath, Bubbleflow, Hammock, Hedgelove, Hedgewars, Hydrant, Mushrooms, Plane, Ropes, Tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SB_Bones, SB_Crystal, SB_Grassy, SB_Grove, SB_Haunty, SB_Oaks, SB_Shrooms, SB_Tentacle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bamboo, Blox, Cake, Cogs, EarthRise, Freeway</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Castle, PirateFlag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ShoppaKing, TrophyRace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Battlefield</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CTF_Blizzard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cheese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ClimbHome</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lonely_Island</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Octorama</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>portal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ruler</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sticks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forts</source>
+        <translation type="unfinished">Linnakkeet</translation>
+    </message>
+    <message>
+        <source>EvilChicken</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Olympic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tank</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SteelTower</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hats, graves, other</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>See CREDITS text file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sounds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hedgehogs voice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default_pl, Russian_pl voices</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Various authors from www.freesound.org (see CREDITS text file)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Music</source>
+        <translation type="unfinished">Musiikki</translation>
+    </message>
+    <message>
+        <source>City, Rock, others</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compost</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>EarthRise, oriental, Pirate, snow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fruit, Jungle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nature</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>olympics_sd</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sdmusic (Hitman [sheepluva edit])</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Brazilian Portuguese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bulgarian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Czech</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chinese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Finnish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>French</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>German</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Greek</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Italian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Japanese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Korean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lithuanian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Polish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portuguese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Russian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scottish Gaelic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Slovak</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spanish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Swedish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ukrainian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Special thanks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Project founder</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>server</name>
     <message>
         <source>Restricted</source>
-        <translation>Rajoitettu</translation>
+        <translation type="vanished">Rajoitettu</translation>
     </message>
     <message>
         <source>Not room master</source>
-        <translation>Ei huoneen omistaja</translation>
+        <translation type="vanished">Ei huoneen omistaja</translation>
     </message>
     <message>
         <source>Corrupted hedgehogs info</source>
-        <translation>Rapistuneen siilin tiedot</translation>
+        <translation type="vanished">Rapistuneen siilin tiedot</translation>
     </message>
     <message>
         <source>too many teams</source>
-        <translation>liikaa joukkueita</translation>
+        <translation type="vanished">liikaa joukkueita</translation>
     </message>
     <message>
         <source>too many hedgehogs</source>
-        <translation>liikaa siiliä</translation>
+        <translation type="vanished">liikaa siiliä</translation>
     </message>
     <message>
         <source>There&apos;s already a team with same name in the list</source>
-        <translation>Listalla on jo samanniminen joukkue</translation>
+        <translation type="vanished">Listalla on jo samanniminen joukkue</translation>
     </message>
     <message>
         <source>round in progress</source>
-        <translation>peli on käynnissä</translation>
+        <translation type="vanished">peli on käynnissä</translation>
     </message>
     <message>
         <source>restricted</source>
-        <translation>rajoitettu</translation>
+        <translation type="vanished">rajoitettu</translation>
     </message>
     <message>
         <source>REMOVE_TEAM: no such team</source>
-        <translation>POISTA_JOUKKUE: joukkuetta ei löydy</translation>
+        <translation type="vanished">POISTA_JOUKKUE: joukkuetta ei löydy</translation>
     </message>
     <message>
         <source>Not team owner!</source>
-        <translation>Et ole joukkueen omistaja!</translation>
+        <translation type="vanished">Et ole joukkueen omistaja!</translation>
     </message>
     <message>
         <source>Less than two clans!</source>
-        <translation>Alle kaksi klaania!</translation>
+        <translation type="vanished">Alle kaksi klaania!</translation>
     </message>
     <message>
         <source>Illegal room name</source>
-        <translation>Virheellinen huoneen nimi</translation>
+        <translation type="vanished">Virheellinen huoneen nimi</translation>
     </message>
     <message>
         <source>Room with such name already exists</source>
-        <translation>Samanniminen huone on jo olemassa</translation>
+        <translation type="vanished">Samanniminen huone on jo olemassa</translation>
     </message>
     <message>
         <source>Nickname already chosen</source>
-        <translation>Nimimerkki on jo käytössä</translation>
+        <translation type="vanished">Nimimerkki on jo käytössä</translation>
     </message>
     <message>
         <source>Illegal nickname</source>
-        <translation>Virheellinen nimimerkki</translation>
+        <translation type="vanished">Virheellinen nimimerkki</translation>
     </message>
     <message>
         <source>Protocol already known</source>
-        <translation>Protokolla jo tiedossa</translation>
+        <translation type="vanished">Protokolla jo tiedossa</translation>
     </message>
     <message>
         <source>Bad number</source>
-        <translation>Virheellinen numero</translation>
+        <translation type="vanished">Virheellinen numero</translation>
     </message>
     <message>
         <source>Nickname is already in use</source>
@@ -3629,39 +4979,39 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>bye</source>
-        <translation>näkemiin</translation>
+        <translation type="vanished">näkemiin</translation>
     </message>
     <message>
         <source>No such room</source>
-        <translation>Ei moista huonetta</translation>
+        <translation type="vanished">Ei moista huonetta</translation>
     </message>
     <message>
         <source>Room version incompatible to your hedgewars version</source>
-        <translation>Huoneen versio ei ole yhteensopiva pelin versioosi</translation>
+        <translation type="vanished">Huoneen versio ei ole yhteensopiva pelin versioosi</translation>
     </message>
     <message>
         <source>Joining restricted</source>
-        <translation>Liittyminen estetty</translation>
+        <translation type="vanished">Liittyminen estetty</translation>
     </message>
     <message>
         <source>Registered users only</source>
-        <translation>Vain rekisteröityneille</translation>
+        <translation type="vanished">Vain rekisteröityneille</translation>
     </message>
     <message>
         <source>You are banned in this room</source>
-        <translation>Sinulla on porttikielto huoneeseen</translation>
+        <translation type="vanished">Sinulla on porttikielto huoneeseen</translation>
     </message>
     <message>
         <source>Empty config entry</source>
-        <translation>Tyhjä asetus</translation>
+        <translation type="vanished">Tyhjä asetus</translation>
     </message>
     <message>
         <source>You already have voted</source>
-        <translation>Olet jo äänestänyt</translation>
+        <translation type="vanished">Olet jo äänestänyt</translation>
     </message>
     <message>
         <source>Voting closed</source>
-        <translation>Äänestys päättyi</translation>
+        <translation type="vanished">Äänestys päättyi</translation>
     </message>
     <message>
         <source>New voting started</source>
@@ -3669,7 +5019,7 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>Voting expired</source>
-        <translation>Äänestysaika loppui</translation>
+        <translation type="vanished">Äänestysaika loppui</translation>
     </message>
     <message>
         <source>kick</source>
@@ -3705,15 +5055,15 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>There&apos;s no voting going on</source>
-        <translation>Äänestyksiä ei ole meneillään</translation>
+        <translation type="vanished">Äänestyksiä ei ole meneillään</translation>
     </message>
     <message>
         <source>Your vote counted</source>
-        <translation>Sinun äänesi ratkaisi</translation>
+        <translation type="vanished">Sinun äänesi ratkaisi</translation>
     </message>
     <message>
         <source>Pause toggled</source>
-        <translation>Tauko</translation>
+        <translation type="vanished">Tauko</translation>
     </message>
     <message>
         <source>new seed</source>
@@ -3721,7 +5071,7 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>number of hedgehogs in team</source>
-        <translation>siilien määrä pelissä</translation>
+        <translation type="vanished">siilien määrä pelissä</translation>
     </message>
     <message>
         <source>/maxteams: specify number from 2 to 8</source>
@@ -3729,27 +5079,403 @@ Jos vika toistuu jatkuvasti, lähetä palautetta päävalikon Palaute-napista!</
     </message>
     <message>
         <source>Available callvote commands: kick &lt;nickname&gt;, map &lt;name&gt;, pause, newseed, hedgehogs</source>
-        <translation>Käytössä äänestyskomennot: kick &lt;nimi&gt;, map &lt;nimi&gt;, pause, newseed, hedgehogs</translation>
+        <translation type="vanished">Käytössä äänestyskomennot: kick &lt;nimi&gt;, map &lt;nimi&gt;, pause, newseed, hedgehogs</translation>
     </message>
     <message>
         <source>callvote kick: specify nickname</source>
-        <translation>callvote kick: anna nimimerkki</translation>
+        <translation type="vanished">callvote kick: anna nimimerkki</translation>
     </message>
     <message>
         <source>callvote kick: no such user</source>
-        <translation>callvote kick: moista käyttäjää ei löydy</translation>
+        <translation type="vanished">callvote kick: moista käyttäjää ei löydy</translation>
     </message>
     <message>
         <source>callvote map: no such map</source>
-        <translation>callvote map: moista karttaa ei löydy</translation>
+        <translation type="vanished">callvote map: moista karttaa ei löydy</translation>
     </message>
     <message>
         <source>callvote pause: no game in progress</source>
-        <translation>callvote pause: peli ei ole käynnissä</translation>
+        <translation type="vanished">callvote pause: peli ei ole käynnissä</translation>
     </message>
     <message>
         <source>callvote hedgehogs: specify number from 1 to 8</source>
-        <translation>callvote hedgehogs: anna luku väliltä 1-8</translation>
+        <translation type="vanished">callvote hedgehogs: anna luku väliltä 1-8</translation>
+    </message>
+    <message>
+        <source>The game can&apos;t be started with less than two clans!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Empty config entry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Access denied.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You&apos;re not the room master!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Corrupted hedgehogs info!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Too many teams!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Too many hedgehogs!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There&apos;s already a team with same name in the list.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Joining not possible: Round is in progress.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This room currently does not allow adding new teams.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error: The team you tried to remove does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You can&apos;t remove a team you don&apos;t own.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Illegal room name! The room name must be between 1-40 characters long, must not have a trailing or leading space and must not have any of these characters: $()*+?[]^{|}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A room with the same name already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/callvote kick: You need to specify a nickname.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/callvote kick: No such user!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/callvote map: No such map!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/callvote pause: No game in progress!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/callvote hedgehogs: Specify number from 1 to 8.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Illegal room name! A room name must be between 1-40 characters long, must not have a trailing or leading space and must not have any of these characters: $()*+?[]^{|}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No such room.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Room version incompatible to your Hedgewars version!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Access denied. This room currently doesn&apos;t allow joining.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Access denied. This room is for registered users only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are banned from this room.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nickname already provided.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Illegal nickname! Nicknames must be between 1-40 characters long, must not have a trailing or leading space and must not have any of these characters: $()*+?[]^{|}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Protocol already known.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bad number.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There&apos;s no voting going on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You already have voted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your vote has been counted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voting closed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pause toggled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voting expired.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>hedgehogs per team: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/info &lt;player&gt;: Show info about player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/me &lt;message&gt;: Chat action, e.g. &apos;/me eats pizza&apos; becomes &apos;* Player eats pizza&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/rnd: Flip a virtual coin and reply with &apos;heads&apos; or &apos;tails&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/rnd [A] [B] [C] [...]: Reply with a random word from the given list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/watch &lt;id&gt;: Watch a demo stored on the server with the given ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/help: Show chat command help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/callvote [arguments]: Start a vote</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/vote &lt;yes/no&gt;: Vote &apos;yes&apos; or &apos;no&apos; for active vote</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/delegate &lt;player&gt;: Surrender room control to player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/maxteams &lt;N&gt;: Limit maximum number of teams to N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/global &lt;message&gt;: Send global chat message which can be seen by everyone on the server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/registered_only: Toggle &apos;registered only&apos; state. If enabled, only registered players can join server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/super_power: Activate your super power. With it you can enter any room and are protected from kicking. Expires when you leave server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/stats: Query server stats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/force &lt;yes/no&gt;: Force vote result for active vote</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/fix: Force this room to stay open when it is empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/unfix: Undo the /fix command</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List of lobby chat commands:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List of room chat commands:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Commands for server admins only:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>room</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lobby</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(playing)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(spectating)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Player is not online.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/force: Please use &apos;yes&apos; or &apos;no&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/vote: Please use &apos;yes&apos; or &apos;no&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kicked</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This server only allows registered users to join.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>heads</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>tails</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This server does not support replays!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/greeting [message]: Set or clear greeting message to be shown to players who join the room</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/save &lt;config ID&gt; &lt;config name&gt;: Add current room configuration as votable choice for /callvote map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/delete &lt;config ID&gt;: Delete a votable room configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/saveroom &lt;file name&gt;: Save all votable room configurations (and the greeting) of this room into a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/loadroom &lt;file name&gt;: Load votable room configurations (and greeting) from a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Super power activated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown command or invalid parameters. Say &apos;/help&apos; in chat for a list of commands.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You can&apos;t kick yourself!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You can&apos;t kick the only other player!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The player is not in your room.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This player is protected from being kicked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You&apos;re not the room master or a server admin!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You&apos;re already the room master.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Greeting message cleared.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Greeting message set.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/callvote kick: This is only allowed in rooms without a room master.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/callvote map: No maps available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You&apos;re the new room master!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/quit: Quit the server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This command is only available in the lobby.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This command is only available in rooms.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This server no longer allows unregistered players to join.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This server now allows unregistered players to join.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Available callvote commands: hedgehogs &lt;number&gt;, pause, newseed, map &lt;name&gt;, kick &lt;player&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please confirm server restart with &apos;/restart_server yes&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning! Room name change flood protection activated</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
