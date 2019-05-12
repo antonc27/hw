@@ -77,7 +77,7 @@ install: |
   elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
     brew install qt5
     brew install fpc glew physfs lua51 sdl2 sdl2_image sdl2_net sdl2_ttf ffmpeg ghc cabal-install
-    brew install sdl2_mixer --with-libvorbis
+    brew install sdl2_mixer
     # use cabal install haskell deps, pas2c ones are covered by server
     if [[ "$BUILD_ARGS" != *"NOSERVER"* ]]; then
       cabal update
