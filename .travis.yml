@@ -71,7 +71,6 @@ install: |
     mkdir physfs-3.0.1-build 
     pushd physfs-3.0.1-build
     cmake ../physfs-3.0.1
-    ccmake .
     make
     make install
     popd
