@@ -54,7 +54,7 @@ before_install: |
   if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo apt-get update -qq
   elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    brew update --all
+    brew update
   elif [ "$TRAVIS_OS_NAME" == "ios" ]; then
     hg clone http://hg.libsdl.org/SDL $SDL_LIB_PATH/SDL/
     hg clone http://hg.libsdl.org/SDL_image $SDL_LIB_PATH/SDL_image/
