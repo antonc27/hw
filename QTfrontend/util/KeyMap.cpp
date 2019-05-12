@@ -64,9 +64,9 @@ bool KeyMap::getKeyMap()
             keyname = "";
             continue;
         }
-        if (cell == 0 && currChar != "\"") {
+        if (cell == 0 && currChar != '\"') {
             scancode += currChar;
-        } else if (cell == 1 && currChar != "\"") {
+        } else if (cell == 1 && currChar != '\"') {
             keyname += currChar;
         }
         charInCell++;
