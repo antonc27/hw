@@ -72,7 +72,7 @@ install: |
     pushd physfs-3.0.1-build
     cmake ../physfs-3.0.1
     make
-    make install
+    sudo make install
     popd
   elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
     brew install qt5
