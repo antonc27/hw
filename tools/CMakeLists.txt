@@ -33,10 +33,10 @@ if(APPLE AND NOT SKIPBUNDLE)
     message("QT5_INCLUDE_DIRS: ${QT5_INCLUDE_DIRS}")
     
     get_target_property(qmake_executable Qt5::qmake IMPORTED_LOCATION)
-    get_filename_component(qt_base_dir "${qmake_executable}" DIRECTORY)
+    get_filename_component(qt_bin_dir "${qmake_executable}" DIRECTORY)
     
     message("qmake_executable: ${qmake_executable}")
-    message("qt_base_dir: ${qt_base_dir}")
+    message("qt_bin_dir: ${qt_bin_dir}")
     
     #use the associated tool from the libraries we've selected
     #string(REGEX REPLACE "(.*)/include.*" "\\1" qt_base_dir "${QT_INCLUDE_DIR}")
@@ -57,9 +57,9 @@ if(APPLE AND NOT SKIPBUNDLE)
         set(engine_full_path "${CMAKE_INSTALL_PREFIX}/hwengine${CMAKE_EXECUTABLE_SUFFIX}")
     endif()
 
-    find_program(macdeployqt_executable NAMES macdeployqt PATHS ${qt_base_dir}/bin)
+    find_program(macdeployqt_executable NAMES macdeployqt PATHS ${qt_bin_dir})
     if(NOT macdeployqt_executable)
-        message(FATAL_ERROR "The utility macdeployqt is required to create the bundle (seached: ${qt_base_dir})")
+        message(FATAL_ERROR "The utility macdeployqt is required to create the bundle (searched: ${qt_bin_dir})")
     endif()
 
     #create the .app bundle
