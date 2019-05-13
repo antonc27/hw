@@ -34,12 +34,6 @@ if(APPLE AND NOT SKIPBUNDLE)
     
     get_target_property(qmake_executable Qt5::qmake IMPORTED_LOCATION)
     get_filename_component(qt_bin_dir "${qmake_executable}" DIRECTORY)
-    
-    message("qmake_executable: ${qmake_executable}")
-    message("qt_bin_dir: ${qt_bin_dir}")
-    
-    #use the associated tool from the libraries we've selected
-    #string(REGEX REPLACE "(.*)/include.*" "\\1" qt_base_dir "${QT_INCLUDE_DIR}")
 
     #remove the ";-framework Cocoa" from the SDL2_LIBRARY variable
     string(REGEX REPLACE "(.*);-.*" "\\1" sdl_library_only "${SDL2_LIBRARY}")
