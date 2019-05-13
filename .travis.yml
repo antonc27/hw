@@ -101,14 +101,14 @@ before_script: |
     # but there are no (easy?) way to build it from sources,
     # so we just temporary switch Xcode project to use FPC 3.0.1
     git apply tools/fix_fpc_ios_build_patch.diff
-    xcodebuild -project ./project_files/HedgewarsMobile/Hedgewars.xcodeproj -scheme UpdateDataFolder build | xcpretty && exit ${PIPESTATUS[0]}
+    xcodebuild -project ./project_files/HedgewarsMobile/Hedgewars.xcodeproj -scheme UpdateDataFolder build
   else
     mkdir build && cd build && cmake $BUILD_ARGS ..
   fi
 
 script: |
   if [ "$TRAVIS_OS_NAME" == "ios" ]; then
-    xcodebuild -project ./project_files/HedgewarsMobile/Hedgewars.xcodeproj -scheme Hedgewars -configuration Release build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO | xcpretty && exit ${PIPESTATUS[0]}
+    xcodebuild -project ./project_files/HedgewarsMobile/Hedgewars.xcodeproj -scheme Hedgewars -configuration Release build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
   else
     make VERBOSE=1
   fi
