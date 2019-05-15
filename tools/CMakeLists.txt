@@ -25,7 +25,7 @@ if(APPLE AND NOT SKIPBUNDLE)
             set(SPARKLE_FOUND 0)
         endif()
     endif()
-    
+
     get_target_property(qmake_executable Qt5::qmake IMPORTED_LOCATION)
     get_filename_component(qt_bin_dir "${qmake_executable}" DIRECTORY)
 
