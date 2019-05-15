@@ -25,15 +25,6 @@ if(APPLE AND NOT SKIPBUNDLE)
             set(SPARKLE_FOUND 0)
         endif()
     endif()
-    
-    message("Qt5Core_INCLUDE_DIRS: ${Qt5Core_INCLUDE_DIRS}")
-    message("Qt5Widgets_INCLUDE_DIRS: ${Qt5Core_INCLUDE_DIRS}")
-    message("QT_INCLUDE_DIR: ${QT_INCLUDE_DIR}")
-    message("QT5_INCLUDE_DIR: ${QT5_INCLUDE_DIR}")
-    message("QT5_INCLUDE_DIRS: ${QT5_INCLUDE_DIRS}")
-    
-    #use the associated tool from the libraries we've selected
-    string(REGEX REPLACE "(.*)/include.*" "\\1" qt_base_dir "${QT_INCLUDE_DIR}")
 
     #remove the ";-framework Cocoa" from the SDL2_LIBRARY variable
     string(REGEX REPLACE "(.*);-.*" "\\1" sdl_library_only "${SDL2_LIBRARY}")
