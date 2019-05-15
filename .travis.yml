@@ -54,7 +54,7 @@ before_install: |
   if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo apt-get update -qq
   elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    brew update
+    # brew update
   elif [ "$TRAVIS_OS_NAME" == "ios" ]; then
     hg clone http://hg.libsdl.org/SDL $SDL_LIB_PATH/SDL/
     hg clone http://hg.libsdl.org/SDL_image $SDL_LIB_PATH/SDL_image/
@@ -83,12 +83,12 @@ install: |
     brew install sdl2_mixer
     # use cabal install haskell deps, pas2c ones are covered by server
     if [[ "$BUILD_ARGS" != *"NOSERVER"* ]]; then
-      cabal update
-      cabal install --only-dependencies gameServer/hedgewars-server.cabal
+      cabal new-update
+      cabal new-install --only-dependencies gameServer/hedgewars-server.cabal
     fi
     if [[ "$BUILD_ARGS" == *"BUILD_ENGINE_C"* ]]; then
-      cabal update
-      cabal install --only-dependencies tools/pas2c/pas2c.cabal
+      cabal new-update
+      cabal new-install --only-dependencies tools/pas2c/pas2c.cabal
     fi
     # avoid installing Sparkle, add default unit path
     export BUILD_ARGS="$BUILD_ARGS -DNOAUTOUPDATE=1"
