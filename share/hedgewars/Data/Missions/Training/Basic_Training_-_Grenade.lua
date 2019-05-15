@@ -45,6 +45,7 @@ function onGameInit()
 	SetEffect(hog, heResurrectable, 1)
 
 	SendHealthStatsOff()
+	SendRankingStatsOff()
 end
 
 function onGearResurrect(gear, vGear)
@@ -197,9 +198,9 @@ function newGamePhase()
 		end
 		SendStat(siCustomAchievement, loc("Good job!"))
 		SendStat(siGameResult, loc("You have completed the Basic Grenade Training!"))
-		SendStat(siPlayerKills, "0", GetHogTeamName(hog))
 		EndGame()
 		gameOver = true
+		SetState(hog, gstWinner)
 	end
 	gamePhase = gamePhase + 1
 end

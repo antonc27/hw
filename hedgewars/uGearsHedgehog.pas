@@ -1219,7 +1219,8 @@ if (Gear^.State and gstMoving) <> 0 then
 if (not isFalling)
   and (hwAbs(Gear^.dX) + hwAbs(Gear^.dY) < _0_03) then
     begin
-    Gear^.State:= Gear^.State and (not gstWinner);
+    if (not GameOver) then
+        Gear^.State:= Gear^.State and (not gstWinner);
     Gear^.State:= Gear^.State and (not gstMoving);
     cnt:= 0;
     while (cnt < 6) and (not CheckGearDrowning(Gear)) and (Gear <> nil) and (TestCollisionYWithGear(Gear,1) = 0) do
@@ -1281,6 +1282,11 @@ else
     uStats.hedgehogFlight(Gear, Gear^.FlightTime);
     Gear^.FlightTime:= 0;
     end;
+if (WorldEdge = weNone) and (not Gear^.Hedgehog^.FlownOffMap) and (not isZero(Gear^.dX)) and (not isUnderwater) and ((Gear^.State and gstHHDriven) = 0) and (hwRound(Gear^.Y) < cWaterLine-300) and ((hwRound(Gear^.X) < leftX-2048) or (hwRound(Gear^.X) > rightX+2048)) then
+    begin
+    PlaySoundV(sndFlyAway, Gear^.Hedgehog^.Team^.voicepack);
+    Gear^.Hedgehog^.FlownOffMap:= true;
+    end;
 
 end;
 
@@ -1308,7 +1314,7 @@ if (TurnTimeLeft = 0) or (HHGear^.Damage > 0) or (((GameFlags and gfKing) <> 0) 
     if TagTurnTimeLeft = 0 then
         TagTurnTimeLeft:= TurnTimeLeft;
     TurnTimeLeft:= 0;
-    if (GameOver = false) and ((GameFlags and gfInfAttack) = 0) and ((HHGear^.State and gstAttacked) = 0) and (HHGear^.Damage = 0) and (LuaNoEndTurnTaunts = false) then
+    if (GameOver = false) and ((GameFlags and gfInfAttack) = 0) and ((HHGear^.State and gstAttacked) = 0) and (HHGear^.Damage = 0) and (LuaNoEndTurnTaunts = false) and (uStats.getIsTurnSkipped() = false) then
         begin
         AddVoice(sndBoring, Hedgehog^.Team^.voicepack);
         if (GameFlags and gfInfAttack = 0) then
@@ -1511,7 +1517,9 @@ else
     begin
     if Gear^.Timer = 0 then
         begin
-        Gear^.State:= Gear^.State and (not (gstWait or gstLoser or gstWinner or gstAttacked or gstNotKickable or gstChooseTarget));
+        Gear^.State:= Gear^.State and (not (gstWait or gstLoser or gstAttacked or gstNotKickable or gstChooseTarget));
+        if (not GameOver) then
+            Gear^.State:= Gear^.State and (not gstWinner);
         if Gear^.Hedgehog^.Effects[heFrozen] = 0 then Gear^.Active:= false;
         AddCI(Gear);
         exit

@@ -550,6 +550,9 @@ function DoTargDestroyed()
   AddEvent(CheckTimesUp, {}, DoTimesUp, {}, 1)
   -- Remove up the old mole blockade from the parachute challenge
   EraseSprite(rope2GirderX, rope2GirderY, sprAmGirder, 6)
+  for i=-4,4 do
+    AddVisualGear(rope2GirderX, rope2GirderY + i * 18, vgtSteam, false, 0)
+  end
 end
 
 function DoChoice()
@@ -758,7 +761,7 @@ function onGameInit()
   AnimSetGearPosition(youngh, 1862, 1362)
   HogTurnLeft(youngh, false)
 
-  AddTeam(loc("Cannibals"), -1, "skull", "Island", "Pirate","cm_vampire")
+  AddTeam(loc("Cannibals"), -1, "skull", "Island", "Pirate_qau", "cm_vampire")
   cannibal = AddHog(loc("Brainiac"), 0, 5, "Zombi")
   AnimSetGearPosition(cannibal, 525, 1256)
   HogTurnLeft(cannibal, false)

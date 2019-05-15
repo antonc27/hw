@@ -18,6 +18,9 @@ Gameplay:
  * Deny placement of airborne attack in “impossible” places in maps with bounce world edge
  * Deny placement of piano beyond bounce world edge
  * Fix cut scenes not being skipped when pressing precise in enemy turn
+ * Fix laser sight not working properly when it starts out of map bounds
+ * Fix parachute making hog stuck or fast when bumping into wall while looking other way
+ * Add missing winner animation in single missions
 
 Styles and schemes:
  + The Specialists: Unlock game scheme
@@ -72,6 +75,7 @@ Graphics:
  * Fix wrong ice beam angle if it goes diagonally up out of map through world wrap
  * Fix double water splash when flying saucer drowns
  * Fix odd floating pixels when wielding and rotating cleaver
+ * Fix birdy being drawn behind hedgehogs and objects
 
 Game HUD:
  + Colorize switching arrows, pointing arrow and target cross in clan color
@@ -95,11 +99,13 @@ Translations:
  * Remove Arabic translation from release
 
 Frontend:
+ + Quick games are more random: More map types, random team size and difficulty
  + Add button in main menu at top left corner to open credits page
  + Restructure credits page
  + More intelligent automatic mission selection in campaign screen
  + New data directory for video thumbnails: Data/VideoThumbnails
  + Display a warning when the same key is used multiple times
+ + Stats screen now hides empty sections
  * Fix broken handling of /watch chat command on official server
  * Fix renaming a video leading to loss of thumbnail after restart
  * Fix controls list failing to display correct key names with regards to keyboard layout
@@ -110,7 +116,9 @@ Frontend:
 Sounds and voicepacks:
  + sndYoohoo has been split to sndYoohoo and sndKiss
  + Voice files sndPoisonCough and sndPoisonMoan are now optional (fall back to Default voicepack)
+ + Add taunt: sndFlyAway / Flyaway.ogg: When hedgehog flies off the map
  + Tweak some taunts: sndFirstBlood, sndLeaveMeAlone, sndCutItOut
+ * Fix English voicepack selection of team being overwritten when playing in non-English locale
 
 Lua API:
  + New call: SaveMissionVar(varname, value): Save value to mission variable (variable for non-campaign mission)
@@ -122,6 +130,7 @@ Lua API:
  + New call: SetTeamPassive(teamname, isPassive): Mark a team as passive. Passive teams do not play and are treated like frozen teams.
  + New return value: AddTeam/AddMissionTeam return <real team name>, <team index>
  + SetClanColor: Now accepts negative color argument for user clan color, like in AddTeam
+ + AddTeam: Append “_qau” to voicepack name to enable automatic selection of voicepack language
  + Utils library: New calls: getReadableChallengeRecord, updateChallengeRecord, integerSqrt, integerHypotenuse
  + New callback: onGameResult(winningClan): Called when the game ends normally. winningClan = index of winning clan or -1 on draw
  + New callback: onCaseDrop(gear): Called at the point where a crate MIGHT be dropped between turns. Gear is the crate gear or nil
@@ -137,6 +146,7 @@ Lua API:
  * Fix SetAmmoDelay not working properly when called after onGameStart
  * Fix DismissTeam not clearing team properly
  * SimpleMission: Fix Lua error spam when a custom goal fails
+ * gstWinner state is preserved after the game ended
 
 ====================== 0.9.25 ======================
 HIGHLIGHTS:

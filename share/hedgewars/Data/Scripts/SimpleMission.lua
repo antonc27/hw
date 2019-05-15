@@ -65,6 +65,7 @@ The argument “params” is a table containing fields which describe the missio
 	- flag			flag name (default: hedgewars)
 	- grave			grave name (has default grave for each team)
 	- fort			fort name (default: Castle)
+	- voice			voicepack (default: Default_qau)
 
 	HEDGEHOG DATA:
 	- id			optional identifier for goals
@@ -522,13 +523,14 @@ function SimpleMission(params)
 			end
 			AddCaption(loc("Victory!"), capcolDefault, capgrpGameState)
 			SendStat(siGameResult, loc("You win!"))
-			if GetHogLevel(CurrentHedgehog) == 0 then
-				SetState(CurrentHedgehog, bor(GetState(CurrentHedgehog), gstWinner))
-				SetState(CurrentHedgehog, band(GetState(CurrentHedgehog), bnot(gstHHDriven)))
-				PlaySound(sndVictory, CurrentHedgehog)
-			end
 			_G.sm.makeStats(_G.sm.playerClan)
 			EndGame()
+			if GetHogLevel(CurrentHedgehog) == 0 then
+				for team, hog in pairs(teamHogs[GetHogTeamName(CurrentHedgehog)]) do
+					SetState(hog, gstWinner)
+					PlaySound(sndVictory, hog)
+				end
+			end
 		end
 	end
 
@@ -654,7 +656,7 @@ function SimpleMission(params)
 			else
 				grave = def(teamData.grave, defaultGraves[math.min(teamID, 8)])
 				fort = def(teamData.fort, "Castle")
-				voice = def(teamData.voice, "Default")
+				voice = def(teamData.voice, "Default_qau")
 				flag = def(teamData.flag, defaultFlags[math.min(teamID, 8)])
 
 				realName = AddTeam(name, -(clanID+1), grave, fort, voice, flag)

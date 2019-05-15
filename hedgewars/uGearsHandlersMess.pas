@@ -2394,13 +2394,19 @@ begin
             AddVisualGear(hwRound(Gear^.X) - 16 + Random(32), hwRound(Gear^.Y) - 2, vgtSmoke)
     else
         AddVisualGear(hwRound(Gear^.X) - 16 + Random(32), hwRound(Gear^.Y) - 2, vgtSmokeWhite);
-    // health texture
-    FreeAndNilTexture(Gear^.Tex);
-    Gear^.Tex := RenderStringTex(ansistring(inttostr(Gear^.Health)), $ff808080, fnt16);
+
     dec(Gear^.Health, Gear^.Damage);
     Gear^.Damage := 0;
     if Gear^.Health <= 0 then
-        doStepCase(Gear);
+        doStepCase(Gear)
+    else
+        // health texture (FlightTime = health when the last texture was generated)
+        if Gear^.Health <> Gear^.FlightTime then
+            begin
+            Gear^.FlightTime:= Gear^.Health;
+            FreeAndNilTexture(Gear^.Tex);
+            Gear^.Tex := RenderStringTex(ansistring(inttostr(Gear^.Health)), $ff808080, fnt16);
+            end;
 end;
 
 procedure doStepCase(Gear: PGear);
@@ -2469,18 +2475,22 @@ begin
                 AddVisualGear(hwRound(Gear^.X) - 16 + Random(32), hwRound(Gear^.Y) - 2, vgtSmoke)
             else
                 AddVisualGear(hwRound(Gear^.X) - 16 + Random(32), hwRound(Gear^.Y) - 2, vgtSmokeWhite);
+
         dec(Gear^.Health, Gear^.Damage);
         Gear^.Damage := 0;
-        // health texture
-        FreeAndNilTexture(Gear^.Tex);
-        Gear^.Tex := RenderStringTex(ansistring(inttostr(Gear^.Health)), $ff808080, fnt16);
+        // health texture (FlightTime = health when the last texture was generated)
+        if Gear^.Health <> Gear^.FlightTime then
+            begin
+            Gear^.FlightTime:= Gear^.Health;
+            FreeAndNilTexture(Gear^.Tex);
+            Gear^.Tex := RenderStringTex(ansistring(inttostr(Gear^.Health)), $ff808080, fnt16);
+            end;
         end
     else
         begin
         // health texture for health crate
-        if (k = gtCase) and ((Gear^.Pos and $02) <> 0) then
+        if (k = gtCase) and ((Gear^.Pos and posCaseHealth) <> 0) then
             begin
-            FreeAndNilTexture(Gear^.Tex);
             if ((Gear^.State and gstFrozen) = 0) then
                 begin
                 // Karma=2: Always hide health
@@ -2496,9 +2506,23 @@ begin
                 else
                     i:= 1;
                 if i = 1 then
-                    Gear^.Tex := RenderStringTex(ansistring(inttostr(Gear^.Health)), $ff80ff80, fnt16)
+                    begin
+                    if Gear^.Health <> Gear^.FlightTime then
+                        begin
+                        Gear^.FlightTime:= Gear^.Health;
+                        FreeAndNilTexture(Gear^.Tex);
+                        Gear^.Tex := RenderStringTex(ansistring(inttostr(Gear^.Health)), $ff80ff80, fnt16)
+                        end
+                    end
                 else
-                    Gear^.Tex := RenderStringTex(trmsg[sidUnknownGearValue], $ff80ff80, fnt16)
+                    begin
+                    if Gear^.FlightTime <> $ffffffff then
+                        begin
+                        Gear^.FlightTime:= $ffffffff;
+                        FreeAndNilTexture(Gear^.Tex);
+                        Gear^.Tex := RenderStringTex(trmsg[sidUnknownGearValue], $ff80ff80, fnt16)
+                        end
+                    end
                 end;
             end;
         if Gear^.Timer = 500 then
@@ -2564,6 +2588,8 @@ begin
                 PlaySound(Gear^.ImpactSound);
             end;
         CheckGearDrowning(Gear);
+        if ((Gear^.State and gstDrowning) <> 0) then
+            Gear^.RenderHealth:= false;
         end;
 
     if (Gear^.dY.QWordValue = 0) then
@@ -2929,6 +2955,7 @@ end;
 procedure doStepParachuteWork(Gear: PGear);
 var
     HHGear: PGear;
+    deltaX: hwFloat;
 begin
     HHGear := Gear^.Hedgehog^.Gear;
 
@@ -2954,13 +2981,14 @@ begin
         exit
         end;
 
-    HHGear^.X := HHGear^.X + cWindSpeed * 200;
+    deltaX:= _0;
+    deltaX:= deltaX + cWindSpeed * 200;
 
     if (Gear^.Message and gmLeft) <> 0 then
-        HHGear^.X := HHGear^.X - cMaxWindSpeed * 80
+        deltaX := deltaX - cMaxWindSpeed * 80
 
     else if (Gear^.Message and gmRight) <> 0 then
-        HHGear^.X := HHGear^.X + cMaxWindSpeed * 80;
+        deltaX := deltaX + cMaxWindSpeed * 80;
 
     if (Gear^.Message and gmUp) <> 0 then
         HHGear^.Y := HHGear^.Y - cGravity * 40
@@ -2968,9 +2996,10 @@ begin
     else if (Gear^.Message and gmDown) <> 0 then
         HHGear^.Y := HHGear^.Y + cGravity * 40;
 
+    HHGear^.X := HHGear^.X + deltaX;
     // don't drift into obstacles
-    if TestCollisionXwithGear(HHGear, hwSign(HHGear^.dX)) <> 0 then
-        HHGear^.X := HHGear^.X - int2hwFloat(hwSign(HHGear^.dX));
+    if TestCollisionXwithGear(HHGear, hwSign(deltaX)) <> 0 then
+        HHGear^.X := HHGear^.X - int2hwFloat(hwSign(deltaX));
     HHGear^.Y := HHGear^.Y + cGravity * 100;
     Gear^.X := HHGear^.X;
     Gear^.Y := HHGear^.Y

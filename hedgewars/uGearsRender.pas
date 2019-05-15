@@ -99,6 +99,7 @@ function DrawRopeLine(X1, Y1, X2, Y2, roplen: LongInt): LongInt;
 var  eX, eY, dX, dY: LongInt;
     i, sX, sY, x, y, d: LongInt;
     b: boolean;
+    angle: real;
 begin
     if (X1 = X2) and (Y1 = Y2) then
         begin
@@ -110,6 +111,7 @@ begin
     eY:= 0;
     dX:= X2 - X1;
     dY:= Y2 - Y1;
+    angle:= arctan2(dY, dX) * 180 / PI - 90;
 
     if (dX > 0) then
         sX:= 1
@@ -160,8 +162,8 @@ begin
         if b then
             begin
             inc(roplen);
-            if (roplen mod 4) = 0 then
-                DrawSprite(sprRopeNode, x - 2, y - 2, 0)
+            if (roplen mod cRopeNodeStep) = 0 then
+                DrawSpriteRotatedF(sprRopeNode, x, y, roplen div cRopeNodeStep, 1, angle);
             end
     end;
     DrawRopeLine:= roplen;
@@ -506,7 +508,7 @@ begin
                 hy:= ty;
                 wraps:= 0;
                 inWorldBounds := ((ty and LAND_HEIGHT_MASK) or (tx and LAND_WIDTH_MASK)) = 0;
-                while inWorldBounds and ((Land[ty, tx] and lfAll) = 0) do
+                while (inWorldBounds and ((Land[ty, tx] and lfAll) = 0)) or (not inWorldBounds) do
                     begin
                     if wraps > cMaxLaserSightWraps then
                         break;
@@ -515,7 +517,7 @@ begin
                     tx:= round(lx);
                     ty:= round(ly);
                     // reached edge of land.
-                    if ((ty and LAND_HEIGHT_MASK) <> 0) then
+                    if ((ty and LAND_HEIGHT_MASK) <> 0) and (((ty < LAND_HEIGHT) and (ay < 0)) or ((ty >= TopY) and (ay > 0))) then
                         begin
                         // assume infinite beam. Extend it way out past camera
                         tx:= round(lx + ax * (max(LAND_WIDTH,4096) div 2));
@@ -538,7 +540,7 @@ begin
                             // just stop
                             break;
 
-                    if ((tx and LAND_WIDTH_MASK) <> 0) then
+                    if ((tx and LAND_WIDTH_MASK) <> 0) and (((ax > 0) and (tx >= RightX)) or ((ax < 0) and (tx <= LeftX))) then
                         begin
                         if (WorldEdge <> weWrap) and (WorldEdge <> weBounce) then
                             // assume infinite beam. Extend it way out past camera
@@ -548,6 +550,7 @@ begin
                             end;
                         break;
                         end;
+                    inWorldBounds := ((ty and LAND_HEIGHT_MASK) or (tx and LAND_WIDTH_MASK)) = 0;
                     end;
 
                 DrawLineWrapped(hx, hy, tx, ty, 1.0, (sign*m) < 0, wraps, $FF, $00, $00, $C0);
@@ -1653,7 +1656,7 @@ procedure RenderGearHealth(Gear: PGear; x, y: LongInt);
 begin
 if isShowGearInfo and (Gear^.RenderHealth) and (Gear^.Tex <> nil) then
     begin
-    if (Gear^.Kind = gtCase) and ((Gear^.Pos and $02) <> 0) then
+    if (Gear^.Kind = gtCase) and ((Gear^.Pos and posCaseHealth) <> 0) then
         DrawTextureCentered(x, y - 38, Gear^.Tex);
     if (Gear^.Kind = gtExplosives) then
         DrawTextureCentered(x, y - 38, Gear^.Tex);

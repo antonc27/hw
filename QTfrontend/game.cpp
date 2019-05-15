@@ -140,37 +140,196 @@ void HWGame::SendConfig()
 
 void HWGame::SendQuickConfig()
 {
+    /* Load and increase Quick Game experience level.
+    Experience increases by 1 for each started game and maxes out
+    at 20. Low experience levels will introduce a "beginner's bias" to make
+    the first quick games easier and simpler. The max. possible difficulty
+    increases progressively the longer you play.
+    If experience is maxed out, the beginner's bias is gone and quick games
+    are completely random. */
+    int exp = config->quickGameExperience();
+    if(exp < 20)
+    {
+       config->setQuickGameExperience(exp + 1);
+    }
+    qDebug("Starting quick game ...");
+    qDebug("Quick Game experience level: %d", exp);
+
+    // Init stuff
     QByteArray teamscfg;
     QAbstractItemModel * themeModel = DataManager::instance().themeModel()->withoutHidden();
 
     HWProto::addStringToBuffer(teamscfg, "TL");
-    HWProto::addStringToBuffer(teamscfg, QString("etheme %1")
-                               .arg((themeModel->rowCount() > 0) ? themeModel->index(rand() % themeModel->rowCount(), 0).data(ThemeModel::ActualNameRole).toString() : "Nature"));
+
+    // Random seed
     HWProto::addStringToBuffer(teamscfg, "eseed " + QUuid::createUuid().toString());
 
-    HWProto::addStringToBuffer(teamscfg, "e$template_filter 2");
-    HWProto::addStringToBuffer(teamscfg, "e$feature_size "+QString::number(rand()%18+4));
+    int r, minhogs, maxhogs;
 
+    // Random map type
+    r = rand() % 10000;
+    if(r < 3000) { // 30%
+        // Random
+        r = 0;
+    } else if(r < 5250) { // 22.5%
+        // Maze
+        if(exp <= 3)
+            r = 0;
+        else
+            r = 1;
+    } else if(r < 7490) { // 22.4%
+        // Perlin
+        if(exp <= 7)
+            r = 1;
+        else
+            r = 2;
+    } else if(r < 7500 && exp >= 5) { // 0.1%
+        // Floating Flowers (just for fun)
+        r = 5;
+    } else if(r < 8750) { // 12.5%
+        // Image map
+        r = 3;
+    } else { // 12.5%
+        // Forts
+        r = 4;
+    }
+    switch(r)
+    {
+        // Random map
+        default:
+        case 0: {
+            r = rand() % 3;
+            if(r == 0)
+            {
+                // small island
+                HWProto::addStringToBuffer(teamscfg, "e$template_filter 1");
+                minhogs = 3;
+                maxhogs = 4;
+            }
+            else if(r == 1 || exp <= 6)
+            {
+                // medium island
+                HWProto::addStringToBuffer(teamscfg, "e$template_filter 2");
+                minhogs = 4;
+                maxhogs = 5;
+            }
+            else
+            {
+                // cave (locked at low experience because these maps can be huge)
+                HWProto::addStringToBuffer(teamscfg, "e$template_filter 4");
+                minhogs = 4;
+                maxhogs = 6;
+            }
+            HWProto::addStringToBuffer(teamscfg, "e$feature_size "+QString::number(rand()%18+4));
+            break;
+        }
+        // Maze
+        case 1: {
+            minhogs = 4;
+            maxhogs = 6;
+            HWProto::addStringToBuffer(teamscfg, "e$mapgen 1");
+            HWProto::addStringToBuffer(teamscfg, "e$template_filter "+QString::number(rand()%6));
+            HWProto::addStringToBuffer(teamscfg, "e$feature_size "+QString::number(rand()%16+6));
+            break;
+        }
+        // Perlin
+        case 2: {
+            minhogs = 4;
+            maxhogs = 6;
+            HWProto::addStringToBuffer(teamscfg, "e$mapgen 2");
+            HWProto::addStringToBuffer(teamscfg, "e$template_filter "+QString::number(rand()%6));
+            HWProto::addStringToBuffer(teamscfg, "e$feature_size "+QString::number(rand()%18+4));
+            break;
+        }
+        // Image map
+        case 3: {
+            minhogs = 4;
+            maxhogs = 6;
+            HWProto::addStringToBuffer(teamscfg, "e$mapgen 3");
+            // Select map from hardcoded list.
+            // TODO: find a more dynamic solution.
+            r = rand() % cQuickGameMaps.count();
+            HWProto::addStringToBuffer(teamscfg, "e$map " + cQuickGameMaps[r]);
+            break;
+        }
+        // Forts
+        case 4: {
+            minhogs = 4;
+            maxhogs = 6;
+            HWProto::addStringToBuffer(teamscfg, "e$mapgen 4");
+            HWProto::addStringToBuffer(teamscfg, "e$feature_size "+QString::number(rand()%20+1));
+            break;
+        }
+        // Floating Flowers
+        // (actually empty map; this forces the engine to generate fallback structures to have
+        // something for hogs to stand on)
+        case 5: {
+            minhogs = 4;
+            maxhogs = 8;
+            HWProto::addStringToBuffer(teamscfg, "e$mapgen 3");
+            HWProto::addStringToBuffer(teamscfg, "e$feature_size "+QString::number(rand()%4+3));
+            break;
+        }
+    }
+
+    // Theme
+    HWProto::addStringToBuffer(teamscfg, QString("etheme %1")
+        .arg((themeModel->rowCount() > 0) ? themeModel->index(rand() % themeModel->rowCount(), 0).data(ThemeModel::ActualNameRole).toString() : "Nature"));
+
+    int hogs = minhogs + rand() % (maxhogs-minhogs+1);
+    // Cap hog count at low experience
+    if((exp <= 8) && (hogs > 5))
+        hogs = 5;
+    else if((exp <= 5) && (hogs > 4))
+        hogs = 4;
+
+    // Teams
+    // Player team
     HWTeam team1;
     team1.setDifficulty(0);
     team1.setColor(0);
-    team1.setNumHedgehogs(4);
+    team1.setNumHedgehogs(hogs);
     HWNamegen::teamRandomEverything(team1);
-    team1.setVoicepack("Default");
-    HWProto::addStringListToBuffer(teamscfg,
-                                   team1.teamGameConfig(100));
+    team1.setVoicepack("Default_qau");
 
+    // Computer team
     HWTeam team2;
-    team2.setDifficulty(4);
+    // Random difficulty.
+    // Max. possible difficulty is capped at low experience levels.
+    if(exp >= 15) // very easy to very hard (full range)
+        r = 5 - rand() % 5;
+    else if(exp >= 9) // very easy to hard
+        r = 5 - rand() % 4;
+    else if(exp >= 6) // very easy to medium
+        r = 5 - rand() % 3;
+    else if(exp >= 2) // very easy to easy
+        r = 5 - rand() % 2;
+    else // very easy
+        r = 5;
+    team2.setDifficulty(r);
     team2.setColor(1);
-    team2.setNumHedgehogs(4);
+    team2.setNumHedgehogs(hogs);
+    // Make sure the team names are not equal
     do
         HWNamegen::teamRandomEverything(team2);
     while(!team2.name().compare(team1.name()) || !team2.hedgehog(0).Hat.compare(team1.hedgehog(0).Hat));
-    team2.setVoicepack("Default");
-    HWProto::addStringListToBuffer(teamscfg,
-                                   team2.teamGameConfig(100));
+    team2.setVoicepack("Default_qau");
 
+    // Team play order
+    r = rand() % 2;
+    if(r == 0 || exp <= 4) // player plays first
+    {
+        HWProto::addStringListToBuffer(teamscfg, team1.teamGameConfig(100));
+        HWProto::addStringListToBuffer(teamscfg, team2.teamGameConfig(100));
+    }
+    else // computer plays first
+    {
+        HWProto::addStringListToBuffer(teamscfg, team2.teamGameConfig(100));
+        HWProto::addStringListToBuffer(teamscfg, team1.teamGameConfig(100));
+    }
+
+    // Ammo scheme "Default"
+    // TODO: Random schemes
     HWProto::addStringToBuffer(teamscfg, QString("eammloadt %1").arg(cDefaultAmmoStore->mid(0, cAmmoNumber)));
     HWProto::addStringToBuffer(teamscfg, QString("eammprob %1").arg(cDefaultAmmoStore->mid(cAmmoNumber, cAmmoNumber)));
     HWProto::addStringToBuffer(teamscfg, QString("eammdelay %1").arg(cDefaultAmmoStore->mid(2 * cAmmoNumber, cAmmoNumber)));

@@ -105,6 +105,7 @@ function onGameInit()
 	drawMap()
 
 	SendHealthStatsOff()
+	SendRankingStatsOff()
 
 end
 
@@ -130,7 +131,31 @@ end
 local function eraseGirder(id)
 	EraseSprite(girderData[id][1], girderData[id][2], sprAmGirder, girderData[id][3], false, false, false, false)
 	PlaySound(sndVaporize)
-	AddVisualGear(girderData[id][1], girderData[id][2], vgtSteam, false, 0)
+	local dir = girderData[id][3]
+	if dir == 4 then
+		-- long horizontal
+		for i=-4,4 do
+			AddVisualGear(girderData[id][1] + i * 18, girderData[id][2], vgtSteam, false, 0)
+		end
+	elseif dir == 0 then
+		-- short horizontal
+		for i=-2,1 do
+			AddVisualGear(10 + girderData[id][1] + i * 20, girderData[id][2], vgtSteam, false, 0)
+		end
+	elseif dir == 6 then
+		-- long vertical
+		for i=-4,4 do
+			AddVisualGear(girderData[id][1], girderData[id][2] + i * 18, vgtSteam, false, 0)
+		end
+	elseif dir == 2 then
+		-- short vertical
+		for i=-2,1 do
+			AddVisualGear(girderData[id][1], 10 + girderData[id][2] + i * 20, vgtSteam, false, 0)
+		end
+	else
+		AddVisualGear(girderData[id][1], girderData[id][2], vgtSteam, false, 0)
+	end
+
 	AddCaption(loc("Barrier unlocked!"))
 end
 
@@ -283,6 +308,16 @@ function onGearDamage(gear)
 	end
 end
 
+local function dropNadeText(time)
+	ShowMission(loc("Basic Rope Training"), loc("Rope Weapons"),
+	loc("Some weapons can be dropped from the rope.").."|"..
+	loc("Collect the weapon crate and drop|a grenade from rope to destroy the barrels.").."|"..
+	loc("Step 1: Start roping").."|"..
+	loc("Step 2: Select grenade").."|"..
+	loc("Step 3: Drop the grenade").."| |"..
+	loc("Drop weapon (while on rope): [Long Jump]"), 2, time)
+end
+
 function onGearDelete(gear)
 	if GetGearType(gear) == gtTarget then
 		-- Update checkpoint
@@ -312,13 +347,7 @@ function onGearDelete(gear)
 			eraseGirder(8)
 			eraseGirder(9)
 		elseif currentTarget == 5 then
-			ShowMission(loc("Basic Rope Training"), loc("Rope Weapons"),
-			loc("Some weapons can be dropped from the rope.").."|"..
-			loc("Collect the weapon crate and drop|a grenade from rope to destroy the barrels.").."|"..
-			loc("Step 1: Start roping").."|"..
-			loc("Step 2: Select grenade").."|"..
-			loc("Step 3: Drop the grenade").."| |"..
-			loc("Drop weapon (while on rope): [Long Jump]"), 2, 20000)
+			dropNadeText(20000)
 			AddAmmo(hog, amBaseballBat, 0)
 			SpawnAmmoCrate(1849, 920, amGrenade, AMMO_INFINITE)
 		elseif currentTarget == 6 then
@@ -350,8 +379,8 @@ function onGearDelete(gear)
 			AddAmmo(hog, amRope, 0)
 			SendStat(siCustomAchievement, loc("Oh yeah! You sure know how to rope!"))
 			SendStat(siGameResult, loc("You have finished the Basic Rope Training!"))
-			SendStat(siPlayerKills, "0", teamName)
 			EndGame()
+			SetState(hog, gstWinner)
 			gameOver = true
 			SetInputMask(0)
 		end
@@ -404,6 +433,7 @@ end
 function onAttack()
 	if GetCurAmmoType() == amGrenade and not ropeGear then
 		AddCaption(loc("You have to drop the grenade from rope!"), 0xFF4000FF, capgrpMessage)
+		dropNadeText(5000)
 		PlaySound(sndDenied)
 	end
 end

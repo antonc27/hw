@@ -112,7 +112,8 @@ TargetPos[7] = {
 	MessageTime = 6500,
 	Message = loc("Now dive just one more time and collect the next crate.") .. "|" ..
 		loc("Tip: Don't remain for too long in the water, or you won't make it."),
-	Ammo = { [amJetpack] = 2 }, }
+	Ammo = { [amJetpack] = 2 },
+	Respawn = { X = 1968, Y = -1, FaceLeft = true }, }
 
 -- The Grenade Drop Target
 local BoomTarget = 8
@@ -214,10 +215,10 @@ TargetPos[12] = { Modifier = true, Func = function()
 
 	SendStat(siGameResult, loc("You have finished the Flying Saucer Training!"))
 	SendStat(siCustomAchievement, loc("Good job!"))
-	SendStat(siPlayerKills, "0", GetHogTeamName(Player))
 
 	EndTurn(true)
 	EndGame()
+	SetState(Player, gstWinner)
 end,
 }
 
@@ -240,6 +241,9 @@ function SpawnBoomTarget()
 	end
 	if Barrels[2] == nil then
 		Barrels[2] = AddGear(1648, 463, gtExplosives, 0, 0, 0, 0)
+	end
+	if Barrels[3] == nil then
+		Barrels[3] = AddGear(1513, 575, gtExplosives, 0, 0, 0, 0)
 	end
 
 	for i=1,#Barrels do
@@ -411,6 +415,7 @@ end
 
 function onGameStart()
 	SendHealthStatsOff()
+	SendRankingStatsOff()
 
 	-- Girder near first crate
 	PlaceGirder(1257, 204, 6)
@@ -517,6 +522,9 @@ function onGearDelete(Gear)
 	if Gear == Barrels[2] then
 		Barrels[2] = nil
 		AddCaption(loc("Kaboom!"), capcolDefault, capgrpMessage)
+	end
+	if Gear == Barrels[3] then
+		Barrels[3] = nil
 	end
 end
 

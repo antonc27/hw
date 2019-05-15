@@ -330,18 +330,29 @@ var cInitVolume: LongInt;
             (FileName:         'Leavemealone.ogg'; Path: ptVoices; AltPath: ptNone),// sndLeaveMeAlone
             (FileName:                 'Ouch.ogg'; Path: ptVoices; AltPath: ptNone),// sndOuch
             (FileName:                  'Hmm.ogg'; Path: ptVoices; AltPath: ptNone),// sndHmm
-            (FileName:                 'Kiss.ogg'; Path: ptSounds; AltPath: ptNone) // sndKiss
+            (FileName:                 'Kiss.ogg'; Path: ptSounds; AltPath: ptNone),// sndKiss
+            (FileName:              'Flyaway.ogg'; Path: ptVoices; AltPath: ptNone) // sndFlyAway
             );
 
 
 function  AskForVoicepack(name: shortstring): Pointer;
 var i: Longword;
-    langName, path: shortstring;
+    tmp, nameStart, langName, path: shortstring;
 begin
+    nameStart:= name;
     i:= 0;
 
-    // Adjust voicepack name if there's a localised version version of the voice
-    if cLanguage <> 'en' then
+    { Adjust for language suffix: Voicepacks can have an optional language suffix.
+    It's an underscore followed by an ISO 639-1 or ISO 639-2 language code.
+    The suffix “_qau” is special, it will enable automatic language selection
+    of this voicepack. For example, if team has set Default_qau as voicepack,
+    and the player language is Russian, the actual voicepack will be Default_ru,
+    provided it can be found on the disk.
+    “qau” is a valid ISO 639-2 language code reserved for local use. }
+    tmp:= Copy(name, Length(name) - 3, 4);
+    if (tmp = '_qau') then
+        name:= Copy(name, 1, Length(name) - 4);
+    if (cLanguage <> 'en') and (tmp = '_qau') then
         begin
         langName:= name+'_'+cLanguage;
         path:= cPathz[ptVoices] + '/' + langName;
@@ -359,13 +370,9 @@ begin
 
     path:= cPathz[ptVoices] + '/' + name;
 
-    // Fallback to Default if voicepack can't be found at all
-    if (name <> 'Default') and (not pfsExists(path)) then
-        begin
-        path:= cPathz[ptVoices] + '/Default';
-        if pfsExists(path) then
-            exit(AskForVoicepack('Default'));
-        end;
+    // Fallback to localized Default if voicepack can't be found at all
+    if (nameStart <> 'Default_qau') and (not pfsExists(path)) then
+        exit(AskForVoicepack('Default_qau'));
 
     while (voicepacks[i].name <> name) and (voicepacks[i].name <> '') and (i < cMaxTeams) do
         begin
@@ -1029,7 +1036,7 @@ begin
     isSEBackup:= isSoundEnabled;
     Volume:= 0;
     SoundTimerTicks:= 0;
-    defVoicepack:= AskForVoicepack('Default');
+    defVoicepack:= AskForVoicepack('Default_qau');
     LastVoiceFailed:= false;
 
     for i:= Low(TSound) to High(TSound) do

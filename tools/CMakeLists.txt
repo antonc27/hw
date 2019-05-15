@@ -45,11 +45,9 @@ if(APPLE AND NOT SKIPBUNDLE)
         set(engine_full_path "${CMAKE_INSTALL_PREFIX}/hwengine${CMAKE_EXECUTABLE_SUFFIX}")
     endif()
 
-    #this tool is present in qt 4.5 but only if you compile from sources
-    #from qt 4.6 is present also in the binary version
-    find_program(macdeployqt_executable NAMES macdeployqt macdeployqt-mac PATHS ${qt_base_dir}/bin)
+    find_program(macdeployqt_executable NAMES macdeployqt PATHS ${qt_bin_dir})
     if(NOT macdeployqt_executable)
-        message(FATAL_ERROR "The utility macdeployqt is required to create the bundle (seached: ${qt_base_dir})")
+        message(FATAL_ERROR "The utility macdeployqt is required to create the bundle (searched: ${qt_bin_dir})")
     endif()
 
     #create the .app bundle

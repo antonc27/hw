@@ -578,11 +578,6 @@ function CommentOnScore()
 
 	if lGameOver then
 		local winnerTeam = teamStats[1].name
-		for i = 0, (SI.numhhs-1) do
-			if GetHogTeamName(SI.hhs[i]) == winnerTeam then
-				SetState(SI.hhs[i], bor(GetState(SI.hhs[i]), gstWinner))
-			end
-		end
 		AddCaption(string.format(loc("%s wins!"), winnerTeam), capcolDefault, capgrpGameState)
 		SendStat(siGameResult, string.format(loc("%s wins!"), winnerTeam))
 
@@ -1107,6 +1102,8 @@ function onGameInit()
 	SI.wep[2] = loc("Flamer")
 
 	SI.wepCount = 3
+
+	SetSoundMask(sndFlyAway, true)
 
 end
 
