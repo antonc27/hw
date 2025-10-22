@@ -111,6 +111,14 @@ jobs:
             libsdl2-image-dev libsdl2-mixer-dev libsdl2-net-dev libsdl2-ttf-dev \
             qtbase5-dev qtbase5-private-dev qttools5-dev qttools5-dev-tools
 
+      - name: Install Rust (Linux)
+        if: matrix.os_name == 'linux'
+        id: install_rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.46.0
+          targets: x86_64-unknown-linux-gnu
+
       - name: Install Dependencies (macOS)
         if: matrix.os_name == 'osx'
         run: |
@@ -120,12 +128,12 @@ jobs:
           
           if [[ "$BUILD_ARGS" != *"NOSERVER"* ]]; then
             cabal update
-            cabal install --only-dependencies --cabal-file=gameServer/hedgewars-server.cabal
+            cabal v1-install --only-dependencies --cabal-file=gameServer/hedgewars-server.cabal
           fi
           
           if [[ "$BUILD_ARGS" == *"BUILD_ENGINE_C"* ]]; then
             cabal update
-            cabal install --only-dependencies --cabal-file=tools/pas2c/pas2c.cabal
+            cabal v1-install --only-dependencies --cabal-file=tools/pas2c/pas2c.cabal
           fi
           
           # Add to BUILD_ARGS and export to $GITHUB_ENV to persist for future steps
@@ -133,7 +141,7 @@ jobs:
           echo "BUILD_ARGS=$BUILD_ARGS" >> $GITHUB_ENV
 
       - name: Configure (CMake)
-        run: mkdir build && cd build && cmake -DRust_RUSTUP_INSTALL_MISSING_TARGET=ON $BUILD_ARGS ..
+        run: mkdir build && cd build && cmake $BUILD_ARGS ..
 
       - name: Build (Make)
         working-directory: ./build
