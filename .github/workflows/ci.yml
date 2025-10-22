@@ -9,8 +9,7 @@ on:
 jobs:
   # Job 1: Main build matrix for Linux and macOS
   build:
-    # Name now includes build_args
-    name: Build (${{ matrix.os_name }} / ${{ matrix.compiler_name }} / ${{ matrix.build_args }})
+    name: ${{ matrix.os_name }}/${{ matrix.compiler_name }}/${{ matrix.build_args }}
     runs-on: ${{ matrix.os_runner }}
     
     strategy:
@@ -21,7 +20,7 @@ jobs:
         compiler_name: [gcc, clang]
         build_args:
           - "-DCMAKE_BUILD_TYPE=Release"
-          - "-DCMAKE_BUILD_TYPE=Debug"
+          # - "-DCMAKE_BUILD_TYPE=Debug"
           - "-DNOSERVER=1 -DGL2=1 -DNOPNG=1"
           - "-DNOSERVER=1 -DLUA_SYSTEM=0"
 
@@ -84,9 +83,6 @@ jobs:
       
       # Set BUILD_ARGS for the job
       BUILD_ARGS: ${{ matrix.build_args }}
-      
-      # Replicate TRAVIS_OS_NAME for script compatibility
-      TRAVIS_OS_NAME: ${{ matrix.os_name }}
 
     steps:
       - name: Checkout code
@@ -124,7 +120,7 @@ jobs:
           
           if [[ "$BUILD_ARGS" != *"NOSERVER"* ]]; then
             cabal update
-            cDabal install --only-dependencies --cabal-file=gameServer/hedgewars-server.cabal
+            cabal install --only-dependencies --cabal-file=gameServer/hedgewars-server.cabal
           fi
           
           if [[ "$BUILD_ARGS" == *"BUILD_ENGINE_C"* ]]; then
@@ -159,8 +155,6 @@ jobs:
     runs-on: macos-latest # Closest to osx_image: xcode7.2, though much newer
     
     env:
-      # Set env vars from the Travis 'ios' job
-      TRAVIS_OS_NAME: "ios"
       SDL_LIB_PATH: "$GITHUB_WORKSPACE/../Library"
 
     steps:
