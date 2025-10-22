@@ -120,12 +120,12 @@ jobs:
           
           if [[ "$BUILD_ARGS" != *"NOSERVER"* ]]; then
             cabal update
-            cabal v1-install --only-dependencies --cabal-file=gameServer/hedgewars-server.cabal
+            (cd gameServer && cabal v1-install --only-dependencies)
           fi
           
           if [[ "$BUILD_ARGS" == *"BUILD_ENGINE_C"* ]]; then
             cabal update
-            cabal v1-install --only-dependencies --cabal-file=tools/pas2c/pas2c.cabal
+            (cd tools/pas2c && cabal v1-install --only-dependencies)
           fi
           
           # Add to BUILD_ARGS and export to $GITHUB_ENV to persist for future steps
