@@ -111,14 +111,6 @@ jobs:
             libsdl2-image-dev libsdl2-mixer-dev libsdl2-net-dev libsdl2-ttf-dev \
             qtbase5-dev qtbase5-private-dev qttools5-dev qttools5-dev-tools
 
-      - name: Install Rust (Linux)
-        if: matrix.os_name == 'linux'
-        id: install_rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: 1.46.0
-          targets: x86_64-unknown-linux-gnu
-
       - name: Install Dependencies (macOS)
         if: matrix.os_name == 'osx'
         run: |
