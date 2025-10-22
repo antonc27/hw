@@ -133,7 +133,7 @@ jobs:
           echo "BUILD_ARGS=$BUILD_ARGS" >> $GITHUB_ENV
 
       - name: Configure (CMake)
-        run: mkdir build && cd build && cmake $BUILD_ARGS ..
+        run: mkdir build && cd build && cmake -DRust_RUSTUP_INSTALL_MISSING_TARGET=ON $BUILD_ARGS ..
 
       - name: Build (Make)
         working-directory: ./build
