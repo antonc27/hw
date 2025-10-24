@@ -132,11 +132,13 @@ if(APPLE AND (NOT BUILD_ENGINE_LIBRARY))
     add_flag_append(CMAKE_Pascal_FLAGS "-k-framework -kCocoa")
     add_flag_append(CMAKE_Pascal_FLAGS "-k-framework -kOpenGL")
 
-    add_flag_append(CMAKE_Pascal_FLAGS "-Fl${SDL2_LIBRARY}")
-    add_flag_append(CMAKE_Pascal_FLAGS "-Fl${SDL2_IMAGE_LIBRARY}")
-    add_flag_append(CMAKE_Pascal_FLAGS "-Fl${SDL2_MIXER_LIBRARY}")
-    add_flag_append(CMAKE_Pascal_FLAGS "-Fl${SDL2_NET_LIBRARY}")
-    add_flag_append(CMAKE_Pascal_FLAGS "-Fl${SDL2_TTF_LIBRARY}")
+    #set the correct library or framework style depending on the main SDL
+    string(FIND "${SDL2_LIBRARIES}" "dylib" sdl_framework)
+    if(${sdl_framework} GREATER -1)
+        add_flag_append(CMAKE_Pascal_FLAGS "-k-lsdl2 -k-lsdl2_image -k-lsdl2_mixer -k-lsdl2_ttf -k-lsdl2_net")
+    else()
+        add_flag_append(CMAKE_Pascal_FLAGS "-k-framework -kSDL2 -k-framework -kSDL2_image -k-framework -kSDL2_mixer -k-framework -kSDL2_net -k-framework -kSDL2_ttf")
+    endif()
 endif()
 
 if(LIBAV_FOUND)
