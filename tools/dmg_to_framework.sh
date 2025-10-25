@@ -76,24 +76,24 @@ echo "DMG extracted to $EXTRACT_DIR"
 # 4. Find and copy all .framework files
 # We find all items ending in .framework and copy them.
 # -maxdepth 3 is a reasonable precaution against searching too deep.
-FRAMEWORK_PATHS=$(find "$EXTRACT_DIR" -maxdepth 3 -name "*.framework")
 
-if [ -n "$FRAMEWORK_PATHS" ]; then
-  FRAMEWORK_COUNT=$(echo "$FRAMEWORK_PATHS" | wc -l)
+# Count frameworks first
+FRAMEWORK_COUNT=$(find "$EXTRACT_DIR" -maxdepth 3 -name "*.framework" -type d | wc -l)
+
+if [ "$FRAMEWORK_COUNT" -gt 0 ]; then
   echo "Found $FRAMEWORK_COUNT framework(s)"
   
   # Loop through each framework and copy it
-  while IFS= read -r FRAMEWORK_PATH; do
-    if [ -d "$FRAMEWORK_PATH" ]; then
-      FRAMEWORK_NAME=$(basename "$FRAMEWORK_PATH")
-      echo "Copying $FRAMEWORK_NAME to $FRAMEWORK_DEST_DIR..."
-      
-      # Use rsync for a reliable copy. -a preserves permissions, symlinks, etc.
-      rsync -a "$FRAMEWORK_PATH" "$FRAMEWORK_DEST_DIR/"
-      
-      echo "Successfully copied $FRAMEWORK_NAME to $FRAMEWORK_DEST_DIR"
-    fi
-  done <<< "$FRAMEWORK_PATHS"
+  # Using -print0 and read -d '' to handle spaces in filenames safely
+  while IFS= read -r -d '' FRAMEWORK_PATH; do
+    FRAMEWORK_NAME=$(basename "$FRAMEWORK_PATH")
+    echo "Copying $FRAMEWORK_NAME to $FRAMEWORK_DEST_DIR..."
+    
+    # Use rsync for a reliable copy. -a preserves permissions, symlinks, etc.
+    rsync -a "$FRAMEWORK_PATH" "$FRAMEWORK_DEST_DIR/"
+    
+    echo "Successfully copied $FRAMEWORK_NAME to $FRAMEWORK_DEST_DIR"
+  done < <(find "$EXTRACT_DIR" -maxdepth 3 -name "*.framework" -type d -print0)
 else
   echo "Error: Could not find any .framework files in the extracted DMG."
   find "$EXTRACT_DIR" -maxdepth 3 # List contents for debugging
