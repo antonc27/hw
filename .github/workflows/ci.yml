@@ -154,6 +154,16 @@ jobs:
         working-directory: ./build
         run: make install
 
+      - name: Make dmg (macOS)
+        if: success() && matrix.os_name == 'osx'
+        working-directory: ./build
+        run: make dmg
+
+      - uses: actions/upload-artifact@v4
+        if: success() && matrix.os_name == 'osx'
+        with:
+          path: ./build/*.dmg
+
   # Job 2: Specific build for iOS
   build-ios:
     name: Build (iOS)
