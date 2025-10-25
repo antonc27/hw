@@ -73,23 +73,30 @@ fi
 
 echo "DMG extracted to $EXTRACT_DIR"
 
-# 4. Find and copy the .framework
-# We find the first item ending in .framework and copy it.
-# -maxdepth 2 is a reasonable precaution against searching too deep.
-FRAMEWORK_PATH=$(find "$EXTRACT_DIR" -maxdepth 2 -name "*.framework" -print -quit)
+# 4. Find and copy all .framework files
+# We find all items ending in .framework and copy them.
+# -maxdepth 3 is a reasonable precaution against searching too deep.
 
-if [ -n "$FRAMEWORK_PATH" ] && [ -d "$FRAMEWORK_PATH" ]; then
-  FRAMEWORK_NAME=$(basename "$FRAMEWORK_PATH")
-  echo "Found framework: $FRAMEWORK_NAME"
-  echo "Copying to $FRAMEWORK_DEST_DIR..."
+# Count frameworks first
+FRAMEWORK_COUNT=$(find "$EXTRACT_DIR" -maxdepth 3 -name "*.framework" -type d | wc -l)
+
+if [ "$FRAMEWORK_COUNT" -gt 0 ]; then
+  echo "Found $FRAMEWORK_COUNT framework(s)"
   
-  # Use rsync for a reliable copy. -a preserves permissions, symlinks, etc.
-  rsync -a "$FRAMEWORK_PATH" "$FRAMEWORK_DEST_DIR/"
-  
-  echo "Successfully copied $FRAMEWORK_NAME to $FRAMEWORK_DEST_DIR"
+  # Loop through each framework and copy it
+  # Using -print0 and read -d '' to handle spaces in filenames safely
+  while IFS= read -r -d '' FRAMEWORK_PATH; do
+    FRAMEWORK_NAME=$(basename "$FRAMEWORK_PATH")
+    echo "Copying $FRAMEWORK_NAME to $FRAMEWORK_DEST_DIR..."
+    
+    # Use rsync for a reliable copy. -a preserves permissions, symlinks, etc.
+    rsync -a "$FRAMEWORK_PATH" "$FRAMEWORK_DEST_DIR/"
+    
+    echo "Successfully copied $FRAMEWORK_NAME to $FRAMEWORK_DEST_DIR"
+  done < <(find "$EXTRACT_DIR" -maxdepth 3 -name "*.framework" -type d -print0)
 else
-  echo "Error: Could not find a .framework file in the extracted DMG."
-  find "$EXTRACT_DIR" -maxdepth 2 # List contents for debugging
+  echo "Error: Could not find any .framework files in the extracted DMG."
+  find "$EXTRACT_DIR" -maxdepth 3 # List contents for debugging
   exit 1
 fi
 
@@ -97,4 +104,3 @@ fi
 # The script will exit, and the trap remove the temp dir.
 
 exit 0
-
