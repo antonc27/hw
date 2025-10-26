@@ -162,6 +162,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: success() && matrix.os_name == 'osx'
         with:
+          name: artifact-${{ strategy.job-index }}
           path: ./build/*.zip
 
   # Job 2: Specific build for iOS
