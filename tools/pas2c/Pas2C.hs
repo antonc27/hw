@@ -10,6 +10,7 @@ import Control.Monad.State
 import System.IO
 import PascalPreprocessor
 import Control.Exception
+import Control.Monad
 import System.IO.Error
 import qualified Data.Map as Map
 import qualified Data.Set as Set
