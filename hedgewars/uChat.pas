@@ -1421,7 +1421,7 @@ begin
         Strs[i].Tex := nil;
 
     LastKeyPressTick:= 0;
-    ResetCursor();
+    //ResetCursor();
     SDL_StopTextInput();
 end;
 
