@@ -157,7 +157,7 @@ jobs:
       - name: Archive (macOS)
         if: success() && matrix.os_name == 'osx'
         working-directory: ./build
-        run: zip -r Hedgewars.zip Hedgewars.app
+        run: zip -y -r Hedgewars.zip Hedgewars.app
 
       - uses: actions/upload-artifact@v4
         if: success() && matrix.os_name == 'osx'
