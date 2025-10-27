@@ -83,7 +83,7 @@ implementation
 uses uSound, uCollisions, uUtils, uConsts, uVisualGears, uAIMisc,
     uVariables, uLandGraphics, uScript, uStats, uCaptions, uTeams, uStore,
     uLocale, uTextures, uRenderUtils, uRandom, SDLh, uDebug,
-    uGearsList, Math, uVisualGearsList, uGearsHandlersMess,
+    uGearsList, math, uVisualGearsList, uGearsHandlersMess,
     uGearsHedgehog, uLandUtils;
 
 procedure doMakeExplosion(X, Y, Radius: LongInt; AttackingHog: PHedgehog; Mask: Longword);

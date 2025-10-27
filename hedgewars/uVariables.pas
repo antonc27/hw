@@ -21,7 +21,7 @@
 unit uVariables;
 interface
 
-uses SDLh, uTypes, uFloat, GLunit, uConsts, Math, uUtils{$IFDEF GL2}, uMatrix{$ENDIF};
+uses SDLh, uTypes, uFloat, GLunit, uConsts, math, uUtils{$IFDEF GL2}, uMatrix{$ENDIF};
 
 procedure initScreenSpaceVars();
 

@@ -56,7 +56,7 @@ var RopePoints: record
                 end;
 
 implementation
-uses uRender, uRenderUtils, uGearsUtils, uUtils, uVariables, uAmmos, Math, uVisualGearsList, uLandUtils;
+uses uRender, uRenderUtils, uGearsUtils, uUtils, uVariables, uAmmos, math, uVisualGearsList, uLandUtils;
 
 procedure DrawRopeLinesRQ(Gear: PGear);
 var n: LongInt;

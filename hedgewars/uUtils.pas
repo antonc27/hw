@@ -120,7 +120,7 @@ procedure freeModule;
 
 
 implementation
-uses {$IFNDEF PAS2C}typinfo, SDLh, {$ENDIF}Math, uConsts, uVariables, uPhysFSLayer, uDebug;
+uses {$IFNDEF PAS2C}typinfo, SDLh, {$ENDIF}math, uConsts, uVariables, uPhysFSLayer, uDebug;
 
 {$IFDEF DEBUGFILE}
 var logFile: PFSFile;

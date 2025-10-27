@@ -20,7 +20,7 @@
 
 unit uLandGraphics;
 interface
-uses uFloat, uConsts, uTypes, Math, uRenderUtils;
+uses uFloat, uConsts, uTypes, math, uRenderUtils;
 
 type
     fillType = (nullPixel, backgroundPixel, ebcPixel, icePixel, addNotHHObj, removeNotHHObj, addHH, removeHH, setCurrentHog, removeCurrentHog);

@@ -47,7 +47,7 @@ procedure ChangeToSDFlakes;
 procedure KickFlakes(Radius, X, Y: LongInt);
 
 implementation
-uses uVariables, uRender, Math, uRenderUtils, uUtils
+uses uVariables, uRender, math, uRenderUtils, uUtils
     , uVisualGearsList;
 
 procedure AddDamageTag(X, Y, Damage, Color: LongWord);

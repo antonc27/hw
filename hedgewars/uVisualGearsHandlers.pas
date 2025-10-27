@@ -75,7 +75,7 @@ function isSorterActive: boolean;
 procedure initModule;
 
 implementation
-uses uCollisions, uVariables, Math, uConsts, uVisualGearsList, uFloat, uSound, uRenderUtils, uWorld, uUtils;
+uses uCollisions, uVariables, math, uConsts, uVisualGearsList, uFloat, uSound, uRenderUtils, uWorld, uUtils;
 
 procedure doStepFlake(Gear: PVisualGear; Steps: Longword);
 var sign: real;

@@ -25,7 +25,7 @@ unit uTypes;
  *)
 interface
 
-uses SDLh, uFloat, GLunit, uConsts, Math;
+uses SDLh, uFloat, GLunit, uConsts, math;
 
 // NOTE: typed const is a variable despite const qualifier
 // in freepascal you may actually use var for the same purpose
