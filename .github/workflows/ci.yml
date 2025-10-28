@@ -125,7 +125,8 @@ jobs:
 
           if [[ "$BUILD_ARGS" != *"NOSERVER"* ]]; then
             cabal update
-            (cd gameServer && cabal v1-install --only-dependencies)
+            cabal v1-install alex zlib
+            (cd gameServer && cabal v1-install --only-dependencies --force-reinstalls)
           fi
           
           if [[ "$BUILD_ARGS" == *"BUILD_ENGINE_C"* ]]; then
