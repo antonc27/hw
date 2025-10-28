@@ -66,6 +66,7 @@ procedure SetSkyColor(r, g, b: real);
 implementation
 uses uMisc, uConsole, uVariables, uUtils, uTextures, uRender, uRenderUtils,
      uCommands, uPhysFSLayer, uDebug, uLocale, uInputHandler, adler32
+    {$IFDEF APPLE}, Math{$ENDIF}
     {$IFDEF USE_CONTEXT_RESTORE}, uWorld{$ENDIF};
 
 //type TGPUVendor = (gvUnknown, gvNVIDIA, gvATI, gvIntel, gvApple);
