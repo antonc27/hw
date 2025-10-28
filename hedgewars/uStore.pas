@@ -1224,7 +1224,9 @@ end;
 procedure InitOffscreenOpenGL;
 begin
 {$IFDEF APPLE}
+{$IFNDEF PAS2C}
     SetExceptionMask(GetExceptionMask + [exInvalidOp, exOverflow]);
+{$ENDIF}
 {$ENDIF}
     // create hidden window
     SDLwindow:= SDL_CreateWindow(PChar('hedgewars video rendering (SDL2 hidden window)'),
@@ -1312,7 +1314,9 @@ begin
     y:= SDL_WINDOWPOS_CENTERED_MASK;
 
 {$IFDEF APPLE}
+{$IFNDEF PAS2C}
     SetExceptionMask(GetExceptionMask + [exInvalidOp, exOverflow]);
+{$ENDIF}
 {$ENDIF}
     if SDLwindow = nil then
         begin
