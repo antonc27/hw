@@ -93,7 +93,7 @@ jobs:
 
           if [[ "$BUILD_ARGS" != *"NOSERVER"* ]]; then
             cabal update
-            cabal v1-install alex zlib
+            cabal install alex zlib
             (cd gameServer && cabal v1-install --only-dependencies --force-reinstalls)
           fi
           
