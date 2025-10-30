@@ -109,6 +109,10 @@ jobs:
           export BUILD_ARGS="$BUILD_ARGS -DNOAUTOUPDATE=1"
           echo "BUILD_ARGS=$BUILD_ARGS" >> $GITHUB_ENV
 
+      - name: Install Dependencies (Win)
+        if: matrix.os_name == 'win'
+        run: vcpkg install sdl2 sdl2-image sdl2-ttf sdl2-mixer sdl2-net physfs openssl qt5-base qt5-tools ffmpeg --triplet=x64-windows
+
       - name: Configure (CMake)
         run: mkdir build && cd build && cmake $BUILD_ARGS ..
 
